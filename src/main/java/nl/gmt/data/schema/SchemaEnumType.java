@@ -1,0 +1,40 @@
+package nl.gmt.data.schema;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
+public class SchemaEnumType extends SchemaAnnotatableElement {
+    private String name;
+    private boolean isString;
+    private Map<String, SchemaEnumTypeField> fields = new HashMap<>();
+    private Map<String, SchemaEnumTypeField> unmodifiableFields = Collections.unmodifiableMap(fields);
+
+    public SchemaEnumType(SchemaParserLocation location) {
+        super(location);
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    void setName(String name) {
+        this.name = name;
+    }
+
+    public boolean isString() {
+        return isString;
+    }
+
+    void setString(boolean isString) {
+        this.isString = isString;
+    }
+
+    public Map<String, SchemaEnumTypeField> getFields() {
+        return unmodifiableFields;
+    }
+
+    void addField(SchemaEnumTypeField field) {
+        fields.put(field.getName(),  field);
+    }
+}

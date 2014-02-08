@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<connectionStrings>
+    <!--
+    <connectionString type="mssql" value="database=NHSchema;data source=.;integrated security=sspi" />
+    <connectionString type="mysql" value="server=localhost;Database=nhtest;Uid=nhtest;Pwd=w92Nbz3curpXxXuK" />
+    -->
+    <connectionString type="sqlite" value="jdbc:sqlite:./tmp/sqlitedb.db3" />
+</connectionStrings>
