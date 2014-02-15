@@ -1,6 +1,7 @@
 package nl.gmt.data.drivers;
 
 import nl.gmt.data.DataException;
+import nl.gmt.data.DbConnection;
 import nl.gmt.data.migrate.Manifest;
 import nl.gmt.data.migrate.SchemaMigrateException;
 import nl.gmt.data.migrate.SqlGenerator;
@@ -15,6 +16,10 @@ public abstract class DatabaseDriver {
     public abstract String getConnectionType();
     public abstract Manifest readManifest(Connection connection) throws SchemaMigrateException;
     public abstract void writeManifest(Connection connection, Manifest manifest, Schema schema) throws SchemaMigrateException;
+    public abstract String getDialectType();
+
+    public void configure(DbConnection db) {
+    }
 
     public Connection createConnection(String connectionString) throws DataException {
         try {

@@ -4,7 +4,6 @@ public abstract class SchemaForeignBase extends SchemaAnnotatableElement impleme
     private SchemaForeignType type;
     private String name;
     private String className;
-    private SchemaCascadeType cascade = SchemaCascadeType.NONE;
 
     SchemaForeignBase(SchemaForeignType type, SchemaParserLocation location) {
         super(location);
@@ -34,14 +33,6 @@ public abstract class SchemaForeignBase extends SchemaAnnotatableElement impleme
 
     void setClassName(String className) {
         this.className = className;
-    }
-
-    public SchemaCascadeType getCascade() {
-        return cascade;
-    }
-
-    void setCascade(SchemaCascadeType cascade) {
-        this.cascade = cascade;
     }
 
     @Override

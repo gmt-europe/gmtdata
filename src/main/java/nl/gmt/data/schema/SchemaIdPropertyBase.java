@@ -3,8 +3,8 @@ package nl.gmt.data.schema;
 public abstract class SchemaIdPropertyBase extends SchemaAnnotatableElement {
     private String type;
     private SchemaIdAutoIncrement autoIncrement = SchemaIdAutoIncrement.UNSET;
-    private String generator;
     private SchemaResolvedDataType resolvedDataType;
+    private SchemaGenerator generator;
 
     SchemaIdPropertyBase(SchemaParserLocation location) {
         super(location);
@@ -26,19 +26,19 @@ public abstract class SchemaIdPropertyBase extends SchemaAnnotatableElement {
         this.autoIncrement = autoIncrement;
     }
 
-    public String getGenerator() {
-        return generator;
-    }
-
-    void setGenerator(String generator) {
-        this.generator = generator;
-    }
-
     public SchemaResolvedDataType getResolvedDataType() {
         return resolvedDataType;
     }
 
     void setResolvedDataType(SchemaResolvedDataType resolvedDataType) {
         this.resolvedDataType = resolvedDataType;
+    }
+
+    public SchemaGenerator getGenerator() {
+        return generator;
+    }
+
+    void setGenerator(SchemaGenerator generator) {
+        this.generator = generator;
     }
 }

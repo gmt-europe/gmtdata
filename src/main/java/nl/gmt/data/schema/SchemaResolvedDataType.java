@@ -92,7 +92,5 @@ public class SchemaResolvedDataType extends SchemaDataTypeBase {
             setUserType(dataType.getUserType());
         if (dataType.getIndexed() != SchemaIndexType.UNSET)
             setIndexed(dataType.getIndexed());
-        if (dataType.getFullTextIndexed() != SchemaFullTextIndexMode.UNSET)
-            setFullTextIndexed(dataType.getFullTextIndexed());
     }
 }

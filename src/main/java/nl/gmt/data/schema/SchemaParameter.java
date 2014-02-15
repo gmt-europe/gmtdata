@@ -1,10 +1,10 @@
 package nl.gmt.data.schema;
 
-public class SchemaEnumTypeField extends SchemaAnnotatableElement {
+public class SchemaParameter extends SchemaAnnotatableElement {
     private String name;
-    private int value;
+    private String value;
 
-    SchemaEnumTypeField(SchemaParserLocation location) {
+    SchemaParameter(SchemaParserLocation location) {
         super(location);
     }
 
@@ -16,11 +16,11 @@ public class SchemaEnumTypeField extends SchemaAnnotatableElement {
         this.name = name;
     }
 
-    public int getValue() {
+    public String getValue() {
         return value;
     }
 
-    void setValue(int value) {
+     void setValue(String value) {
         this.value = value;
     }
 }

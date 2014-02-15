@@ -4,11 +4,9 @@ import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.*;
 
 import javax.xml.XMLConstants;
-import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,7 +17,7 @@ public class SchemaParserV1 {
     private Schema schema;
     private String schemaName;
 
-    public static final String NS = "http://schemas.gmt.nl/titan/nhibernate-schema/v1";
+    public static final String NS = "http://schemas.gmt.nl/gmtdata/hibernate-schema/v1";
 
     public SchemaParserResult parse(InputStream is, String schemaName, Schema schema) throws SchemaException {
         this.schema = schema;
@@ -67,7 +65,7 @@ public class SchemaParserV1 {
 
         try {
             SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-            try (InputStream sis = getClass().getResourceAsStream("NHibernateSchema-v1.xsd")) {
+            try (InputStream sis = getClass().getResourceAsStream("HibernateSchema-v1.xsd")) {
                 schema = schemaFactory.newSchema(new StreamSource(sis));
             }
         } catch (Throwable e) {
@@ -93,11 +91,6 @@ public class SchemaParserV1 {
                         case "namespace":
                             schema.setNamespaceLocation(getLocation(attribute));
                             schema.setNamespace(attribute.getValue());
-                            break;
-
-                        case "assembly":
-                            schema.setAssemblyLocation(getLocation(attribute));
-                            schema.setAssembly(attribute.getValue());
                             break;
                     }
                 }
@@ -139,6 +132,13 @@ public class SchemaParserV1 {
     private void parseIdProperty(Element node) throws SchemaException {
         final SchemaIdProperty idProperty = new SchemaIdProperty(getLocation(node));
         schema.setIdProperty(idProperty);
+
+        walkElements(node.getFirstChild(), new ElementCallback() {
+            @Override
+            public void element(Element element) throws SchemaException {
+                parseIdPropertyElement(idProperty, element);
+            }
+        });
 
         walkAttributes(node, new AttributeCallback() {
             @Override
@@ -217,7 +217,6 @@ public class SchemaParserV1 {
                 if (!parseSchemaElementAttribute(result, attribute)) {
                     switch (attribute.getNodeName()) {
                         case "name": result.setName(attribute.getValue()); break;
-                        case "type": result.setString(StringUtils.equals("string", attribute.getValue())); break;
                     }
                 }
             }
@@ -253,7 +252,7 @@ public class SchemaParserV1 {
                             result.setName(attribute.getValue());
                             break;
                         case "value":
-                            result.setValue(attribute.getValue());
+                            result.setValue(parseXmlInteger(attribute.getValue()));
                             break;
                     }
                 }
@@ -318,7 +317,6 @@ public class SchemaParserV1 {
                         case "boundedContext": result.setBoundedContext(attribute.getValue()); break;
                         case "dbName": result.setDbName(attribute.getValue()); break;
                         case "persister": result.setPersister(attribute.getValue()); break;
-                        case "fullTextIndexed": result.setFullTextIndexed(parseClassFullTextIndexed(attribute.getValue())); break;
                     }
                 }
             }
@@ -356,15 +354,6 @@ public class SchemaParserV1 {
                         result.addForeign(foreignChild);
                         break;
 
-                    case "foreignParentSet":
-                    case "foreignChildSet":
-                        SchemaForeignSet foreignParentSet = parseForeignSet(element, StringUtils.equals("foreignChildSet", element.getNodeName()));
-                        if (result.getForeigns().containsKey(foreignParentSet.getName()))
-                            throw new SchemaException(String.format("Duplicate foreign '%s' found", foreignParentSet.getName()), foreignParentSet.getLocation());
-
-                        result.addForeign(foreignParentSet);
-                        break;
-
                     case "index":
                         result.addIndex(parseIndex(element));
                         break;
@@ -378,13 +367,24 @@ public class SchemaParserV1 {
     private SchemaClassIdProperty parseClassIdProperty(Element node) throws SchemaException {
         final SchemaClassIdProperty result = new SchemaClassIdProperty(getLocation(node));
 
+        walkElements(node.getFirstChild(), new ElementCallback() {
+            @Override
+            public void element(Element element) throws SchemaException {
+                parseIdPropertyElement(result, element);
+            }
+        });
+
         walkAttributes(node, new AttributeCallback() {
             @Override
             public void attribute(Attr attribute) throws SchemaException {
                 if (!parseIdPropertyAttribute(result, attribute)) {
                     switch (attribute.getNodeName()) {
-                        case "dbSequence": result.setDbSequence(attribute.getValue()); break;
-                        case "dbIdName": result.setDbIdName(attribute.getValue()); break;
+                        case "dbSequence":
+                            result.setDbSequence(attribute.getValue());
+                            break;
+                        case "dbIdName":
+                            result.setDbIdName(attribute.getValue());
+                            break;
                         case "compositeId":
                             SchemaCompositeId compositeId = new SchemaCompositeId(result.getLocation());
                             result.setCompositeId(compositeId);
@@ -450,56 +450,12 @@ public class SchemaParserV1 {
                         case "name": result.setName(attribute.getValue()); break;
                         case "class": result.setClassName(attribute.getValue()); break;
                         case "classProperty": result.setClassProperty(attribute.getValue()); break;
-                        case "cascade": result.setCascade(parseCascade(attribute.getValue())); break;
-                        case "indexProperty": result.setIndexProperty(attribute.getValue()); break;
-                        case "mode": result.setMode(parseForeignChildMode(attribute.getValue())); break;
                     }
                 }
             }
         });
 
         return result;
-    }
-
-    private SchemaForeignChildMode parseForeignChildMode(String value) throws SchemaException {
-        switch (value) {
-            case "set": return SchemaForeignChildMode.SET;
-            case "single": return SchemaForeignChildMode.SINGLE;
-            case "constrainedSingle": return SchemaForeignChildMode.CONSTRAINED_SINGLE;
-            default: throw new SchemaException(String.format("Invalid foreign child mode '%s'", value));
-        }
-    }
-
-    private SchemaForeignSet parseForeignSet(Element node, boolean inverse) throws SchemaException {
-        final SchemaForeignSet result = new SchemaForeignSet(getLocation(node), inverse);
-
-        walkAttributes(node, new AttributeCallback() {
-            @Override
-            public void attribute(Attr attribute) throws SchemaException {
-                if (!parseSchemaElementAttribute(result, attribute)) {
-                    switch (attribute.getNodeName()) {
-                        case "name": result.setName(attribute.getValue()); break;
-                        case "class": result.setClassName(attribute.getValue()); break;
-                        case "linksHere": result.setLinksHere(attribute.getValue()); break;
-                        case "linksThere": result.setLinksThere(attribute.getValue()); break;
-                        case "cascade": result.setCascade(parseCascade(attribute.getValue())); break;
-                    }
-                }
-            }
-        });
-
-        return result;
-    }
-
-    private SchemaCascadeType parseCascade(String value) throws SchemaException {
-        switch (value) {
-            case "none": return SchemaCascadeType.NONE;
-            case "all": return SchemaCascadeType.ALL;
-            case "saveUpdate": return SchemaCascadeType.SAVE_UPDATE;
-            case "delete": return SchemaCascadeType.DELETE;
-            case "allDeleteOrphan": return SchemaCascadeType.ALL_DELETE_ORPHAN;
-            default: throw new SchemaException(String.format("Invalid cascade '%s'", value));
-        }
     }
 
     private SchemaIndex parseIndex(Element node) throws SchemaException {
@@ -524,16 +480,6 @@ public class SchemaParserV1 {
 
     private SchemaIndexType parseIndexUnique(String value) throws SchemaException {
         return parseXmlBoolean(value) ? SchemaIndexType.UNSET : SchemaIndexType.INDEX;
-    }
-
-    private SchemaClassFullTextIndexMode parseClassFullTextIndexed(String value) throws SchemaException {
-        switch (value) {
-            case "default": return SchemaClassFullTextIndexMode.DEFAULT;
-            case "code": return SchemaClassFullTextIndexMode.CODE;
-            case "label": return SchemaClassFullTextIndexMode.LABEL;
-            case "codeAndLabel": return SchemaClassFullTextIndexMode.CODE_AND_LABEL;
-            default: throw new SchemaException(String.format("Invalid class full text indexed '%s'", value));
-        }
     }
 
     private boolean parseSchemaElementAttribute(SchemaAnnotatableElement element, Attr attribute) {
@@ -587,9 +533,56 @@ public class SchemaParserV1 {
         switch (attribute.getNodeName()) {
             case "type": element.setType(attribute.getValue()); return true;
             case "autoIncrement": element.setAutoIncrement(parseXmlBoolean(attribute.getValue()) ? SchemaIdAutoIncrement.YES : SchemaIdAutoIncrement.NO); return true;
-            case "generator": element.setGenerator(attribute.getValue()); return true;
             default: return false;
         }
+    }
+
+    private boolean parseIdPropertyElement(SchemaIdPropertyBase element, Element node) throws SchemaException {
+        switch (node.getNodeName()) {
+            case "generator": element.setGenerator(parseGenerator(node)); return true;
+            default: return false;
+        }
+    }
+
+    private SchemaGenerator parseGenerator(Element node) throws SchemaException {
+        final SchemaGenerator result = new SchemaGenerator(getLocation(node));
+
+        walkElements(node.getFirstChild(), new ElementCallback() {
+            @Override
+            public void element(Element element) throws SchemaException {
+                switch (element.getNodeName()) {
+                    case "parameter": result.addParameter(parseParameter(element)); break;
+                }
+            }
+        });
+
+        walkAttributes(node, new AttributeCallback() {
+            @Override
+            public void attribute(Attr attribute) throws SchemaException {
+                switch (attribute.getNodeName()) {
+                    case "name": result.setName(attribute.getValue()); break;
+                    case "strategy": result.setStrategy(attribute.getValue()); break;
+                }
+            }
+        });
+
+        return result;
+    }
+
+    private SchemaParameter parseParameter(Element node) throws SchemaException {
+        final SchemaParameter result = new SchemaParameter(getLocation(node));
+
+        walkAttributes(node, new AttributeCallback() {
+            @Override
+            public void attribute(Attr attribute) throws SchemaException {
+                switch (attribute.getNodeName()) {
+                    case "name": result.setName(attribute.getValue()); break;
+                    case "value": result.setValue(attribute.getValue()); break;
+                }
+            }
+        });
+
+        return result;
     }
 
     private boolean parseDataTypeElementAttribute(SchemaDataTypeBase element, Attr attribute) throws SchemaException {
@@ -610,7 +603,6 @@ public class SchemaParserV1 {
             case "lazy": element.setLazy(parseLazy(attribute.getValue())); return true;
             case "dbName": element.setDbName(attribute.getValue()); return true;
             case "userType": element.setUserType(attribute.getValue()); return true;
-            case "fullTextIndexed": element.setFullTextIndexed(parseFullTextIndexed(attribute.getValue())); return true;
             default: return false;
         }
     }
@@ -634,16 +626,6 @@ public class SchemaParserV1 {
 
     private SchemaLazy parseLazy(String value) throws SchemaException {
         return parseXmlBoolean(value) ? SchemaLazy.LAZY : SchemaLazy.NOT_LAZY;
-    }
-
-    private SchemaFullTextIndexMode parseFullTextIndexed(String value) throws SchemaException {
-        switch (value) {
-            case "default": return SchemaFullTextIndexMode.DEFAULT;
-            case "code": return SchemaFullTextIndexMode.CODE;
-            case "label": return SchemaFullTextIndexMode.LABEL;
-            case "text": return SchemaFullTextIndexMode.TEXT;
-            default: throw new SchemaException(String.format("Invalid full text indexed '%s'", value));
-        }
     }
 
     private Class<?> parseNativeType(String value) throws SchemaException {

@@ -43,11 +43,13 @@ public class SQLiteTests extends DatabaseTests {
         super.execute(
             String.format(
 "<?xml version=\"1.0\" encoding=\"utf-8\"?>" +
-"<schema xmlns=\"http://schemas.gmt.nl/titan/nhibernate-schema/v1\"" +
+"<schema xmlns=\"http://schemas.gmt.nl/gmtdata/hibernate-schema/v1\"" +
 "        namespace=\"UnitTestAssembly\"" +
 "        assembly=\"UnitTestAssembly\">" +
 "  <settings>" +
-"    <idProperty name=\"Id\" type=\"int\" autoIncrement=\"true\" generator=\"native\" foreignPostfix=\"Id\" />" +
+"    <idProperty name=\"Id\" type=\"int\" autoIncrement=\"true\" foreignPostfix=\"Id\">" +
+"      <generator name=\"native\" />" +
+"    </idProperty>" +
 "  </settings>" +
 "  %s" +
 "</schema>",

@@ -13,16 +13,12 @@ public class SchemaClass extends SchemaAnnotatableElement {
     private String boundedContext;
     private String dbName;
     private String persister;
-    private SchemaClassFullTextIndexMode fullTextIndexed = SchemaClassFullTextIndexMode.UNSET;
     private SchemaClassIdProperty idProperty;
     private SchemaClassIdProperty resolvedIdProperty;
     private String resolvedDbName;
 
-    SchemaClass(SchemaParserLocation location)
-    {
+    SchemaClass(SchemaParserLocation location) {
         super(location);
-        
-        fullTextIndexed = SchemaClassFullTextIndexMode.UNSET;
     }
 
     public String getFullName() {
@@ -78,14 +74,6 @@ public class SchemaClass extends SchemaAnnotatableElement {
 
     void setPersister(String persister) {
         this.persister = persister;
-    }
-
-    public SchemaClassFullTextIndexMode getFullTextIndexed() {
-        return fullTextIndexed;
-    }
-
-    void setFullTextIndexed(SchemaClassFullTextIndexMode fullTextIndexed) {
-        this.fullTextIndexed = fullTextIndexed;
     }
 
     public SchemaClassIdProperty getIdProperty() {

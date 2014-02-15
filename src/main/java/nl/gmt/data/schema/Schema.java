@@ -8,10 +8,8 @@ import java.util.*;
 
 public class Schema extends SchemaAnnotatableElement {
     private String namespace;
-    private String assembly;
     private String enumDataType;
     private SchemaParserLocation namespaceLocation;
-    private SchemaParserLocation assemblyLocation;
     private SchemaParserLocation enumDataTypeLocation;
     private Map<String, SchemaDataType> dataTypes = new HashMap<>();
     private Map<String, SchemaDataType> unmodifiableDataTypes = Collections.unmodifiableMap(dataTypes);
@@ -38,14 +36,6 @@ public class Schema extends SchemaAnnotatableElement {
         this.namespace = namespace;
     }
 
-    public String getAssembly() {
-        return assembly;
-    }
-
-    void setAssembly(String assembly) {
-        this.assembly = assembly;
-    }
-
     public String getEnumDataType() {
         return enumDataType;
     }
@@ -60,14 +50,6 @@ public class Schema extends SchemaAnnotatableElement {
 
     void setNamespaceLocation(SchemaParserLocation namespaceLocation) {
         this.namespaceLocation = namespaceLocation;
-    }
-
-    public SchemaParserLocation getAssemblyLocation() {
-        return assemblyLocation;
-    }
-
-    void setAssemblyLocation(SchemaParserLocation assemblyLocation) {
-        this.assemblyLocation = assemblyLocation;
     }
 
     public SchemaParserLocation getEnumDataTypeLocation() {
@@ -290,52 +272,7 @@ public class Schema extends SchemaAnnotatableElement {
                             throw new SchemaException(String.format("Foreign child property '%s' not found", foreignChild.getClassProperty()), foreign.getLocation());
                         if (linkForeign.getType() != SchemaForeignType.PARENT)
                             throw new SchemaException(String.format("Foreign child property '%s' is not a parent", foreignChild.getClassName()), foreign.getLocation());
-                        if (foreignChild.getIndexProperty() != null && !linkedClass.getProperties().containsKey(foreignChild.getIndexProperty()))
-                            throw new SchemaException(String.format("Foreign index property '%s' not found", foreignChild.getIndexProperty()), foreign.getLocation());
                         break;
-
-                    case SET:
-                        SchemaForeignSet foreignSet = (SchemaForeignSet)foreign;
-
-                        SchemaForeignBase linksHereForeign = linkedClass.getForeigns().get(foreignSet.getLinksHere());
-                        if (linksHereForeign == null)
-                            throw new SchemaException(String.format("Links here '%s' of foreign set not found", foreignSet.getLinksHere()), foreign.getLocation());
-                        if (linksHereForeign.getType() != SchemaForeignType.PARENT)
-                            throw new SchemaException(String.format("Links here of '%s' is not a parent", foreignSet.getName()), foreign.getLocation());
-
-                        SchemaForeignBase linksThereForeign = linkedClass.getForeigns().get(foreignSet.getLinksThere());
-                        if (linksThereForeign == null)
-                            throw new SchemaException(String.format("Links there '%s' of foreign set not found", foreignSet.getLinksThere()), foreign.getLocation());
-                        if (linksThereForeign.getType() != SchemaForeignType.PARENT)
-                            throw new SchemaException(String.format("Links there of '%s' is not a parent", foreignSet.getLinksThere()), foreign.getLocation());
-
-                        // The class may have not been checked yet
-
-                        SchemaClass remoteClass = classes.get(linksThereForeign.getClassName());
-                        if (remoteClass != null)
-                        {
-                            boolean found = false;
-
-                            for (SchemaForeignBase remoteForeign : remoteClass.getForeigns().values()) {
-                                if (remoteForeign.getType() == SchemaForeignType.SET) {
-                                    SchemaForeignSet remoteForeignSet = (SchemaForeignSet)remoteForeign;
-
-                                    if (
-                                        StringUtils.equals(foreignSet.getClassName(), remoteForeignSet.getClassName()) &&
-                                        StringUtils.equals(foreignSet.getLinksHere(), remoteForeignSet.getLinksHere()) &&
-                                        StringUtils.equals(foreignSet.getLinksThere(), remoteForeignSet.getLinksThere())
-                                    ) {
-                                        found = true;
-
-                                        if (foreignSet.isInverse() == remoteForeignSet.isInverse())
-                                            throw new SchemaException(String.format("Remote foreign set of '%s' is not correct", foreign.getName()), foreign.getLocation());
-                                    }
-                                }
-                            }
-
-                            if (!found)
-                                throw new SchemaException(String.format("Foreign set counter of '%s' not found", foreign.getName()), foreign.getLocation());
-                        }
                 }
             }
         }

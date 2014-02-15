@@ -3,5 +3,5 @@ package nl.gmt.data.schema;
 public enum SchemaLazy {
     UNSET,
     LAZY,
-    NOT_LAZY
+    NOT_LAZY;
 }

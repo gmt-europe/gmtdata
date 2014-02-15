@@ -6,7 +6,6 @@ import java.util.Map;
 
 public class SchemaEnumType extends SchemaAnnotatableElement {
     private String name;
-    private boolean isString;
     private Map<String, SchemaEnumTypeField> fields = new HashMap<>();
     private Map<String, SchemaEnumTypeField> unmodifiableFields = Collections.unmodifiableMap(fields);
 
@@ -20,14 +19,6 @@ public class SchemaEnumType extends SchemaAnnotatableElement {
 
     void setName(String name) {
         this.name = name;
-    }
-
-    public boolean isString() {
-        return isString;
-    }
-
-    void setString(boolean isString) {
-        this.isString = isString;
     }
 
     public Map<String, SchemaEnumTypeField> getFields() {

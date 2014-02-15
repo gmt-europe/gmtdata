@@ -15,7 +15,6 @@ public abstract class SchemaDataTypeBase extends SchemaAnnotatableElement {
     private String rawDbType;
     private SchemaDbType dbType = SchemaDbType.UNSET;
     private SchemaIndexType indexed = SchemaIndexType.UNSET;
-    private SchemaFullTextIndexMode fullTextIndexed = SchemaFullTextIndexMode.UNSET;
     private String type;
 
     SchemaDataTypeBase(SchemaParserLocation location) {
@@ -132,14 +131,6 @@ public abstract class SchemaDataTypeBase extends SchemaAnnotatableElement {
 
     void setIndexed(SchemaIndexType indexed) {
         this.indexed = indexed;
-    }
-
-    public SchemaFullTextIndexMode getFullTextIndexed() {
-        return fullTextIndexed;
-    }
-
-    void setFullTextIndexed(SchemaFullTextIndexMode fullTextIndexed) {
-        this.fullTextIndexed = fullTextIndexed;
     }
 
     public String getType() {

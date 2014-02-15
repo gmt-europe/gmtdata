@@ -162,7 +162,7 @@ public class SqlGenerator extends nl.gmt.data.migrate.SqlGenerator {
 
         sb.append(String.format("`%s` %s%s", field.getName(), rules.getDbType(field.getType()), dataTypeLength(field)));
 
-        if (field.isAutoIncrement() != isPrimary && SchemaRules.simplifyType(field.getType()) == SchemaDbType.INT)
+        if (field.isAutoIncrement() && !isPrimary && SchemaRules.simplifyType(field.getType()) == SchemaDbType.INT)
             throw new SchemaMigrateException(String.format("SQLite requires auto increment field of table '%s' to be a primary key", table.getName()));
 
         if (isPrimary)
