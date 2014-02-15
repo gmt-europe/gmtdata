@@ -48,7 +48,7 @@ public class CodeGenerator {
         cw.writeln("@Entity");
         cw.writeln("@Table(name = \"%s\")", StringEscapeUtils.escapeJava(klass.getResolvedDbName()));
         cw.writeln(
-            "public class %s implements nl.gmt.data.Entity<%s> {",
+            "public class %s implements nl.gmt.data.Entity {",
             klass.getName(),
             getTypeName(klass.getResolvedIdProperty().getResolvedDataType().getNativeType())
         );
@@ -142,6 +142,8 @@ public class CodeGenerator {
         }
 
         generateColumnAnnotations(cw, property.getResolvedDbIdName(), property.getResolvedDataType());
+
+        cw.writeln("@Override");
 
         generateGetterSetter(cw, property.getResolvedDataType(), null, "Id");
     }

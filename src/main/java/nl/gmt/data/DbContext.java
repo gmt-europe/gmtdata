@@ -1,14 +1,9 @@
 package nl.gmt.data;
 
 import org.hibernate.*;
-import org.hibernate.jdbc.ReturningWork;
-import org.hibernate.jdbc.Work;
-import org.hibernate.procedure.ProcedureCall;
-import org.hibernate.stat.SessionStatistics;
 import org.jboss.logging.Logger;
 
 import java.io.Serializable;
-import java.sql.Connection;
 import java.util.List;
 
 public class DbContext implements AutoCloseable {
@@ -16,13 +11,11 @@ public class DbContext implements AutoCloseable {
 
     private Transaction tx;
     private Session session;
-    private DbConnection db;
     private DbContextState state;
     private List<DbContextListener> contextListeners;
     private boolean closed;
 
     DbContext(DbConnection db) {
-        this.db = db;
         contextListeners = db.getContextListeners();
 
         state = DbContextState.UNKNOWN;
@@ -93,159 +86,159 @@ public class DbContext implements AutoCloseable {
         }
     }
 
-    public void refresh(Object object, LockOptions lockOptions) {
-        session.refresh(object, lockOptions);
+    public void refresh(Entity entity, LockOptions lockOptions) {
+        session.refresh(entity, lockOptions);
     }
 
     public boolean isDirty() throws HibernateException {
         return session.isDirty();
     }
 
-    public void evict(Object object) {
-        session.evict(object);
+    public void evict(Entity entity) {
+        session.evict(entity);
     }
 
-    public Object load(String entityName, Serializable id) {
-        return session.load(entityName, id);
+    public Entity load(String entityName, Serializable id) {
+        return (Entity)session.load(entityName, id);
     }
 
-    public void refresh(Object object) {
-        session.refresh(object);
+    public void refresh(Entity entity) {
+        session.refresh(entity);
     }
 
-    public Object get(String entityName, Serializable id) {
-        return session.get(entityName, id);
+    public Entity get(String entityName, Serializable id) {
+        return (Entity)session.get(entityName, id);
     }
 
-    public Serializable save(String entityName, Object object) {
-        return session.save(entityName, object);
+    public Serializable save(String entityName, Entity entity) {
+        return session.save(entityName, entity);
     }
 
-    public void load(Object object, Serializable id) {
-        session.load(object, id);
+    public void load(Entity entity, Serializable id) {
+        session.load(entity, id);
     }
 
     public Criteria createCriteria(String entityName, String alias) {
         return session.createCriteria(entityName, alias);
     }
 
-    public void persist(Object object) {
-        session.persist(object);
+    public void persist(Entity entity) {
+        session.persist(entity);
     }
 
-    public Object load(Class theClass, Serializable id, LockOptions lockOptions) {
-        return session.load(theClass, id, lockOptions);
+    public Entity load(Class theClass, Serializable id, LockOptions lockOptions) {
+        return (Entity)session.load(theClass, id, lockOptions);
     }
 
-    public void saveOrUpdate(Object object) {
-        session.saveOrUpdate(object);
+    public void saveOrUpdate(Entity entity) {
+        session.saveOrUpdate(entity);
     }
 
-    public void saveOrUpdate(String entityName, Object object) {
-        session.saveOrUpdate(entityName, object);
+    public void saveOrUpdate(String entityName, Entity entity) {
+        session.saveOrUpdate(entityName, entity);
     }
 
-    public void update(String entityName, Object object) {
-        session.update(entityName, object);
+    public void update(String entityName, Entity entity) {
+        session.update(entityName, entity);
     }
 
-    public void persist(String entityName, Object object) {
-        session.persist(entityName, object);
+    public void persist(String entityName, Entity entity) {
+        session.persist(entityName, entity);
     }
 
-    public Object merge(String entityName, Object object) {
-        return session.merge(entityName, object);
+    public Entity merge(String entityName, Entity entity) {
+        return (Entity)session.merge(entityName, entity);
     }
 
-    public void refresh(String entityName, Object object) {
-        session.refresh(entityName, object);
+    public void refresh(String entityName, Entity entity) {
+        session.refresh(entityName, entity);
     }
 
-    public boolean contains(Object object) {
-        return session.contains(object);
+    public boolean contains(Entity entity) {
+        return session.contains(entity);
     }
 
-    public Serializable save(Object object) {
-        return session.save(object);
+    public Serializable save(Entity entity) {
+        return session.save(entity);
     }
 
     public <T> DbQuery<T> createQuery(String queryString) {
         return new DbQuery<T>(session.createQuery(queryString));
     }
 
-    public Object load(String entityName, Serializable id, LockOptions lockOptions) {
-        return session.load(entityName, id, lockOptions);
+    public Entity load(String entityName, Serializable id, LockOptions lockOptions) {
+        return (Entity)session.load(entityName, id, lockOptions);
     }
 
-    public void replicate(Object object, ReplicationMode replicationMode) {
-        session.replicate(object, replicationMode);
+    public void replicate(Entity entity, ReplicationMode replicationMode) {
+        session.replicate(entity, replicationMode);
     }
 
-    public Object merge(Object object) {
-        return session.merge(object);
+    public Entity merge(Entity entity) {
+        return (Entity)session.merge(entity);
     }
 
     public Criteria createCriteria(Class persistentClass) {
         return session.createCriteria(persistentClass);
     }
 
-    public void replicate(String entityName, Object object, ReplicationMode replicationMode) {
-        session.replicate(entityName, object, replicationMode);
+    public void replicate(String entityName, Entity entity, ReplicationMode replicationMode) {
+        session.replicate(entityName, entity, replicationMode);
     }
 
-    public void delete(Object object) {
-        session.delete(object);
+    public void delete(Entity entity) {
+        session.delete(entity);
     }
 
-    public void update(Object object) {
-        session.update(object);
+    public void update(Entity entity) {
+        session.update(entity);
     }
 
-    public Object get(Class clazz, Serializable id, LockOptions lockOptions) {
-        return session.get(clazz, id, lockOptions);
+    public Entity get(Class clazz, Serializable id, LockOptions lockOptions) {
+        return (Entity)session.get(clazz, id, lockOptions);
     }
 
     public Criteria createCriteria(String entityName) {
         return session.createCriteria(entityName);
     }
 
-    public String getEntityName(Object object) {
-        return session.getEntityName(object);
+    public String getEntityName(Entity entity) {
+        return session.getEntityName(entity);
     }
 
-    public void delete(String entityName, Object object) {
-        session.delete(entityName, object);
+    public void delete(String entityName, Entity entity) {
+        session.delete(entityName, entity);
     }
 
-    public Object get(Class clazz, Serializable id) {
-        return session.get(clazz, id);
+    public Entity get(Class clazz, Serializable id) {
+        return (Entity)session.get(clazz, id);
     }
 
     public void clear() {
         session.clear();
     }
 
-    public Object get(String entityName, Serializable id, LockOptions lockOptions) {
-        return session.get(entityName, id, lockOptions);
+    public Entity get(String entityName, Serializable id, LockOptions lockOptions) {
+        return (Entity)session.get(entityName, id, lockOptions);
     }
 
-    public void refresh(String entityName, Object object, LockOptions lockOptions) {
-        session.refresh(entityName, object, lockOptions);
+    public void refresh(String entityName, Entity entity, LockOptions lockOptions) {
+        session.refresh(entityName, entity, lockOptions);
     }
 
     public Criteria createCriteria(Class persistentClass, String alias) {
         return session.createCriteria(persistentClass, alias);
     }
 
-    public boolean isReadOnly(Object entityOrProxy) {
+    public boolean isReadOnly(Entity entityOrProxy) {
         return session.isReadOnly(entityOrProxy);
     }
 
-    public Object load(Class theClass, Serializable id) {
-        return session.load(theClass, id);
+    public Entity load(Class theClass, Serializable id) {
+        return (Entity)session.load(theClass, id);
     }
 
-    public void setReadOnly(Object entityOrProxy, boolean readOnly) {
+    public void setReadOnly(Entity entityOrProxy, boolean readOnly) {
         session.setReadOnly(entityOrProxy, readOnly);
     }
 }
