@@ -4,7 +4,7 @@
 
     <groupId>nl.gmt</groupId>
     <artifactId>gmtdata</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>gmtdata</name>
@@ -46,11 +46,32 @@
             <artifactId>hibernate-core</artifactId>
             <version>4.3.0.Final</version>
         </dependency>
-        <dependency>
-            <groupId>org.hibernate.dialect</groupId>
-            <artifactId>sqlite-dialect</artifactId>
-            <version>0.1.0</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
+
+    <distributionManagement>
+        <snapshotRepository>
+            <id>snapshots</id>
+            <name>Titan Snapshots Repository</name>
+            <url>http://titan:8080/nexus/content/repositories/snapshots/</url>
+        </snapshotRepository>
+        <repository>
+            <id>releases</id>
+            <name>Titan Releases Repository</name>
+            <url>http://titan:8080/nexus/content/repositories/releases/</url>
+        </repository>
+    </distributionManagement>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.1</version>
+                <configuration>
+                    <source>1.7</source>
+                    <target>1.7</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

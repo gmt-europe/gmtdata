@@ -25,6 +25,12 @@
         <module name="gmtdata" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="gmtdata" target="1.7" />
+    </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_STRING" value="-Xlint:unchecked" />
   </component>
 </project>
 

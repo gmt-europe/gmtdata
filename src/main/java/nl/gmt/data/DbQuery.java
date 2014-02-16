@@ -118,6 +118,7 @@ public class DbQuery<T> implements Iterable<T> {
         return query.getNamedParameters();
     }
 
+    @SuppressWarnings("unchecked")
     public List<T> list() {
         return (List<T>)query.list();
     }
@@ -268,6 +269,7 @@ public class DbQuery<T> implements Iterable<T> {
             }
 
             @Override
+            @SuppressWarnings("unchecked")
             public T next() {
                 return (T)iterator.next();
             }

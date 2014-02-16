@@ -1,12 +1,8 @@
 package nl.gmt.data.migrate;
 
-import com.sun.xml.internal.org.jvnet.staxex.NamespaceContextEx;
 import nl.gmt.data.schema.*;
 import org.apache.commons.lang.StringUtils;
-import org.w3c.dom.NamedNodeMap;
 
-import javax.xml.transform.Result;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 

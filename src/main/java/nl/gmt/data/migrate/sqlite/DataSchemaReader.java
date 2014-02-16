@@ -1,12 +1,14 @@
 package nl.gmt.data.migrate.sqlite;
 
-import com.sun.org.apache.bcel.internal.generic.SWITCH;
 import nl.gmt.data.migrate.*;
 import nl.gmt.data.schema.SchemaDbType;
 import nl.gmt.data.schema.SchemaIndexType;
 import org.apache.commons.lang.StringUtils;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

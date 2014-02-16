@@ -54,6 +54,16 @@ public class CodeGenerator {
         );
         cw.indent();
 
+        // Generate the default constructor.
+
+        cw.writeln("public %s() {", klass.getName());
+        cw.writeln("}");
+        cw.writeln();
+
+        // Generate the constructor with all properties except for the ID and set properties.
+
+        generatePropertyConstructor(cw, klass);
+
         generateIdProperty(cw, klass.getResolvedIdProperty());
 
         for (SchemaProperty property : klass.getProperties().values()) {
@@ -79,6 +89,66 @@ public class CodeGenerator {
         fileName += klass.getName() + ".java";
 
         writer.writeFile(fileName, cw.toString());
+    }
+
+    private void generatePropertyConstructor(CodeWriter cw, SchemaClass klass) {
+        StringBuilder sb = new StringBuilder();
+        List<String> assignments = new ArrayList<>();
+
+        for (SchemaField field : klass.getFields()) {
+            String fieldName = getFieldName(field.getName());
+
+            if (field instanceof SchemaProperty) {
+                SchemaProperty property = (SchemaProperty)field;
+
+                if (sb.length() > 0)
+                    sb.append(", ");
+
+                sb.append(String.format(
+                    "%s %s",
+                    property.getEnumType() != null ? property.getEnumType() : getTypeName(property.getResolvedDataType().getNativeType()),
+                    fieldName
+                ));
+
+                assignments.add(String.format("this.%s = %s;", fieldName, fieldName));
+            } else if (field instanceof SchemaForeignParent) {
+                SchemaForeignParent foreign = (SchemaForeignParent)field;
+
+                if (sb.length() > 0)
+                    sb.append(", ");
+
+                sb.append(String.format(
+                    "%s %s",
+                    foreign.getClassName(),
+                    fieldName
+                ));
+
+                assignments.add(String.format("this.%s = %s;", fieldName, fieldName));
+            }
+        }
+
+        // If we didn't have any properties, don't generate a constructor because we already have the
+        // default constructor.
+
+        if (sb.length() == 0)
+            return;
+
+        // Write the declaration.
+
+        cw.writeln("public %s(%s) {", klass.getName(), sb.toString());
+        cw.indent();
+
+        // Write all assignments.
+
+        for (String assignment : assignments) {
+            cw.writeln(assignment);
+        }
+
+        // And close the method.
+
+        cw.unIndent();
+        cw.writeln("}");
+        cw.writeln();
     }
 
     private void generateIdProperty(CodeWriter cw, SchemaClassIdProperty property) throws SchemaException {
@@ -300,11 +370,9 @@ public class CodeGenerator {
     }
 
     private void generateForeignParent(CodeWriter cw, SchemaForeignParent foreign) {
-        SchemaClass linkClass = schema.getClasses().get(foreign.getClassName());
-
         cw.writeln(
             "private %s %s;",
-            linkClass.getName(),
+            foreign.getClassName(),
             getFieldName(foreign.getName())
         );
 
@@ -314,7 +382,7 @@ public class CodeGenerator {
 
         cw.writeln("@JoinColumn(name = \"%s\")", StringEscapeUtils.escapeJava(foreign.getResolvedDbName()));
 
-        generateGetterSetter(cw, foreign.getName(), linkClass.getName());
+        generateGetterSetter(cw, foreign.getName(), foreign.getClassName());
     }
 
     private void generateEnumType(SchemaEnumType enumType, GeneratorWriter writer) {

@@ -9,6 +9,8 @@ public class SchemaClass extends SchemaAnnotatableElement {
     private Map<String, SchemaForeignBase> unmodifiableForeigns = Collections.unmodifiableMap(foreigns);
     private List<SchemaIndex> indexes = new ArrayList<>();
     private List<SchemaIndex> unmodifiableIndexes = Collections.unmodifiableList(indexes);
+    private List<SchemaField> fields = new ArrayList<>();
+    private List<SchemaField> unmodifiableFields = Collections.unmodifiableList(fields);
     private String name;
     private String boundedContext;
     private String dbName;
@@ -42,6 +44,10 @@ public class SchemaClass extends SchemaAnnotatableElement {
 
     public List<SchemaIndex> getIndexes() {
         return unmodifiableIndexes;
+    }
+
+    public List<SchemaField> getFields() {
+        return unmodifiableFields;
     }
 
     public String getName() {
@@ -102,10 +108,12 @@ public class SchemaClass extends SchemaAnnotatableElement {
 
     void addProperty(SchemaProperty property) {
         properties.put(property.getName(), property);
+        fields.add(property);
     }
 
     void addForeign(SchemaForeignBase foreign) {
         foreigns.put(foreign.getName(), foreign);
+        fields.add(foreign);
     }
 
     void addIndex(SchemaIndex index) {

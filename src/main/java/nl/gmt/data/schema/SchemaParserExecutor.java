@@ -1,6 +1,5 @@
 package nl.gmt.data.schema;
 
-import com.sun.xml.internal.ws.wsdl.writer.UsingAddressing;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;

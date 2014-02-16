@@ -1,11 +1,8 @@
 package nl.gmt.data.migrate;
 
-import com.sun.org.apache.xalan.internal.xsltc.compiler.util.ResultTreeType;
-import com.sun.xml.internal.org.jvnet.staxex.NamespaceContextEx;
 import nl.gmt.data.schema.Schema;
 import nl.gmt.data.schema.SchemaClass;
 import nl.gmt.data.schema.SchemaForeignParent;
-import nl.gmt.data.schema.SchemaRules;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.List;
