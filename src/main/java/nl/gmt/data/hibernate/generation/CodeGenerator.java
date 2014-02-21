@@ -267,7 +267,7 @@ public class CodeGenerator {
 
         if (klass == java.lang.Byte.class)
             typeName = "byte";
-        else if (klass == java.util.UUID.class)
+        else if (klass == java.util.UUID.class || klass == java.util.Date.class)
             typeName = klass.getName();
         else if (klass.getPackage().getName().equals("java.lang"))
             typeName = klass.getSimpleName();

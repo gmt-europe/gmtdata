@@ -7,7 +7,7 @@ import java.io.Serializable;
 import java.util.List;
 
 public class DbContext implements AutoCloseable {
-    private static final Logger log = Logger.getLogger(DbContext.class);
+    private static final Logger LOG = Logger.getLogger(DbContext.class);
 
     private Transaction tx;
     private Session session;
@@ -58,7 +58,7 @@ public class DbContext implements AutoCloseable {
             if (session != null) {
                 try {
                     if (state == DbContextState.UNKNOWN) {
-                        log.warn("Aborting transaction because it was not committed or rolled back");
+                        LOG.warn("Aborting transaction because it was not committed or rolled back");
                         state = DbContextState.ABORTED;
                     }
 
