@@ -227,15 +227,21 @@ public class CodeGenerator {
     }
 
     private void generateGetterSetter(CodeWriter cw, SchemaResolvedDataType dataType, String enumType, String name) {
-        generateGetterSetter(cw, name, enumType != null ? enumType : getTypeName(dataType.getNativeType()));
+        generateGetterSetter(
+            cw,
+            name,
+            enumType != null ? enumType : getTypeName(dataType.getNativeType()),
+            dataType.getNativeType() == Boolean.class
+        );
     }
 
-    private void generateGetterSetter(CodeWriter cw, String name, String typeName) {
+    private void generateGetterSetter(CodeWriter cw, String name, String typeName, boolean isBoolean) {
         String fieldName = getFieldName(name);
 
         cw.writeln(
-            "public %s get%s() {",
+            "public %s %s%s() {",
             typeName,
+            isBoolean ? "is" : "get",
             name
         );
         cw.indent();
@@ -366,7 +372,7 @@ public class CodeGenerator {
 
         cw.writeln("@OneToMany(mappedBy = \"%s\")", getFieldName(foreign.getClassProperty()));
 
-        generateGetterSetter(cw, foreign.getName(), "Set<" + linkClass.getName() + ">");
+        generateGetterSetter(cw, foreign.getName(), "Set<" + linkClass.getName() + ">", false);
     }
 
     private void generateForeignParent(CodeWriter cw, SchemaForeignParent foreign) {
@@ -382,7 +388,7 @@ public class CodeGenerator {
 
         cw.writeln("@JoinColumn(name = \"%s\")", StringEscapeUtils.escapeJava(foreign.getResolvedDbName()));
 
-        generateGetterSetter(cw, foreign.getName(), foreign.getClassName());
+        generateGetterSetter(cw, foreign.getName(), foreign.getClassName(), false);
     }
 
     private void generateEnumType(SchemaEnumType enumType, GeneratorWriter writer) {
