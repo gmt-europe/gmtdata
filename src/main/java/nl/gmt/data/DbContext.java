@@ -24,11 +24,28 @@ public class DbContext implements AutoCloseable {
             listener.beforeOpenContext(this);
         }
 
-        session = db.getSessionFactory().openSession();
-        tx = session.beginTransaction();
+        try {
+            session = db.getSessionFactory().openSession();
+            tx = session.beginTransaction();
 
-        for (DbContextListener listener : contextListeners) {
-            listener.afterOpenContext(this);
+            for (DbContextListener listener : contextListeners) {
+                listener.afterOpenContext(this);
+            }
+        } catch (Throwable e) {
+            // Ensure that the context is properly cleaned up if we failed to open
+            // the context.
+
+            try {
+                close();
+            } catch (Exception e1) {
+                e = new RuntimeException(e1);
+            }
+
+            if (!(e instanceof RuntimeException)) {
+                e = new RuntimeException(e);
+            }
+
+            throw (RuntimeException)e;
         }
     }
 
@@ -55,8 +72,8 @@ public class DbContext implements AutoCloseable {
     @Override
     public void close() throws Exception {
         if (!closed) {
-            if (session != null) {
-                try {
+            try {
+                if (session != null) {
                     if (state == DbContextState.UNKNOWN) {
                         LOG.warn("Aborting transaction because it was not committed or rolled back");
                         state = DbContextState.ABORTED;
@@ -75,10 +92,10 @@ public class DbContext implements AutoCloseable {
 
                     session.close();
                     session = null;
-                } finally {
-                    for (DbContextListener listener : contextListeners) {
-                        listener.afterCloseContext(this);
-                    }
+                }
+            } finally {
+                for (DbContextListener listener : contextListeners) {
+                    listener.afterCloseContext(this);
                 }
             }
 

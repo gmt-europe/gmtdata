@@ -117,6 +117,10 @@ public abstract class DbConnection implements AutoCloseable {
     }
 
     public DbContext openContext() {
+        if (isClosed()) {
+            throw new IllegalStateException("Connection has already been closed");
+        }
+
         return new DbContext(this);
     }
 
