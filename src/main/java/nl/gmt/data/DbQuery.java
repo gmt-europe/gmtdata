@@ -208,8 +208,9 @@ public class DbQuery<T> implements Iterable<T> {
         return this;
     }
 
-    public Object uniqueResult() {
-        return query.uniqueResult();
+    @SuppressWarnings("unchecked")
+    public T uniqueResult() {
+        return (T)query.uniqueResult();
     }
 
     public DbQuery<T> setProperties(Object bean) {
