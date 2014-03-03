@@ -1,6 +1,5 @@
 package nl.gmt.data.migrate;
 
-import nl.gmt.data.drivers.DatabaseDriver;
 import nl.gmt.data.schema.Schema;
 
 public class DatabaseSchema {

@@ -2,7 +2,6 @@ package nl.gmt.data.migrate.sqlite;
 
 import nl.gmt.data.DataException;
 import nl.gmt.data.migrate.*;
-import nl.gmt.data.migrate.DataSchemaReader;
 import nl.gmt.data.schema.Schema;
 import nl.gmt.data.schema.SchemaDbType;
 import nl.gmt.data.schema.SchemaIndexType;

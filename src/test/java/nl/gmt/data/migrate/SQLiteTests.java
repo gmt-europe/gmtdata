@@ -9,8 +9,6 @@ import org.junit.runners.JUnit4;
 
 import java.io.File;
 import java.sql.Connection;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @RunWith(JUnit4.class)
 public class SQLiteTests extends DatabaseTests {

@@ -1,6 +1,5 @@
 package nl.gmt.data.migrate;
 
-import nl.gmt.data.schema.SchemaIndex;
 import nl.gmt.data.schema.SchemaIndexType;
 import org.apache.commons.lang.StringUtils;
 

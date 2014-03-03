@@ -7,14 +7,20 @@ import nl.gmt.data.migrate.SchemaMigrateException;
 import nl.gmt.data.migrate.SqlGenerator;
 import nl.gmt.data.schema.Schema;
 import nl.gmt.data.schema.SchemaRules;
+import org.apache.commons.lang.Validate;
 import org.hibernate.dialect.SQLiteDialect;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class SQLiteDatabaseDriver extends GenericDatabaseDriver {
     @Override
     public String getConnectionType() {
-        return "org.sqlite.JDBC";
+        return SQLiteDriver.class.getName();
     }
 
     @Override

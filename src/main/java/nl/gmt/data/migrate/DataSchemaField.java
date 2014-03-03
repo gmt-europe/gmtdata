@@ -3,8 +3,6 @@ package nl.gmt.data.migrate;
 import nl.gmt.data.schema.*;
 import org.apache.commons.lang.StringUtils;
 
-import javax.print.attribute.standard.MediaSize;
-
 public class DataSchemaField {
     private String name;
     private int length;

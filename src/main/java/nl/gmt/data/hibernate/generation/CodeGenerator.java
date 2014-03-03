@@ -3,8 +3,6 @@ package nl.gmt.data.hibernate.generation;
 import nl.gmt.data.schema.*;
 import org.apache.commons.lang.StringEscapeUtils;
 
-import javax.tools.JavaCompiler;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 

@@ -220,7 +220,7 @@ public class DataSchemaReader extends nl.gmt.data.migrate.DataSchemaReader {
             // foreign_key_list will throw "query does not return ResultSet" when it doesn't
             // have results.
 
-            assert(e.getMessage() == "query does not return ResultSet");
+            assert(e.getMessage().equals("query does not return ResultSet"));
         }
 
         return table;
