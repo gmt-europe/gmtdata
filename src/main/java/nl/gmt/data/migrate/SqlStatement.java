@@ -1,8 +1,8 @@
 package nl.gmt.data.migrate;
 
 public class SqlStatement {
-    private SqlStatementType type;
-    private String value;
+    private final SqlStatementType type;
+    private final String value;
 
     public SqlStatement(SqlStatementType type, String value) {
         this.type = type;

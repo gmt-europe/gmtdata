@@ -11,9 +11,9 @@ import java.io.InputStream;
 import java.util.*;
 
 public class SchemaParserExecutor {
-    private Map<String, Boolean> includes = new HashMap<>();
-    private List<String> hashes = new ArrayList<>();
-    private SchemaCallback callback;
+    private final Map<String, Boolean> includes = new HashMap<>();
+    private final List<String> hashes = new ArrayList<>();
+    private final SchemaCallback callback;
 
     public SchemaParserExecutor(SchemaCallback callback) {
         this.callback = callback;

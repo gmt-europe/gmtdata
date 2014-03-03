@@ -4,8 +4,8 @@ import java.util.Collections;
 import java.util.List;
 
 public class SchemaParserResult {
-    private List<String> includes;
-    private boolean generateResources;
+    private final List<String> includes;
+    private final boolean generateResources;
 
     SchemaParserResult(List<String> includes, boolean generateResources) {
         this.includes = Collections.unmodifiableList(includes);

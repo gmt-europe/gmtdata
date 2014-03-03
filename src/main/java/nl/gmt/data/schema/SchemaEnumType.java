@@ -6,8 +6,8 @@ import java.util.Map;
 
 public class SchemaEnumType extends SchemaAnnotatableElement {
     private String name;
-    private Map<String, SchemaEnumTypeField> fields = new HashMap<>();
-    private Map<String, SchemaEnumTypeField> unmodifiableFields = Collections.unmodifiableMap(fields);
+    private final Map<String, SchemaEnumTypeField> fields = new HashMap<>();
+    private final Map<String, SchemaEnumTypeField> unmodifiableFields = Collections.unmodifiableMap(fields);
 
     public SchemaEnumType(SchemaParserLocation location) {
         super(location);

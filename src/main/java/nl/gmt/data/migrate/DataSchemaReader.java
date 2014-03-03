@@ -4,7 +4,7 @@ import java.sql.Connection;
 import java.util.Map;
 
 public abstract class DataSchemaReader {
-    private Connection connection;
+    private final Connection connection;
 
     protected DataSchemaReader(Connection connection) {
         this.connection = connection;

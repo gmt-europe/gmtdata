@@ -7,8 +7,8 @@ import java.util.List;
 public class SchemaGenerator extends SchemaAnnotatableElement {
     private String name;
     private String strategy;
-    private List<SchemaParameter> parameters = new ArrayList<>();
-    private List<SchemaParameter> unmodifiableParameters = Collections.unmodifiableList(parameters);
+    private final List<SchemaParameter> parameters = new ArrayList<>();
+    private final List<SchemaParameter> unmodifiableParameters = Collections.unmodifiableList(parameters);
 
     SchemaGenerator(SchemaParserLocation location) {
         super(location);

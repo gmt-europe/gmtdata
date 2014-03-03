@@ -407,7 +407,7 @@ public class SchemaParserV1 {
     }
 
     private SchemaIndexType parseIndexUnique(String value) throws SchemaException {
-        return parseXmlBoolean(value) ? SchemaIndexType.UNSET : SchemaIndexType.INDEX;
+        return parseXmlBoolean(value) ? SchemaIndexType.UNIQUE : SchemaIndexType.INDEX;
     }
 
     private boolean parseSchemaElementAttribute(SchemaAnnotatableElement element, Attr attribute) {

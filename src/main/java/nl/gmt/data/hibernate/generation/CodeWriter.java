@@ -4,7 +4,7 @@ import org.apache.commons.lang.StringUtils;
 
 class CodeWriter {
     private int indent;
-    private StringBuilder sb = new StringBuilder();
+    private final StringBuilder sb = new StringBuilder();
 
     public void indent() {
         indent++;

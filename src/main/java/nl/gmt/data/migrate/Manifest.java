@@ -1,8 +1,8 @@
 package nl.gmt.data.migrate;
 
 public class Manifest {
-    private String version;
-    private String schemaHash;
+    private final String version;
+    private final String schemaHash;
 
     public Manifest(String version, String schemaHash) {
         this.version = version;

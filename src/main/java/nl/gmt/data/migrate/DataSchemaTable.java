@@ -9,8 +9,8 @@ import java.util.Map;
 
 public class DataSchemaTable {
     private String name;
-    private Map<String, DataSchemaField> fields;
-    private List<DataSchemaForeignKey> foreignKeys;
+    private final Map<String, DataSchemaField> fields;
+    private final List<DataSchemaForeignKey> foreignKeys;
     private List<DataSchemaIndex> indexes;
     private String engine;
     private String defaultCharset;

@@ -4,8 +4,8 @@ import nl.gmt.data.drivers.DatabaseDriver;
 import nl.gmt.data.schema.Schema;
 
 public class DatabaseSchema {
-    private DataSchema currentSchema;
-    private DataSchema newSchema;
+    private final DataSchema currentSchema;
+    private final DataSchema newSchema;
 
     public DatabaseSchema(Schema schema, DataSchemaExecutor executor) throws SchemaMigrateException {
         try (SqlGenerator generator = executor.getConfiguration().getDatabaseDriver().createSqlGenerator(schema)) {

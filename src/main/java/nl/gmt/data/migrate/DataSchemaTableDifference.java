@@ -7,16 +7,16 @@ import org.apache.commons.lang.StringUtils;
 import java.util.*;
 
 public class DataSchemaTableDifference {
-    private DataSchemaTable schema;
-    private DataSchemaTable oldSchema;
-    private boolean differ;
-    private List<String> removedFields = new ArrayList<>();
-    private List<DataSchemaFieldDifference> changedFields = new ArrayList<>();
-    private Map<String, DataSchemaField> newFields = new HashMap<>();
-    private List<String> removedIndexes = new ArrayList<>();
-    private List<DataSchemaIndex> newIndexes = new ArrayList<>();
-    private List<String> removedForeignKeys = new ArrayList<>();
-    private List<DataSchemaForeignKey> newForeignKeys = new ArrayList<>();
+    private final DataSchemaTable schema;
+    private final DataSchemaTable oldSchema;
+    private final boolean differ;
+    private final List<String> removedFields = new ArrayList<>();
+    private final List<DataSchemaFieldDifference> changedFields = new ArrayList<>();
+    private final Map<String, DataSchemaField> newFields = new HashMap<>();
+    private final List<String> removedIndexes = new ArrayList<>();
+    private final List<DataSchemaIndex> newIndexes = new ArrayList<>();
+    private final List<String> removedForeignKeys = new ArrayList<>();
+    private final List<DataSchemaForeignKey> newForeignKeys = new ArrayList<>();
 
     public DataSchemaTableDifference(DataSchemaTable currentSchema, DataSchemaTable newSchema, DataSchemaExecutor executor) throws SchemaMigrateException {
         schema = newSchema;

@@ -1,9 +1,9 @@
 package nl.gmt.data.migrate;
 
 public class DataSchemaFieldDifference {
-    private boolean differ;
-    private DataSchemaField field;
-    private DataSchemaField oldField;
+    private final boolean differ;
+    private final DataSchemaField field;
+    private final DataSchemaField oldField;
 
     public DataSchemaFieldDifference(DataSchemaField currentField, DataSchemaField newField, DataSchemaExecutor executor) throws SchemaMigrateException {
         field = newField;

@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class DataSchema {
-    private Map<String, DataSchemaTable> tables;
+    private final Map<String, DataSchemaTable> tables;
 
     private DataSchema(Map<String, DataSchemaTable> tables) {
         this.tables = tables;

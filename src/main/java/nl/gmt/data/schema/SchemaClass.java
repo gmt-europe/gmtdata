@@ -3,14 +3,14 @@ package nl.gmt.data.schema;
 import java.util.*;
 
 public class SchemaClass extends SchemaAnnotatableElement {
-    private Map<String, SchemaProperty> properties = new HashMap<>();
-    private Map<String, SchemaProperty> unmodifiableProperties = Collections.unmodifiableMap(properties);
-    private Map<String, SchemaForeignBase> foreigns = new HashMap<>();
-    private Map<String, SchemaForeignBase> unmodifiableForeigns = Collections.unmodifiableMap(foreigns);
-    private List<SchemaIndex> indexes = new ArrayList<>();
-    private List<SchemaIndex> unmodifiableIndexes = Collections.unmodifiableList(indexes);
-    private List<SchemaField> fields = new ArrayList<>();
-    private List<SchemaField> unmodifiableFields = Collections.unmodifiableList(fields);
+    private final Map<String, SchemaProperty> properties = new HashMap<>();
+    private final Map<String, SchemaProperty> unmodifiableProperties = Collections.unmodifiableMap(properties);
+    private final Map<String, SchemaForeignBase> foreigns = new HashMap<>();
+    private final Map<String, SchemaForeignBase> unmodifiableForeigns = Collections.unmodifiableMap(foreigns);
+    private final List<SchemaIndex> indexes = new ArrayList<>();
+    private final List<SchemaIndex> unmodifiableIndexes = Collections.unmodifiableList(indexes);
+    private final List<SchemaField> fields = new ArrayList<>();
+    private final List<SchemaField> unmodifiableFields = Collections.unmodifiableList(fields);
     private String name;
     private String boundedContext;
     private String dbName;

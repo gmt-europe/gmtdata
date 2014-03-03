@@ -11,18 +11,18 @@ public class Schema extends SchemaAnnotatableElement {
     private String enumDataType;
     private SchemaParserLocation namespaceLocation;
     private SchemaParserLocation enumDataTypeLocation;
-    private Map<String, SchemaDataType> dataTypes = new HashMap<>();
-    private Map<String, SchemaDataType> unmodifiableDataTypes = Collections.unmodifiableMap(dataTypes);
-    private Map<String, SchemaClass> classes = new HashMap<>();
-    private Map<String, SchemaClass> unmodifiableClasses = Collections.unmodifiableMap(classes);
-    private Map<String, SchemaEnumType> enumTypes = new HashMap<>();
-    private Map<String, SchemaEnumType> unmodifiableEnumTypes = Collections.unmodifiableMap(enumTypes);
+    private final Map<String, SchemaDataType> dataTypes = new HashMap<>();
+    private final Map<String, SchemaDataType> unmodifiableDataTypes = Collections.unmodifiableMap(dataTypes);
+    private final Map<String, SchemaClass> classes = new HashMap<>();
+    private final Map<String, SchemaClass> unmodifiableClasses = Collections.unmodifiableMap(classes);
+    private final Map<String, SchemaEnumType> enumTypes = new HashMap<>();
+    private final Map<String, SchemaEnumType> unmodifiableEnumTypes = Collections.unmodifiableMap(enumTypes);
     private SchemaMySqlSettings mySqlSettings;
     private SchemaIdProperty idProperty;
     private List<String> baseIncludes;
     private String schemaHash;
-    private List<String> suppressResourceGeneration = new ArrayList<>();
-    private List<String> unmodifiableSuppressResourceGeneration = Collections.unmodifiableList(suppressResourceGeneration);
+    private final List<String> suppressResourceGeneration = new ArrayList<>();
+    private final List<String> unmodifiableSuppressResourceGeneration = Collections.unmodifiableList(suppressResourceGeneration);
 
     Schema() {
         super(null);

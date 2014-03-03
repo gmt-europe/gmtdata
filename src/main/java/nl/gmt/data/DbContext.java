@@ -6,13 +6,13 @@ import org.jboss.logging.Logger;
 import java.io.Serializable;
 import java.util.List;
 
-public class DbContext implements AutoCloseable {
+public class DbContext implements DataCloseable {
     private static final Logger LOG = Logger.getLogger(DbContext.class);
 
-    private Transaction tx;
+    private final Transaction tx;
     private Session session;
     private DbContextState state;
-    private List<DbContextListener> contextListeners;
+    private final List<DbContextListener> contextListeners;
     private boolean closed;
 
     DbContext(DbConnection db) {
@@ -70,7 +70,7 @@ public class DbContext implements AutoCloseable {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         if (!closed) {
             try {
                 if (session != null) {

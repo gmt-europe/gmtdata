@@ -3,9 +3,9 @@ package nl.gmt.data.migrate;
 import java.util.*;
 
 public class DataSchemaDifference {
-    private List<String> removedTables = new ArrayList<>();
-    private Map<String, DataSchemaTable> newTables = new HashMap<>();
-    private Map<String, DataSchemaTableDifference> changedTables = new HashMap<>();
+    private final List<String> removedTables = new ArrayList<>();
+    private final Map<String, DataSchemaTable> newTables = new HashMap<>();
+    private final Map<String, DataSchemaTableDifference> changedTables = new HashMap<>();
 
     public DataSchemaDifference(DataSchema currentSchema, DataSchema newSchema, DataSchemaExecutor executor) throws SchemaMigrateException {
         Map<String, ChangedState> tables = DataSchema.getChanges(currentSchema.getTables().keySet(), newSchema.getTables().keySet());

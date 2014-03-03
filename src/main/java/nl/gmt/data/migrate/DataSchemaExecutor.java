@@ -3,8 +3,8 @@ package nl.gmt.data.migrate;
 import nl.gmt.data.schema.*;
 
 public class DataSchemaExecutor {
-    private DataSchemaExecutorConfiguration configuration;
-    private SchemaCallback callback;
+    private final DataSchemaExecutorConfiguration configuration;
+    private final SchemaCallback callback;
     private SchemaRules rules;
 
     public DataSchemaExecutor(DataSchemaExecutorConfiguration configuration, SchemaCallback callback) {

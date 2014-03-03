@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public abstract class PersistentEnumUserType<T extends PersistentEnum> implements UserType {
-    private Map<Integer, PersistentEnum> values = new HashMap<>();
+    private final Map<Integer, PersistentEnum> values = new HashMap<>();
 
     protected PersistentEnumUserType() {
         for (PersistentEnum value : returnedClass().getEnumConstants()) {

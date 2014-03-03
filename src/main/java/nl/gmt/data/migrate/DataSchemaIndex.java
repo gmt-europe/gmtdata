@@ -9,7 +9,7 @@ import java.util.List;
 public class DataSchemaIndex {
     private SchemaIndexType type;
     private String name;
-    private List<String> fields;
+    private final List<String> fields;
 
     public static DataSchemaIndex createPrimaryIndex(SchemaClass klass) {
         DataSchemaIndex result = new DataSchemaIndex();

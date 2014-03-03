@@ -10,7 +10,7 @@ import java.math.BigInteger;
 import java.util.*;
 
 public class DbQuery<T> implements Iterable<T> {
-    private Query query;
+    private final Query query;
 
     DbQuery(Query query) {
         this.query = query;

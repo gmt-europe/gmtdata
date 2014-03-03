@@ -201,7 +201,7 @@ public abstract class DatabaseTestBase {
     private static class SchemaCallbackImpl implements SchemaCallback {
         public static final String SCHEMA_NAME = "$Unit test schema.schema";
 
-        private String schema;
+        private final String schema;
         private Iterable<SqlStatement> statements;
 
         public SchemaCallbackImpl(String schema) {

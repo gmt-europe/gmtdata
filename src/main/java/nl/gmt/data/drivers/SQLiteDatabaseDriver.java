@@ -44,7 +44,7 @@ public class SQLiteDatabaseDriver extends GenericDatabaseDriver {
     }
 
     private static class DbContextListenerImpl implements DbContextListener {
-        private ReentrantLock lock = new ReentrantLock();
+        private final ReentrantLock lock = new ReentrantLock();
 
         @Override
         public void beforeOpenContext(DbContext context) {

@@ -5,8 +5,8 @@ import java.util.Collections;
 import java.util.List;
 
 public class SchemaCompositeId extends SchemaElement {
-    private List<SchemaCompositeIdProperty> properties = new ArrayList<>();
-    private List<SchemaCompositeIdProperty> unmodifiableProperties = Collections.unmodifiableList(properties);
+    private final List<SchemaCompositeIdProperty> properties = new ArrayList<>();
+    private final List<SchemaCompositeIdProperty> unmodifiableProperties = Collections.unmodifiableList(properties);
 
     public SchemaCompositeId(SchemaParserLocation location) {
         super(location);

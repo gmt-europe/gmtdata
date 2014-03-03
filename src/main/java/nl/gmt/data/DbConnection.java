@@ -17,16 +17,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public abstract class DbConnection implements AutoCloseable {
+public abstract class DbConnection implements DataCloseable {
     private final String connectionString;
     private final DbType type;
     private final String schemaName;
     private final Schema schema;
     private final DatabaseDriver driver;
     private SessionFactory sessionFactory;
-    private final StandardServiceRegistry serviceRegistry;
-    private List<DbContextListener> contextListeners = new ArrayList<>();
-    private List<DbContextListener> unmodifiableContextListeners = Collections.unmodifiableList(contextListeners);
+    private final List<DbContextListener> contextListeners = new ArrayList<>();
+    private final List<DbContextListener> unmodifiableContextListeners = Collections.unmodifiableList(contextListeners);
     private boolean closed;
 
     protected DbConnection(String connectionString, DbType type, String schemaName) throws DataException {
@@ -54,13 +53,17 @@ public abstract class DbConnection implements AutoCloseable {
             throw new DataException("Cannot load schema", e);
         }
 
-        serviceRegistry = new StandardServiceRegistryBuilder()
+        StandardServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
             .applySettings(configuration.getProperties())
             .build();
 
         sessionFactory = configuration.buildSessionFactory(serviceRegistry);
 
         driver.configure(this);
+    }
+
+    public DbType getType() {
+        return type;
     }
 
     private void addClasses(Configuration configuration) throws ClassNotFoundException {
@@ -79,7 +82,7 @@ public abstract class DbConnection implements AutoCloseable {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         if (!closed) {
             if (sessionFactory != null) {
                 sessionFactory.close();

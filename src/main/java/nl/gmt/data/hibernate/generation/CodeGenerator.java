@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CodeGenerator {
-    private Schema schema;
+    private final Schema schema;
 
     public CodeGenerator(Schema schema) {
         this.schema = schema;

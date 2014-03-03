@@ -11,8 +11,8 @@ import java.util.List;
 public abstract class SqlGenerator implements AutoCloseable {
     private List<SqlStatement> statements;
     private List<String> prologStatements;
-    private StringBuilder statementCache = new StringBuilder();
-    private Schema schema;
+    private final StringBuilder statementCache = new StringBuilder();
+    private final Schema schema;
     private DataSchemaDifference different;
     private DataSchema currentSchema;
     private DataSchema newSchema;
