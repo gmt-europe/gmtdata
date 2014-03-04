@@ -188,29 +188,19 @@ public class DataSchemaReader extends nl.gmt.data.migrate.DataSchemaReader {
             Statement stmt = getConnection().createStatement();
             ResultSet rs = stmt.executeQuery("pragma foreign_key_list(" + escape(tableName) + ")")
         ) {
-            DataSchemaForeignKey foreignKey = null;
-            int nextSequence = 0;
-
             while (rs.next()) {
                 // Check that the seq are sorted.
-                int sequence = rs.getInt("seq");
-                if (sequence != nextSequence)
-                    throw new SchemaMigrateException("Invalid seq when reading foreign_key_list");
-                nextSequence++;
-
-                // Create the foreign key when we see a new sequence.
-
-                if (sequence == 0) {
-                    foreignKey = new DataSchemaForeignKey();
-                    table.getForeignKeys().add(foreignKey);
-
-                    // And initialize the new foreign key.
-
-                    foreignKey.setName(String.format("FK_%s_%s", tableName, rs.getInt("id")));
-                }
-
-                if (sequence > 0)
+                if (rs.getInt("seq") > 0)
                     throw new SchemaMigrateException("Composite foreign keys are not supported");
+
+                // Create the foreign key.
+
+                DataSchemaForeignKey foreignKey = new DataSchemaForeignKey();
+                table.getForeignKeys().add(foreignKey);
+
+                // And initialize the new foreign key.
+
+                foreignKey.setName(String.format("FK_%s_%s", tableName, rs.getInt("id")));
 
                 foreignKey.setField(rs.getString("from"));
                 foreignKey.setLinkTable(rs.getString("table"));
