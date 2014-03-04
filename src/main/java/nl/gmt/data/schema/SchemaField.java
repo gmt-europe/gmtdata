@@ -1,5 +1,5 @@
 package nl.gmt.data.schema;
 
-public interface SchemaField {
+public interface SchemaField extends Comparable<SchemaField> {
     String getName();
 }

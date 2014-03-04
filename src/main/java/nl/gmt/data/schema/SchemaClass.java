@@ -2,7 +2,7 @@ package nl.gmt.data.schema;
 
 import java.util.*;
 
-public class SchemaClass extends SchemaAnnotatableElement {
+public class SchemaClass extends SchemaAnnotatableElement implements Comparable<SchemaClass> {
     private final Map<String, SchemaProperty> properties = new HashMap<>();
     private final Map<String, SchemaProperty> unmodifiableProperties = Collections.unmodifiableMap(properties);
     private final Map<String, SchemaForeignBase> foreigns = new HashMap<>();
@@ -123,5 +123,10 @@ public class SchemaClass extends SchemaAnnotatableElement {
     @Override
     public String toString() {
         return name;
+    }
+
+    @Override
+    public int compareTo(SchemaClass other) {
+        return name.compareTo(other.name);
     }
 }

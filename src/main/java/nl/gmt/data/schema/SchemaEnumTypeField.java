@@ -1,6 +1,6 @@
 package nl.gmt.data.schema;
 
-public class SchemaEnumTypeField extends SchemaAnnotatableElement {
+public class SchemaEnumTypeField extends SchemaAnnotatableElement implements Comparable<SchemaEnumTypeField> {
     private String name;
     private int value;
 
@@ -22,5 +22,10 @@ public class SchemaEnumTypeField extends SchemaAnnotatableElement {
 
     void setValue(int value) {
         this.value = value;
+    }
+
+    @Override
+    public int compareTo(SchemaEnumTypeField field) {
+        return name.compareTo(field.name);
     }
 }

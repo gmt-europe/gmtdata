@@ -4,7 +4,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SchemaEnumType extends SchemaAnnotatableElement {
+public class SchemaEnumType extends SchemaAnnotatableElement implements Comparable<SchemaEnumType> {
     private String name;
     private final Map<String, SchemaEnumTypeField> fields = new HashMap<>();
     private final Map<String, SchemaEnumTypeField> unmodifiableFields = Collections.unmodifiableMap(fields);
@@ -27,5 +27,10 @@ public class SchemaEnumType extends SchemaAnnotatableElement {
 
     void addField(SchemaEnumTypeField field) {
         fields.put(field.getName(),  field);
+    }
+
+    @Override
+    public int compareTo(SchemaEnumType other) {
+        return name.compareTo(other.name);
     }
 }

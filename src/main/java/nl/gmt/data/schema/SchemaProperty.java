@@ -23,4 +23,9 @@ public class SchemaProperty extends SchemaDataTypeBase implements SchemaField {
     void setResolvedDbName(String resolvedDbName) {
         this.resolvedDbName = resolvedDbName;
     }
+
+    @Override
+    public int compareTo(SchemaField other) {
+        return getName().compareTo(other.getName());
+    }
 }

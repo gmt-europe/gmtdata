@@ -3,10 +3,17 @@ package nl.gmt.data.hibernate.generation;
 import nl.gmt.data.schema.*;
 import org.apache.commons.lang.StringEscapeUtils;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class CodeGenerator {
+    private static final Set<String> RESERVED_WORDS = new HashSet<>(Arrays.asList(
+        "abstract", "assert", "boolean", "break", "byte", "case", "catch", "char", "class", "const", "continue",
+        "default", "do", "double", "else", "enum", "extends", "final", "finally", "float", "for", "goto", "if",
+        "implements", "import", "instanceof", "int", "interface", "long", "native", "new", "package", "private",
+        "protected", "public", "return", "short", "static", "strictfp", "super", "switch", "synchronized", "this",
+        "throw", "throws", "transient", "try", "void", "volatile", "while"
+    ));
+
     private final Schema schema;
 
     public CodeGenerator(Schema schema) {
@@ -14,11 +21,11 @@ public class CodeGenerator {
     }
 
     public void generate(GeneratorWriter writer) throws SchemaException {
-        for (SchemaClass klass : schema.getClasses().values()) {
+        for (SchemaClass klass : sort(schema.getClasses().values())) {
             generateClass(klass, writer);
         }
 
-        for (SchemaEnumType enumType : schema.getEnumTypes().values()) {
+        for (SchemaEnumType enumType : sort(schema.getEnumTypes().values())) {
             generateEnumType(enumType, writer);
         }
     }
@@ -64,17 +71,21 @@ public class CodeGenerator {
 
         generateIdProperty(cw, klass.getResolvedIdProperty());
 
-        for (SchemaProperty property : klass.getProperties().values()) {
+        for (SchemaProperty property : sort(klass.getProperties().values())) {
             cw.writeln();
 
             generateProperty(cw, property);
         }
 
-        for (SchemaForeignBase foreign : klass.getForeigns().values()) {
+        for (SchemaForeignBase foreign : sort(klass.getForeigns().values())) {
             cw.writeln();
 
             generateForeign(cw, foreign);
         }
+
+        cw.writeln();
+
+        generateClassBuilder(cw, klass);
 
         cw.unIndent();
         cw.writeln("}");
@@ -89,11 +100,121 @@ public class CodeGenerator {
         writer.writeFile(fileName, cw.toString());
     }
 
+    private void generateClassBuilder(CodeWriter cw, SchemaClass klass) {
+        cw.writeln(
+            "public static class Builder {",
+            klass.getName(),
+            getTypeName(klass.getResolvedIdProperty().getResolvedDataType().getNativeType())
+        );
+        cw.indent();
+
+        for (SchemaProperty property : sort(klass.getProperties().values())) {
+            generateBuilderProperty(cw, property);
+
+            cw.writeln();
+        }
+
+        for (SchemaForeignBase foreign : sort(klass.getForeigns().values())) {
+            if (foreign.getType() == SchemaForeignType.PARENT) {
+                generateBuilderForeignParent(cw, (SchemaForeignParent)foreign);
+
+                cw.writeln();
+            }
+        }
+
+        generateBuilderBuild(cw, klass);
+
+        cw.unIndent();
+        cw.writeln("}");
+    }
+
+    private void generateBuilderProperty(CodeWriter cw, SchemaProperty property) {
+        generateField(cw, property.getResolvedDataType(), property.getEnumType(), property.getName());
+
+        cw.writeln();
+
+        generateBuilderSetter(cw, property.getResolvedDataType(), property.getEnumType(), property.getName());
+    }
+
+    private void generateBuilderForeignParent(CodeWriter cw, SchemaForeignParent foreign) {
+        cw.writeln(
+            "private %s %s;",
+            foreign.getClassName(),
+            getFieldName(foreign.getName())
+        );
+
+        cw.writeln();
+
+        generateBuilderSetter(cw, foreign.getName(), foreign.getClassName(), false);
+    }
+
+    private void generateBuilderSetter(CodeWriter cw, SchemaResolvedDataType dataType, String enumType, String name) {
+        generateBuilderSetter(
+            cw,
+            name,
+            enumType != null ? enumType : getTypeName(dataType.getNativeType()),
+            dataType.getNativeType() == Boolean.class
+        );
+    }
+
+    private void generateBuilderSetter(CodeWriter cw, String name, String typeName, boolean isBoolean) {
+        String fieldName = getFieldName(name);
+
+        cw.writeln(
+            "public Builder set%s(%s %s) {",
+            name,
+            typeName,
+            fieldName
+        );
+        cw.indent();
+        cw.writeln("this.%s = %s;", fieldName, fieldName);
+        cw.writeln("return this;");
+        cw.unIndent();
+        cw.writeln("}");
+    }
+
+    private void generateBuilderBuild(CodeWriter cw, SchemaClass klass) {
+        cw.writeln("public %s build() {", klass.getName());
+        cw.indent();
+
+        StringBuilder sb = new StringBuilder();
+
+        for (SchemaField field : sort(klass.getFields())) {
+            String fieldName = getFieldName(field.getName());
+
+            if (field instanceof SchemaProperty) {
+                SchemaProperty property = (SchemaProperty)field;
+
+                if (sb.length() > 0)
+                    sb.append(", ");
+
+                sb.append(String.format(
+                    "this.%s", fieldName
+                ));
+            } else if (field instanceof SchemaForeignParent) {
+                if (sb.length() > 0)
+                    sb.append(", ");
+
+                sb.append(String.format(
+                    "this.%s",
+                    fieldName
+                ));
+            }
+        }
+
+        // Write the declaration.
+
+        cw.writeln("return new %s(%s);", klass.getName(), sb.toString());
+
+        cw.unIndent();
+        cw.writeln("}");
+    }
+
     private void generatePropertyConstructor(CodeWriter cw, SchemaClass klass) {
         StringBuilder sb = new StringBuilder();
         List<String> assignments = new ArrayList<>();
 
-        for (SchemaField field : klass.getFields()) {
+        for (SchemaField field : sort(klass.getFields())) {
             String fieldName = getFieldName(field.getName());
 
             if (field instanceof SchemaProperty) {
@@ -133,7 +254,7 @@ public class CodeGenerator {
 
         // Write the declaration.
 
-        cw.writeln("public %s(%s) {", klass.getName(), sb.toString());
+        cw.writeln("private %s(%s) {", klass.getName(), sb.toString());
         cw.indent();
 
         // Write all assignments.
@@ -285,7 +406,13 @@ public class CodeGenerator {
     }
 
     private String getFieldName(String name) {
-        return name.substring(0, 1).toLowerCase() + name.substring(1);
+        String result = name.substring(0, 1).toLowerCase() + name.substring(1);
+
+        if (RESERVED_WORDS.contains(result)) {
+            result += "_";
+        }
+
+        return result;
     }
 
     private void generateColumnAnnotations(CodeWriter cw, String dbName, SchemaResolvedDataType dataType) {
@@ -402,7 +529,7 @@ public class CodeGenerator {
         cw.writeln("public enum %s implements PersistentEnum {", enumType.getName());
         cw.indent();
 
-        List<SchemaEnumTypeField> fields = new ArrayList<>(enumType.getFields().values());
+        List<SchemaEnumTypeField> fields = sort(enumType.getFields().values());
 
         for (int i = 0; i < fields.size(); i++) {
             SchemaEnumTypeField field = fields.get(i);
@@ -452,5 +579,14 @@ public class CodeGenerator {
         cw.writeln("}");
 
         writer.writeFile("model/" + enumType.getName() + ".java", cw.toString());
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T extends Comparable> List<T> sort(Collection<? extends T> collection) {
+        List<T> result = new ArrayList<>(collection);
+
+        Collections.sort(result);
+
+        return result;
     }
 }

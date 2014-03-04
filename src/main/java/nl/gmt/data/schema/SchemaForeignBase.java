@@ -1,6 +1,6 @@
 package nl.gmt.data.schema;
 
-public abstract class SchemaForeignBase extends SchemaAnnotatableElement implements SchemaField {
+public abstract class SchemaForeignBase extends SchemaAnnotatableElement implements SchemaField, Comparable<SchemaField> {
     private SchemaForeignType type;
     private String name;
     private String className;
@@ -38,5 +38,10 @@ public abstract class SchemaForeignBase extends SchemaAnnotatableElement impleme
     @Override
     public String toString() {
         return name;
+    }
+
+    @Override
+    public int compareTo(SchemaField other) {
+        return name.compareTo(other.getName());
     }
 }
