@@ -10,12 +10,15 @@ public class DbContext implements DataCloseable {
     private static final Logger LOG = Logger.getLogger(DbContext.class);
 
     private final Transaction tx;
+    private final DbConnection db;
     private Session session;
     private DbContextState state;
     private final List<DbContextListener> contextListeners;
     private boolean closed;
 
     DbContext(DbConnection db) {
+        this.db = db;
+
         contextListeners = db.getContextListeners();
 
         state = DbContextState.UNKNOWN;
@@ -67,6 +70,20 @@ public class DbContext implements DataCloseable {
 
     public void abort() {
         state = DbContextState.ABORTED;
+    }
+
+    public <T extends Repository> T getRepository(Class<T> repositoryClass) {
+        RepositoryService repositoryService = db.getRepositoryService();
+
+        if (repositoryService == null) {
+            throw new IllegalStateException("Repository service is not available");
+        }
+
+        T repository = repositoryService.getRepository(repositoryClass);
+
+        repository.setContext(this);
+
+        return repository;
     }
 
     @Override

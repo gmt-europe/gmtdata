@@ -26,12 +26,18 @@ public abstract class DbConnection implements DataCloseable {
     private SessionFactory sessionFactory;
     private final List<DbContextListener> contextListeners = new ArrayList<>();
     private final List<DbContextListener> unmodifiableContextListeners = Collections.unmodifiableList(contextListeners);
+    private RepositoryService repositoryService;
     private boolean closed;
 
     protected DbConnection(String connectionString, DbType type, String schemaName) throws DataException {
+        this(connectionString, type, schemaName, null);
+    }
+
+    protected DbConnection(String connectionString, DbType type, String schemaName, RepositoryService repositoryService) throws DataException {
         this.connectionString = connectionString;
         this.type = type;
         this.schemaName = schemaName;
+        this.repositoryService = repositoryService;
 
         switch (type) {
             case SQLITE: driver = new SQLiteDatabaseDriver(); break;
@@ -64,6 +70,10 @@ public abstract class DbConnection implements DataCloseable {
 
     public DbType getType() {
         return type;
+    }
+
+    public RepositoryService getRepositoryService() {
+        return repositoryService;
     }
 
     private void addClasses(Configuration configuration) throws ClassNotFoundException {

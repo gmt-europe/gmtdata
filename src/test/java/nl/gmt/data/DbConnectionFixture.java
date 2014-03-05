@@ -4,25 +4,38 @@ import nl.gmt.data.drivers.SQLiteDriver;
 import nl.gmt.data.model.Address;
 import nl.gmt.data.model.Gender;
 import nl.gmt.data.model.Relation;
-import org.apache.commons.io.FileUtils;
+import nl.gmt.data.model.RelationRepository;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 @RunWith(JUnit4.class)
 public class DbConnectionFixture {
-    @Test
-    public void performTests() throws Exception {
+    private TestConnection openDb() throws Exception {
         String path = "./tmp/gmtdatatest.db3";
 
         new File(path).getParentFile().mkdirs();
 
         SQLiteDriver.setPragma("journal_mode", "TRUNCATE");
 
-        try (TestConnection db = new TestConnection("jdbc:sqlite:" + path, DbType.SQLITE)) {
+        TestConnection db = new TestConnection("jdbc:sqlite:" + path, DbType.SQLITE);
+
+        db.migrateDatabase();
+
+        return db;
+    }
+
+    @Test
+    public void performTests() throws Exception {
+        try (TestConnection db = openDb()) {
             db.migrateDatabase();
 
             try (DbContext ctx = db.openContext()) {
@@ -69,6 +82,40 @@ public class DbConnectionFixture {
                         System.out.println("  " + address.getStreet() + " " + address.getHouseNumber() + " " + address.getCity());
                     }
                 }
+
+                ctx.commit();
+            }
+        }
+    }
+
+    @Test
+    public void repositoryTest() throws Exception {
+        try (TestConnection db = openDb()) {
+            try (DbContext ctx = db.openContext()) {
+                for (Relation relation : ctx.<Relation>createQuery("from Relation r")) {
+                    ctx.delete(relation);
+                }
+
+                ctx.commit();
+            }
+
+            try (DbContext ctx = db.openContext()) {
+                Relation relation = new Relation(
+                    "Pieter van Ginkel",
+                    Gender.MALE,
+                    null
+                );
+
+                ctx.saveOrUpdate(relation);
+
+                ctx.commit();
+            }
+
+            try (DbContext ctx = db.openContext()) {
+                Relation relation = ctx.getRepository(RelationRepository.class).findByName("Pieter van Ginkel");
+
+                assertNotNull(relation);
+                assertEquals("Pieter van Ginkel", relation.getName());
 
                 ctx.commit();
             }
