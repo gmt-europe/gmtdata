@@ -51,10 +51,21 @@ public class SQLiteDatabaseDriver extends GenericDatabaseDriver {
 
     private static class DbContextListenerImpl implements DbContextListener {
         private final ReentrantLock lock = new ReentrantLock();
+        private boolean taken;
 
         @Override
         public void beforeOpenContext(DbContext context) {
             lock.lock();
+
+            // Prevent re-entrant locking.
+
+            if (taken) {
+                lock.unlock();
+
+                throw new IllegalStateException("Nested transactions are not supported");
+            }
+
+            taken = true;
         }
 
         @Override
@@ -67,6 +78,8 @@ public class SQLiteDatabaseDriver extends GenericDatabaseDriver {
 
         @Override
         public void afterCloseContext(DbContext context) {
+            taken = false;
+
             lock.unlock();
         }
     }
