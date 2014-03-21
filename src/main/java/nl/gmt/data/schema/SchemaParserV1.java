@@ -14,7 +14,7 @@ public class SchemaParserV1 {
     private Schema schema;
     private String schemaName;
 
-    public static final String NS = "http://schemas.gmt.nl/gmtdata/hibernate-schema/v1";
+    public static final String NS = "http://schemas.gmt.nl/gmtdata/2014/02/hibernate-schema";
 
     public SchemaParserResult parse(InputStream is, String schemaName, Schema schema) throws SchemaException {
         this.schema = schema;

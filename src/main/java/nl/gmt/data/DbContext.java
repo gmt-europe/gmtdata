@@ -91,24 +91,33 @@ public class DbContext implements DataCloseable {
         if (!closed) {
             try {
                 if (session != null) {
-                    if (state == DbContextState.UNKNOWN) {
-                        LOG.warn("Aborting transaction because it was not committed or rolled back");
-                        state = DbContextState.ABORTED;
-                    }
+                    try {
+                        if (state == DbContextState.UNKNOWN) {
+                            LOG.warn("Aborting transaction because it was not committed or rolled back");
+                            state = DbContextState.ABORTED;
+                        }
 
-                    for (DbContextListener listener : contextListeners) {
-                        listener.beforeCloseContext(this);
-                    }
+                        for (DbContextListener listener : contextListeners) {
+                            listener.beforeCloseContext(this);
+                        }
 
-                    if (state == DbContextState.COMMITTED) {
-                        session.flush();
-                        tx.commit();
-                    } else {
-                        tx.rollback();
-                    }
+                        boolean success = false;
 
-                    session.close();
-                    session = null;
+                        try {
+                            if (state == DbContextState.COMMITTED) {
+                                session.flush();
+                                tx.commit();
+                                success = true;
+                            }
+                        } finally {
+                            if (!success) {
+                                tx.rollback();
+                            }
+                        }
+                    } finally {
+                        session.close();
+                        session = null;
+                    }
                 }
             } finally {
                 for (DbContextListener listener : contextListeners) {

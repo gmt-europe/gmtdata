@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<schema xmlns="http://schemas.gmt.nl/gmtdata/hibernate-schema/v1" namespace="nl.gmt.data">
+<schema xmlns="http://schemas.gmt.nl/gmtdata/2014/02/hibernate-schema" namespace="nl.gmt.data">
     <settings>
         <idProperty name="Id" type="guid" foreignPostfix="Id">
             <generator name="uuid" strategy="uuid2"/>

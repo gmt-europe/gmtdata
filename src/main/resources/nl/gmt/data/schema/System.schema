@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<schema xmlns="http://schemas.gmt.nl/gmtdata/hibernate-schema/v1">
+<schema xmlns="http://schemas.gmt.nl/gmtdata/2014/02/hibernate-schema">
   <!--
     This system schema is included before the user provided schemas are parsed.
     Everything that is required to be present with every run is defined here.
