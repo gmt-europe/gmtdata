@@ -57,12 +57,12 @@
         <snapshotRepository>
             <id>snapshots</id>
             <name>Titan Snapshots Repository</name>
-            <url>http://titan:8080/nexus/content/repositories/snapshots/</url>
+            <url>http://titan:8082/nexus/content/repositories/snapshots/</url>
         </snapshotRepository>
         <repository>
             <id>releases</id>
             <name>Titan Releases Repository</name>
-            <url>http://titan:8080/nexus/content/repositories/releases/</url>
+            <url>http://titan:8082/nexus/content/repositories/releases/</url>
         </repository>
     </distributionManagement>
 
