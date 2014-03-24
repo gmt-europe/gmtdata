@@ -15,9 +15,6 @@ public class SqlGenerator extends GuidedSqlGenerator {
     private SchemaRules rules;
     private boolean closed;
     private Connection connection;
-    private Map<String, CharacterSet> characterSets;
-    private Map<String, Collation> collations;
-    private Map<String, StorageEngine> storageEngines;
 
     public SqlGenerator(Schema schema) {
         super(schema);
@@ -39,69 +36,6 @@ public class SqlGenerator extends GuidedSqlGenerator {
         } catch (DataException e) {
             throw new SchemaMigrateException("Cannot open connection", e);
         }
-
-        try {
-            characterSets = buildCharacterSets();
-            collations = buildCollations(connection);
-            storageEngines = buildStorageEngines();
-        } catch (SQLException e) {
-            throw new SchemaMigrateException("Cannot setup SQL generator", e);
-        }
-    }
-
-    private Map<String, CharacterSet> buildCharacterSets() throws SQLException {
-        Map<String, CharacterSet> characterSets = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-
-        try (
-            Statement stmt = connection.createStatement();
-            ResultSet rs = stmt.executeQuery("SHOW CHARACTER SET")
-        ) {
-            while (rs.next()) {
-                CharacterSet characterSet = new CharacterSet(
-                    rs.getString(1), rs.getString(2), rs.getString(3), rs.getLong(4)
-                );
-                characterSets.put(characterSet.getName(), characterSet);
-            }
-        }
-
-        return characterSets;
-    }
-
-    static Map<String, Collation> buildCollations(Connection connection) throws SQLException {
-        Map<String, Collation> collations = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-
-        try (
-            Statement stmt = connection.createStatement();
-            ResultSet rs = stmt.executeQuery("SHOW COLLATION")
-        ) {
-            while (rs.next()) {
-                Collation collation = new Collation(
-                    rs.getString(1), rs.getString(2), rs.getLong(3), rs.getString(4), rs.getString(5), rs.getLong(6)
-                );
-                collations.put(collation.getName(), collation);
-            }
-        }
-
-        return collations;
-    }
-
-    private Map<String, StorageEngine> buildStorageEngines() throws SQLException {
-        Map<String, StorageEngine> storageEngines = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-
-        try (
-            Statement stmt = connection.createStatement();
-            ResultSet rs = stmt.executeQuery("SHOW ENGINES")
-        ) {
-            while (rs.next()) {
-                StorageEngine storageEngine = new StorageEngine(
-                    rs.getString(1
-                    ), rs.getString(2), rs.getString(3)
-                );
-                storageEngines.put(storageEngine.getName().toLowerCase(), storageEngine);
-            }
-        }
-
-        return storageEngines;
     }
 
     @Override
@@ -175,7 +109,7 @@ public class SqlGenerator extends GuidedSqlGenerator {
     protected void writeTableCreate(DataSchemaTable table) throws SchemaMigrateException {
         pushStatement("CREATE TABLE `%s` (", table.getName());
 
-        List<String> lines = new ArrayList<String>();
+        List<String> lines = new ArrayList<>();
 
         for (DataSchemaField field : table.getFields().values()) {
             lines.add(writeField(field, null));
@@ -229,7 +163,7 @@ public class SqlGenerator extends GuidedSqlGenerator {
     protected void writeTableUpdate(DataSchemaTableDifference table) {
         writeAlterTable(table.getSchema());
 
-        List<String> parts = new ArrayList<String>();
+        List<String> parts = new ArrayList<>();
 
         if (!StringUtils.equalsIgnoreCase(table.getOldSchema().getDefaultCharset(), table.getSchema().getDefaultCharset())) {
             parts.add(String.format("DEFAULT CHARSET %s", table.getSchema().getDefaultCharset()));

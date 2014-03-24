@@ -12,16 +12,31 @@ import java.sql.Statement;
 import java.util.*;
 
 public class DataSchemaReader extends nl.gmt.data.migrate.DataSchemaReader {
-    private final Map<String, Collation> collations;
+    private final Map<String, String> defaultCharacterSets;
 
     public DataSchemaReader(Connection connection) throws SchemaMigrateException {
         super(connection);
 
         try {
-            collations = SqlGenerator.buildCollations(getConnection());
+            defaultCharacterSets = loadDefaultCharacterSets();
         } catch (SQLException e) {
             throw new SchemaMigrateException("Cannot get collations", e);
         }
+    }
+
+    private Map<String, String> loadDefaultCharacterSets() throws SQLException {
+        Map<String, String> defaultCharacterSets = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+
+        try (
+            Statement stmt = getConnection().createStatement();
+            ResultSet rs = stmt.executeQuery("SHOW COLLATION")
+        ) {
+            while (rs.next()) {
+                defaultCharacterSets.put(rs.getString(1), rs.getString(2));
+            }
+        }
+
+        return defaultCharacterSets;
     }
 
     @Override
@@ -74,7 +89,7 @@ public class DataSchemaReader extends nl.gmt.data.migrate.DataSchemaReader {
 
                     String collation = rs.getString("COLLATION_NAME");
                     field.setCollation(collation);
-                    field.setCharacterSet(collation != null ? collations.get(collation).getCharacterSet() : null);
+                    field.setCharacterSet(collation != null ? defaultCharacterSets.get(collation) : null);
 
                     tables.get(rs.getString("TABLE_NAME")).addField(field);
                 }
@@ -223,7 +238,7 @@ public class DataSchemaReader extends nl.gmt.data.migrate.DataSchemaReader {
         result.setEngine(rs.getString("ENGINE"));
         String collation = rs.getString("TABLE_COLLATION");
         result.setDefaultCollation(collation);
-        result.setDefaultCharset(collation != null ? collations.get(collation).getCharacterSet() : null);
+        result.setDefaultCharset(collation != null ? defaultCharacterSets.get(collation) : null);
 
         return result;
     }
