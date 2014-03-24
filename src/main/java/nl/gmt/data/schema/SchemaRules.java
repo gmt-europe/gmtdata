@@ -13,8 +13,26 @@ public abstract class SchemaRules {
     public abstract boolean dbTypeSupportsSign(SchemaDbType dbType);
     public abstract boolean dbTypeSupportsCharset(SchemaDbType dbType);
     public abstract boolean dbTypeSupportsLength(SchemaDbType dbType);
-    public abstract boolean supportsCharset();
-    public abstract boolean supportsEngine();
+
+    public boolean supportsCharset() {
+        return false;
+    }
+
+    public String getDefaultCharset() {
+        return null;
+    }
+
+    public String getDefaultCollation() {
+        return null;
+    }
+
+    public boolean supportsEngine() {
+        return false;
+    }
+
+    public String getDefaultEngine() {
+        return null;
+    }
 
     public boolean areTypesEquivalent(SchemaDbType a, SchemaDbType b) {
         return a == b;

@@ -43,17 +43,6 @@
                         </xs:complexContent>
                     </xs:complexType>
                 </xs:element>
-                <xs:element name="mySql" minOccurs="0">
-                    <xs:complexType>
-                        <xs:complexContent>
-                            <xs:extension base="nhs:SchemaElement">
-                                <xs:attribute name="engine" type="xs:string" use="required"/>
-                                <xs:attribute name="charset" type="xs:string" use="required"/>
-                                <xs:attribute name="collation" type="xs:string" use="optional"/>
-                            </xs:extension>
-                        </xs:complexContent>
-                    </xs:complexType>
-                </xs:element>
             </xs:sequence>
         </xs:complexType>
     </xs:element>

@@ -19,6 +19,10 @@ import java.sql.Statement;
 public abstract class DatabaseTestBase {
     private Connection connection;
 
+    protected Connection getConnection() {
+        return connection;
+    }
+
     protected abstract DatabaseDriver createDatabaseDriver();
 
     protected abstract String getConnectionStringName();

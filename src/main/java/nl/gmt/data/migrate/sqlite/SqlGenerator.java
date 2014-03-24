@@ -55,13 +55,6 @@ public class SqlGenerator extends nl.gmt.data.migrate.SqlGenerator {
     }
 
     @Override
-    public String getDefaultCollation(String charset) {
-        // This is specific to MySql so we do not need to do anything.
-
-        return null;
-    }
-
-    @Override
     protected void applyChanges() throws SchemaMigrateException {
         // Foreign keys must be turned of when migrating the database. The
         // reason for this is that if we don't do this, renaming tables will
@@ -79,7 +72,7 @@ public class SqlGenerator extends nl.gmt.data.migrate.SqlGenerator {
     private void writeTableDeletes() {
         boolean hadOne = false;
 
-        for (String tableName : getDifferent().getRemovedTables()) {
+        for (String tableName : getDifference().getRemovedTables()) {
             if (!hadOne) {
                 writeHeader("Removed tables");
                 hadOne = true;
@@ -96,7 +89,7 @@ public class SqlGenerator extends nl.gmt.data.migrate.SqlGenerator {
     private void writeTableCreates() throws SchemaMigrateException {
         boolean hadOne = false;
 
-        for (DataSchemaTable table : getDifferent().getNewTables().values()) {
+        for (DataSchemaTable table : getDifference().getNewTables().values()) {
             if (!hadOne) {
                 writeHeader("New tables");
                 hadOne = true;
@@ -315,7 +308,7 @@ public class SqlGenerator extends nl.gmt.data.migrate.SqlGenerator {
     private void writeTableUpdates() throws SchemaMigrateException {
         boolean hadOne = false;
 
-        for (DataSchemaTableDifference table : getDifferent().getChangedTables().values()) {
+        for (DataSchemaTableDifference table : getDifference().getChangedTables().values()) {
             if (!hadOne) {
                 writeHeader("Update existing tables");
                 hadOne = true;

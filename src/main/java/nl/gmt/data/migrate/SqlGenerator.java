@@ -25,7 +25,7 @@ public abstract class SqlGenerator implements AutoCloseable {
         return schema;
     }
 
-    public DataSchemaDifference getDifferent() {
+    public DataSchemaDifference getDifference() {
         return different;
     }
 
@@ -123,7 +123,7 @@ public abstract class SqlGenerator implements AutoCloseable {
         addNewline();
 
         currentSchema = readDataSchema();
-        newSchema = DataSchema.fromSchema(schema, this);
+        newSchema = DataSchema.fromSchema(schema, executor.getRules());
 
         different = new DataSchemaDifference(currentSchema, newSchema, executor);
 
@@ -136,9 +136,9 @@ public abstract class SqlGenerator implements AutoCloseable {
         return DataSchema.fromReader(createDataSchemaReader());
     }
 
-    protected abstract DataSchemaReader createDataSchemaReader();
+    protected abstract DataSchemaReader createDataSchemaReader() throws SchemaMigrateException;
 
-    protected abstract void writeUseStatement();
+    protected abstract void writeUseStatement() throws SchemaMigrateException;
 
     protected void writeHeader(String header) {
         addComment(header);
@@ -231,6 +231,4 @@ public abstract class SqlGenerator implements AutoCloseable {
                 throw new SchemaException(String.format("Unexpected data type '%s'", dataType));
         }
     }
-
-    public abstract String getDefaultCollation(String charset);
 }

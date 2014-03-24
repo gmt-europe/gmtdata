@@ -1,5 +1,6 @@
 package nl.gmt.data.migrate;
 
+import nl.gmt.data.schema.SchemaRules;
 import nl.gmt.data.schema.*;
 
 import java.util.ArrayList;
@@ -23,21 +24,10 @@ public class DataSchemaTable {
         indexes = new ArrayList<>();
     }
 
-    public static DataSchemaTable createFromSchemaClass(SchemaClass klass, Schema schema, SqlGenerator generator) throws SchemaMigrateException {
+    public static DataSchemaTable createFromSchemaClass(SchemaClass klass, Schema schema, SchemaRules rules) throws SchemaMigrateException {
         DataSchemaTable result = new DataSchemaTable();
 
         result.name = klass.getResolvedDbName();
-
-        SchemaMySqlSettings mySqlSettings = schema.getMySqlSettings();
-        if (mySqlSettings != null) {
-            result.engine = mySqlSettings.getEngine();
-            result.defaultCharset = mySqlSettings.getCharset();
-            result.defaultCollation = mySqlSettings.getCollation();
-
-            if (result.defaultCollation == null)
-                result.defaultCollation = generator.getDefaultCollation(result.defaultCharset);
-        }
-
         result.autoIncrement = -1;
 
         // Add all fields
@@ -82,6 +72,12 @@ public class DataSchemaTable {
             if (foreign.getType() == SchemaForeignType.PARENT)
                 result.foreignKeys.add(DataSchemaForeignKey.createFromForeignParent((SchemaForeignParent)foreign, schema));
         }
+
+        // Initialize defaults.
+
+        result.defaultCharset = rules.getDefaultCharset();
+        result.defaultCollation = rules.getDefaultCollation();
+        result.engine = rules.getDefaultEngine();
 
         // Update the charset of all fields.
 

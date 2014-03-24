@@ -39,16 +39,6 @@ public class SchemaRules extends nl.gmt.data.schema.SchemaRules {
     }
 
     @Override
-    public boolean supportsCharset() {
-        return false;
-    }
-
-    @Override
-    public boolean supportsEngine() {
-        return false;
-    }
-
-    @Override
     public boolean dbTypesEqual(DataSchemaField a, DataSchemaField b) throws SchemaMigrateException {
         // SQLite does not look at lengths, positions or scale. This
         // means that we only have to compare the data types

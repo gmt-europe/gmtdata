@@ -17,7 +17,6 @@ public class Schema extends SchemaAnnotatableElement {
     private final Map<String, SchemaClass> unmodifiableClasses = Collections.unmodifiableMap(classes);
     private final Map<String, SchemaEnumType> enumTypes = new HashMap<>();
     private final Map<String, SchemaEnumType> unmodifiableEnumTypes = Collections.unmodifiableMap(enumTypes);
-    private SchemaMySqlSettings mySqlSettings;
     private SchemaIdProperty idProperty;
     private List<String> baseIncludes;
     private String schemaHash;
@@ -70,14 +69,6 @@ public class Schema extends SchemaAnnotatableElement {
 
     public Map<String, SchemaEnumType> getEnumTypes() {
         return unmodifiableEnumTypes;
-    }
-
-    public SchemaMySqlSettings getMySqlSettings() {
-        return mySqlSettings;
-    }
-
-    void setMySqlSettings(SchemaMySqlSettings mySqlSettings) {
-        this.mySqlSettings = mySqlSettings;
     }
 
     public SchemaIdProperty getIdProperty() {

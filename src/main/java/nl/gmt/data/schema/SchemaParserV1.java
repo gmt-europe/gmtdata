@@ -107,9 +107,6 @@ public class SchemaParserV1 {
                 case "enumDataType":
                     parseEnumDataType(element);
                     break;
-                case "mySql":
-                    parseMySql(element);
-                    break;
             }
         }
     }
@@ -142,27 +139,6 @@ public class SchemaParserV1 {
         for (Attr attribute : attributes(node)) {
             switch (attribute.getNodeName()) {
                 case "type": schema.setEnumDataType(attribute.getValue()); break;
-            }
-        }
-    }
-
-    private void parseMySql(Element node) throws SchemaException {
-        SchemaMySqlSettings mySqlSettings = new SchemaMySqlSettings(getLocation(node));
-        schema.setMySqlSettings(mySqlSettings);
-
-        for (Attr attribute : attributes(node)) {
-            if (!parseSchemaElementAttribute(mySqlSettings, attribute)) {
-                switch (attribute.getNodeName()) {
-                    case "engine":
-                        mySqlSettings.setEngine(attribute.getValue());
-                        break;
-                    case "charset":
-                        mySqlSettings.setCharset(attribute.getValue());
-                        break;
-                    case "collation":
-                        mySqlSettings.setCollation(attribute.getValue());
-                        break;
-                }
             }
         }
     }

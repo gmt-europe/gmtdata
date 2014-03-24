@@ -35,7 +35,7 @@ public class DataSchemaTableDifference {
             newForeignKeys.size() > 0 ||
             !StringUtils.equalsIgnoreCase(schema.getDefaultCollation(), oldSchema.getDefaultCollation()) ||
             !StringUtils.equalsIgnoreCase(schema.getDefaultCharset(), oldSchema.getDefaultCharset()) ||
-            !StringUtils.equalsIgnoreCase(schema.getEngine(),  oldSchema.getEngine());
+            !StringUtils.equalsIgnoreCase(schema.getEngine(), oldSchema.getEngine());
     }
 
     private void compareFields(DataSchemaExecutor executor) throws SchemaMigrateException {

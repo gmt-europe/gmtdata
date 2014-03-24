@@ -1,5 +1,6 @@
 package nl.gmt.data.migrate;
 
+import nl.gmt.data.schema.SchemaRules;
 import nl.gmt.data.schema.Schema;
 import nl.gmt.data.schema.SchemaClass;
 
@@ -13,11 +14,11 @@ public class DataSchema {
         this.tables = tables;
     }
 
-    public static DataSchema fromSchema(Schema schema, SqlGenerator generator) throws SchemaMigrateException {
+    public static DataSchema fromSchema(Schema schema, SchemaRules rules) throws SchemaMigrateException {
         Map<String, DataSchemaTable> tables = new HashMap<>();
 
         for (SchemaClass klass : schema.getClasses().values()) {
-            DataSchemaTable table = DataSchemaTable.createFromSchemaClass(klass, schema, generator);
+            DataSchemaTable table = DataSchemaTable.createFromSchemaClass(klass, schema, rules);
 
             tables.put(table.getName(), table);
         }
