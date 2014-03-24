@@ -14,8 +14,11 @@ import java.sql.SQLException;
 
 public abstract class DatabaseDriver {
     public abstract String getConnectionType();
+
     public abstract Manifest readManifest(Connection connection) throws SchemaMigrateException;
+
     public abstract void writeManifest(Connection connection, Manifest manifest, Schema schema) throws SchemaMigrateException;
+
     public abstract String getDialectType();
 
     public void configure(DbConnection db) {
@@ -42,10 +45,11 @@ public abstract class DatabaseDriver {
             } catch (Throwable e) {
                 throw new DataException("Failed to execute database action", e);
             } finally {
-                if (success)
+                if (success) {
                     connection.commit();
-                else
+                } else {
                     connection.rollback();
+                }
             }
         } catch (SQLException e) {
             throw new DataException("Cannot execute database action", e);

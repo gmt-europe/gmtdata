@@ -2,7 +2,6 @@ package nl.gmt.data.migrate;
 
 import nl.gmt.data.schema.Schema;
 import nl.gmt.data.schema.SchemaRules;
-import org.apache.commons.lang.StringUtils;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -113,14 +112,7 @@ public abstract class GuidedSqlGenerator extends SqlGenerator {
     }
 
     private void updateExistingTable(DataSchemaTableDifference table) throws SchemaMigrateException {
-        if (
-            (getRules().supportsCharset() || getRules().supportsEngine()) &&
-            (
-                !StringUtils.equalsIgnoreCase(table.getOldSchema().getDefaultCharset(), table.getSchema().getDefaultCharset()) ||
-                !StringUtils.equalsIgnoreCase(table.getOldSchema().getDefaultCollation(), table.getSchema().getDefaultCollation()) ||
-                !StringUtils.equalsIgnoreCase(table.getOldSchema().getEngine(), table.getSchema().getEngine())
-            )
-        ) {
+        if (!DataSchemaObject.extensionsEquals(table.getOldSchema(), table.getSchema())) {
             writeHeader("Updating existing tables");
 
             writeTableUpdate(table);

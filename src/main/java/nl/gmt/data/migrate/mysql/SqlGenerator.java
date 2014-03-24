@@ -9,7 +9,8 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SqlGenerator extends GuidedSqlGenerator {
     private SchemaRules rules;
@@ -131,8 +132,11 @@ public class SqlGenerator extends GuidedSqlGenerator {
             pushStatement(sb.toString());
         }
 
-        addStatement(") ENGINE=%s DEFAULT CHARSET=%s COLLATE=%s",
-            rules.getDefaultEngine(), rules.getDefaultCharset(), rules.getDefaultCollation()
+        addStatement(
+            ") ENGINE=%s DEFAULT CHARSET=%s COLLATE=%s",
+            SchemaRules.getEngine(table),
+            SchemaRules.getDefaultCharset(table),
+            SchemaRules.getDefaultCollation(table)
         );
     }
 
@@ -165,14 +169,14 @@ public class SqlGenerator extends GuidedSqlGenerator {
 
         List<String> parts = new ArrayList<>();
 
-        if (!StringUtils.equalsIgnoreCase(table.getOldSchema().getDefaultCharset(), table.getSchema().getDefaultCharset())) {
-            parts.add(String.format("DEFAULT CHARSET %s", table.getSchema().getDefaultCharset()));
+        if (!StringUtils.equals(SchemaRules.getDefaultCharset(table.getOldSchema()), SchemaRules.getDefaultCharset(table.getSchema()))) {
+            parts.add(String.format("DEFAULT CHARSET %s", SchemaRules.getDefaultCharset(table.getSchema())));
         }
-        if (!StringUtils.equalsIgnoreCase(table.getOldSchema().getDefaultCollation(), table.getSchema().getDefaultCollation())) {
-            parts.add(String.format("COLLATE %s", table.getSchema().getDefaultCollation()));
+        if (!StringUtils.equals(SchemaRules.getDefaultCollation(table.getOldSchema()), SchemaRules.getDefaultCollation(table.getSchema()))) {
+            parts.add(String.format("COLLATE %s", SchemaRules.getDefaultCollation(table.getSchema())));
         }
-        if (!StringUtils.equalsIgnoreCase(table.getOldSchema().getEngine(), table.getSchema().getEngine())) {
-            parts.add(String.format("ENGINE %s", table.getSchema().getEngine()));
+        if (!StringUtils.equals(SchemaRules.getEngine(table.getOldSchema()), SchemaRules.getEngine(table.getSchema()))) {
+            parts.add(String.format("ENGINE %s", SchemaRules.getEngine(table.getSchema())));
         }
 
         addStatement("  %s", StringUtils.join(parts, " "));
@@ -207,13 +211,13 @@ public class SqlGenerator extends GuidedSqlGenerator {
             sb.append(" AUTO_INCREMENT");
         }
 
-        if (rules.dbTypeSupportsCharset(field.getType())) {
-            if (oldField != null && !StringUtils.equals(oldField.getCharacterSet(), field.getCharacterSet())) {
-                sb.append(String.format(" CHARACTER SET %s", field.getCharacterSet()));
+        if (SchemaRules.dbTypeSupportsCharset(field.getType())) {
+            if (oldField != null && !StringUtils.equals(SchemaRules.getCharset(oldField), SchemaRules.getCharset(field))) {
+                sb.append(String.format(" CHARACTER SET %s", SchemaRules.getCharset(field)));
             }
 
-            if (oldField != null && !StringUtils.equals(oldField.getCollation(), field.getCollation())) {
-                sb.append(String.format(" COLLATE %s", field.getCollation()));
+            if (oldField != null && !StringUtils.equals(SchemaRules.getCollation(oldField), SchemaRules.getCollation(field))) {
+                sb.append(String.format(" COLLATE %s", SchemaRules.getCollation(field)));
             }
         }
 

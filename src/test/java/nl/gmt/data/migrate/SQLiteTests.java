@@ -12,6 +12,14 @@ import java.sql.Connection;
 
 @RunWith(JUnit4.class)
 public class SQLiteTests extends DatabaseTests {
+    static {
+        try {
+            Class.forName("org.sqlite.JDBC");
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @Override
     protected DatabaseDriver createDatabaseDriver() {
         return new SQLiteDatabaseDriver();

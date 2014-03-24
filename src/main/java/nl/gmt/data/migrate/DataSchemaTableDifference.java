@@ -1,9 +1,11 @@
 package nl.gmt.data.migrate;
 
 import nl.gmt.data.schema.SchemaIndexType;
-import org.apache.commons.lang.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class DataSchemaTableDifference {
     private final DataSchemaTable schema;
@@ -33,9 +35,7 @@ public class DataSchemaTableDifference {
             newIndexes.size() > 0 ||
             removedForeignKeys.size() > 0 ||
             newForeignKeys.size() > 0 ||
-            !StringUtils.equalsIgnoreCase(schema.getDefaultCollation(), oldSchema.getDefaultCollation()) ||
-            !StringUtils.equalsIgnoreCase(schema.getDefaultCharset(), oldSchema.getDefaultCharset()) ||
-            !StringUtils.equalsIgnoreCase(schema.getEngine(), oldSchema.getEngine());
+            !DataSchemaObject.extensionsEquals(schema, oldSchema);
     }
 
     private void compareFields(DataSchemaExecutor executor) throws SchemaMigrateException {

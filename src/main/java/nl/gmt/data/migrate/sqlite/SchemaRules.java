@@ -29,11 +29,6 @@ public class SchemaRules extends nl.gmt.data.schema.SchemaRules {
     }
 
     @Override
-    public boolean dbTypeSupportsCharset(SchemaDbType dbType) {
-        return false;
-    }
-
-    @Override
     public boolean dbTypeSupportsLength(SchemaDbType dbType) {
         return false;
     }

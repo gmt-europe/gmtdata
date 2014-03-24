@@ -6,6 +6,7 @@
       <w>guid</w>
       <w>klass</w>
       <w>lookups</w>
+      <w>nullable</w>
       <w>persister</w>
       <w>pragmas</w>
       <w>prolog</w>

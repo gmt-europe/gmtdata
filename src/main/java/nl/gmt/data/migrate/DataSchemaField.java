@@ -3,7 +3,7 @@ package nl.gmt.data.migrate;
 import nl.gmt.data.schema.*;
 import org.apache.commons.lang.StringUtils;
 
-public class DataSchemaField {
+public class DataSchemaField extends DataSchemaObject {
     private String name;
     private int length;
     private int positions;
@@ -13,48 +13,8 @@ public class DataSchemaField {
     private boolean autoIncrement;
     private boolean hasDefault;
     private String defaultValue;
-    private String characterSet;
-    private String collation;
 
-    public static DataSchemaField createIdField(Schema schema, SchemaClass klass) throws SchemaMigrateException {
-        DataSchemaField result = new DataSchemaField();
-
-        result.name = klass.getResolvedIdProperty().getResolvedDbIdName();
-        result.autoIncrement = klass.getResolvedIdProperty().getAutoIncrement() == SchemaIdAutoIncrement.YES;
-
-        result.initializeType(klass.getResolvedIdProperty().getResolvedDataType());
-
-        return result;
-    }
-
-    public static DataSchemaField createProperty(SchemaProperty field) throws SchemaMigrateException {
-        DataSchemaField result = new DataSchemaField();
-
-        result.name = field.getResolvedDbName();
-        result.autoIncrement = false;
-
-        result.initializeType(field.getResolvedDataType());
-
-        return result;
-    }
-
-    public static DataSchemaField createFromForeignParent(SchemaForeignParent foreign, Schema schema) throws SchemaMigrateException {
-        DataSchemaField result = new DataSchemaField();
-
-        result.name = foreign.getResolvedDbName();
-        result.autoIncrement = false;
-
-        result.initializeType(
-            schema.getClasses().get(foreign.getClassName()).getResolvedIdProperty().getResolvedDataType()
-        );
-
-        if (foreign.getAllowNull() != SchemaAllowNull.UNSET)
-            result.nullable = foreign.getAllowNull() == SchemaAllowNull.ALLOW;
-
-        return result;
-    }
-
-    private void initializeType(SchemaResolvedDataType dataType) throws SchemaMigrateException {
+    void initializeType(SchemaResolvedDataType dataType) throws SchemaMigrateException {
         length = -1;
         positions = -1;
         unsigned = false;
@@ -111,12 +71,8 @@ public class DataSchemaField {
             StringUtils.equalsIgnoreCase(name, other.name) &&
             nullable == other.nullable &&
             autoIncrement == other.autoIncrement &&
-            rules.dbTypesEqual(this, other) && (
-                !rules.dbTypeSupportsCharset(type) || (
-                    StringUtils.equalsIgnoreCase(characterSet, other.characterSet) &&
-                    StringUtils.equalsIgnoreCase(collation, other.collation)
-                )
-            );
+            rules.dbTypesEqual(this, other) &&
+            DataSchemaTable.extensionsEquals(this, other);
     }
 
     public String getName() {
@@ -189,21 +145,5 @@ public class DataSchemaField {
 
     public void setDefaultValue(String defaultValue) {
         this.defaultValue = defaultValue;
-    }
-
-    public String getCharacterSet() {
-        return characterSet;
-    }
-
-    public void setCharacterSet(String characterSet) {
-        this.characterSet = characterSet;
-    }
-
-    public String getCollation() {
-        return collation;
-    }
-
-    public void setCollation(String collation) {
-        this.collation = collation;
     }
 }

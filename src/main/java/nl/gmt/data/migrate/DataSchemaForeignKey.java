@@ -13,20 +13,6 @@ public class DataSchemaForeignKey {
     private String linkTable;
     private String linkField;
 
-
-    public static DataSchemaForeignKey createFromForeignParent(SchemaForeignParent foreign, Schema schema) {
-        DataSchemaForeignKey result = new DataSchemaForeignKey();
-
-        SchemaClass linkTable = schema.getClasses().get(foreign.getClassName());
-
-        result.name = null;
-        result.field = foreign.getResolvedDbName();
-        result.linkTable = linkTable.getResolvedDbName();
-        result.linkField = linkTable.getResolvedIdProperty().getResolvedDbIdName();
-
-        return result;
-    }
-
     public boolean equals(DataSchemaForeignKey other) {
         if (this == other)
             return true;

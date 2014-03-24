@@ -88,8 +88,16 @@ public class DataSchemaReader extends nl.gmt.data.migrate.DataSchemaReader {
                     field.setAutoIncrement(StringUtils.equalsIgnoreCase(rs.getString("EXTRA"), "auto_increment"));
 
                     String collation = rs.getString("COLLATION_NAME");
-                    field.setCollation(collation);
-                    field.setCharacterSet(collation != null ? defaultCharacterSets.get(collation) : null);
+
+                    if (SchemaRules.dbTypeSupportsCharset(field.getType())) {
+                        if (collation == null) {
+                            SchemaRules.setCollation(field, SchemaRules.DEFAULT_COLLATION);
+                            SchemaRules.setCharset(field, SchemaRules.DEFAULT_CHARSET);
+                        } else {
+                            SchemaRules.setCollation(field, collation);
+                            SchemaRules.setCharset(field, defaultCharacterSets.get(collation));
+                        }
+                    }
 
                     tables.get(rs.getString("TABLE_NAME")).addField(field);
                 }
@@ -235,10 +243,10 @@ public class DataSchemaReader extends nl.gmt.data.migrate.DataSchemaReader {
         DataSchemaTable result = new DataSchemaTable();
 
         result.setName(rs.getString("TABLE_NAME"));
-        result.setEngine(rs.getString("ENGINE"));
+        SchemaRules.setEngine(result, rs.getString("ENGINE"));
         String collation = rs.getString("TABLE_COLLATION");
-        result.setDefaultCollation(collation);
-        result.setDefaultCharset(collation != null ? defaultCharacterSets.get(collation) : null);
+        SchemaRules.setDefaultCollation(result, collation);
+        SchemaRules.setDefaultCharset(result, collation != null ? defaultCharacterSets.get(collation) : null);
 
         return result;
     }

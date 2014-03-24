@@ -1,7 +1,9 @@
 package nl.gmt.data.schema;
 
+import nl.gmt.data.migrate.DataSchemaFactory;
 import nl.gmt.data.migrate.DataSchemaField;
 import nl.gmt.data.migrate.SchemaMigrateException;
+import nl.gmt.data.migrate.StandardDataSchemaFactory;
 
 public abstract class SchemaRules {
     public abstract String getDbType(SchemaDbType dbType) throws SchemaMigrateException;
@@ -11,27 +13,11 @@ public abstract class SchemaRules {
     }
 
     public abstract boolean dbTypeSupportsSign(SchemaDbType dbType);
-    public abstract boolean dbTypeSupportsCharset(SchemaDbType dbType);
+
     public abstract boolean dbTypeSupportsLength(SchemaDbType dbType);
 
-    public boolean supportsCharset() {
-        return false;
-    }
-
-    public String getDefaultCharset() {
-        return null;
-    }
-
-    public String getDefaultCollation() {
-        return null;
-    }
-
-    public boolean supportsEngine() {
-        return false;
-    }
-
-    public String getDefaultEngine() {
-        return null;
+    public DataSchemaFactory newDataSchemaFactory() {
+        return new StandardDataSchemaFactory();
     }
 
     public boolean areTypesEquivalent(SchemaDbType a, SchemaDbType b) {

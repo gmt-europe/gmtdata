@@ -1,10 +1,20 @@
 package nl.gmt.data.migrate.mysql;
 
-import nl.gmt.data.migrate.DataSchemaField;
-import nl.gmt.data.migrate.SchemaMigrateException;
+import nl.gmt.data.migrate.*;
+import nl.gmt.data.schema.Schema;
+import nl.gmt.data.schema.SchemaClass;
 import nl.gmt.data.schema.SchemaDbType;
 
 public class SchemaRules extends nl.gmt.data.schema.SchemaRules {
+    private static final String DEFAULT_CHARSET_KEY = "DEFAULT_CHARSET";
+    private static final String DEFAULT_COLLATION_KEY = "DEFAULT_COLLATION";
+    private static final String ENGINE_KEY = "ENGINE";
+    private static final String CHARSET_KEY = "CHARSET";
+    private static final String COLLATION_KEY = "COLLATION";
+    static final String DEFAULT_CHARSET = "utf8";
+    static final String DEFAULT_COLLATION = "utf8_unicode_ci";
+    private static final String DEFAULT_ENGINE = "innodb";
+
     @Override
     public String getDbType(SchemaDbType dbType) throws SchemaMigrateException {
         switch (dbType) {
@@ -58,23 +68,6 @@ public class SchemaRules extends nl.gmt.data.schema.SchemaRules {
     }
 
     @Override
-    public boolean dbTypeSupportsCharset(SchemaDbType dbType) {
-        switch (dbType) {
-            case LONG_TEXT:
-            case ENUMERATION:
-            case STRING:
-            case TINY_TEXT:
-            case TEXT:
-            case MEDIUM_TEXT:
-            case FIXED_STRING:
-                return true;
-
-            default:
-                return false;
-        }
-    }
-
-    @Override
     public boolean dbTypeSupportsLength(SchemaDbType dbType) {
         switch (dbType) {
             case STRING:
@@ -97,29 +90,84 @@ public class SchemaRules extends nl.gmt.data.schema.SchemaRules {
         }
     }
 
-    @Override
-    public boolean supportsCharset() {
-        return true;
+    public static String getDefaultCharset(DataSchemaTable table) {
+        return table.getExtension(DEFAULT_CHARSET_KEY);
+    }
+
+    public static void setDefaultCharset(DataSchemaTable table, String charset) {
+        table.setExtensions(DEFAULT_CHARSET_KEY, charset != null ? charset.toLowerCase() : null);
+    }
+
+    public static String getDefaultCollation(DataSchemaTable table) {
+        return table.getExtension(DEFAULT_COLLATION_KEY);
+    }
+
+    public static void setDefaultCollation(DataSchemaTable table, String collation) {
+        table.setExtensions(DEFAULT_COLLATION_KEY, collation != null ? collation.toLowerCase() : null);
+    }
+
+    public static String getEngine(DataSchemaTable table) {
+        return table.getExtension(ENGINE_KEY);
+    }
+
+    public static void setEngine(DataSchemaTable table, String engine) {
+        table.setExtensions(ENGINE_KEY, engine != null ? engine.toLowerCase() : null);
+    }
+
+    public static String getCharset(DataSchemaField field) {
+        return field.getExtension(CHARSET_KEY);
+    }
+
+    public static void setCharset(DataSchemaField field, String charset) {
+        field.setExtensions(CHARSET_KEY, charset != null ? charset.toLowerCase() : null);
+    }
+
+    public static String getCollation(DataSchemaField field) {
+        return field.getExtension(COLLATION_KEY);
+    }
+
+    public static void setCollation(DataSchemaField field, String collation) {
+        field.setExtensions(COLLATION_KEY, collation != null ? collation.toLowerCase() : null);
+    }
+
+    static boolean dbTypeSupportsCharset(SchemaDbType dbType) {
+        switch (dbType) {
+            case LONG_TEXT:
+            case ENUMERATION:
+            case STRING:
+            case TINY_TEXT:
+            case TEXT:
+            case MEDIUM_TEXT:
+            case FIXED_STRING:
+            case GUID:
+                return true;
+
+            default:
+                return false;
+        }
     }
 
     @Override
-    public String getDefaultCharset() {
-        return "utf8";
-    }
+    public DataSchemaFactory newDataSchemaFactory() {
+        return new StandardDataSchemaFactory() {
+            @Override
+            public DataSchemaTable createClass(SchemaClass klass, Schema schema, nl.gmt.data.schema.SchemaRules rules) throws SchemaMigrateException {
+                DataSchemaTable result = super.createClass(klass, schema, rules);
 
-    @Override
-    public String getDefaultCollation() {
-        return "utf8_unicode_ci";
-    }
+                setDefaultCharset(result, DEFAULT_CHARSET);
+                setDefaultCollation(result, DEFAULT_COLLATION);
+                setEngine(result, DEFAULT_ENGINE);
 
-    @Override
-    public boolean supportsEngine() {
-        return true;
-    }
+                for (DataSchemaField field : result.getFields().values()) {
+                    if (dbTypeSupportsCharset(field.getType())) {
+                        setCharset(field, DEFAULT_CHARSET);
+                        setCollation(field, DEFAULT_COLLATION);
+                    }
+                }
 
-    @Override
-    public String getDefaultEngine() {
-        return "InnoDB";
+                return result;
+            }
+        };
     }
 
     @Override
@@ -132,19 +180,16 @@ public class SchemaRules extends nl.gmt.data.schema.SchemaRules {
 
     @Override
     public boolean dbTypesEqual(DataSchemaField a, DataSchemaField b) throws SchemaMigrateException {
-        if (
-            (
-                a.getType() == SchemaDbType.GUID &&
-                (b.getType() == SchemaDbType.FIXED_STRING && b.getLength() == 36)
-            ) ||
-            (
-                b.getType() == SchemaDbType.GUID &&
-                (a.getType() == SchemaDbType.FIXED_STRING && b.getLength() == 36)
-            )
-        ) {
-            return true;
-        } else {
-            return super.dbTypesEqual(a, b);
-        }
+        // If any of the types are GUID, the other type matches if its a CHAR(36).
+
+        return
+            ((a.getType() == SchemaDbType.GUID || b.getType() == SchemaDbType.GUID) && isLikeGuid(a) && isLikeGuid(b)) ||
+            super.dbTypesEqual(a, b);
+    }
+
+    private boolean isLikeGuid(DataSchemaField field) {
+        return
+            field.getType() == SchemaDbType.GUID ||
+            (field.getType() == SchemaDbType.FIXED_STRING && field.getLength() == 36);
     }
 }

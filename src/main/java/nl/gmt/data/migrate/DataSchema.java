@@ -15,10 +15,12 @@ public class DataSchema {
     }
 
     public static DataSchema fromSchema(Schema schema, SchemaRules rules) throws SchemaMigrateException {
+        DataSchemaFactory factory = rules.newDataSchemaFactory();
+
         Map<String, DataSchemaTable> tables = new HashMap<>();
 
         for (SchemaClass klass : schema.getClasses().values()) {
-            DataSchemaTable table = DataSchemaTable.createFromSchemaClass(klass, schema, rules);
+            DataSchemaTable table = factory.createClass(klass, schema, rules);
 
             tables.put(table.getName(), table);
         }
