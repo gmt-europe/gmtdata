@@ -406,9 +406,13 @@ public class CodeGenerator {
     }
 
     private String getFieldName(String name) {
+        return getFieldName(name, true);
+    }
+
+    private String getFieldName(String name, boolean safe) {
         String result = name.substring(0, 1).toLowerCase() + name.substring(1);
 
-        if (RESERVED_WORDS.contains(result)) {
+        if (safe && RESERVED_WORDS.contains(result)) {
             result += "_";
         }
 
@@ -495,7 +499,7 @@ public class CodeGenerator {
 
         cw.writeln();
 
-        cw.writeln("@OneToMany(mappedBy = \"%s\")", getFieldName(foreign.getClassProperty()));
+        cw.writeln("@OneToMany(mappedBy = \"%s\")", getFieldName(foreign.getClassProperty(), false));
 
         generateGetterSetter(cw, foreign.getName(), "Set<" + linkClass.getName() + ">", false);
     }
