@@ -44,7 +44,7 @@ public class SchemaRules extends nl.gmt.data.schema.SchemaRules {
             case TINY_INT: return "TINYINT";
             case TINY_TEXT: return "TINYTEXT";
             case YEAR: return "YEAR";
-            case GUID: return "CHAR";
+            case GUID: return "BINARY";
             default: throw new SchemaMigrateException("Unexpected data type");
         }
     }
@@ -139,7 +139,6 @@ public class SchemaRules extends nl.gmt.data.schema.SchemaRules {
             case TEXT:
             case MEDIUM_TEXT:
             case FIXED_STRING:
-            case GUID:
                 return true;
 
             default:
@@ -173,7 +172,7 @@ public class SchemaRules extends nl.gmt.data.schema.SchemaRules {
     @Override
     public int getFixedDbTypeLength(SchemaDbType dbType) {
         switch (dbType) {
-            case GUID: return 36;
+            case GUID: return 16;
             default: return super.getFixedDbTypeLength(dbType);
         }
     }
@@ -190,6 +189,6 @@ public class SchemaRules extends nl.gmt.data.schema.SchemaRules {
     private boolean isLikeGuid(DataSchemaField field) {
         return
             field.getType() == SchemaDbType.GUID ||
-            (field.getType() == SchemaDbType.FIXED_STRING && field.getLength() == 36);
+            (field.getType() == SchemaDbType.FIXED_BINARY && field.getLength() == 16);
     }
 }
