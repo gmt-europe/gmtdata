@@ -5,6 +5,7 @@ import nl.gmt.data.hibernate.generation.GeneratorWriter;
 import nl.gmt.data.migrate.SqlStatement;
 import nl.gmt.data.schema.*;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.Validate;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -13,13 +14,11 @@ import org.apache.maven.plugins.annotations.Parameter;
 
 import java.io.*;
 
+@SuppressWarnings("UnusedDeclaration")
 @Mojo(name = "hibernate-model", defaultPhase = LifecyclePhase.GENERATE_SOURCES)
 public class GenerateMojo extends AbstractMojo {
     @Parameter(property = "schema", required = true)
     private File schema;
-
-    @Parameter(property = "dbType", required = true)
-    private String dbType;
 
     @Parameter(defaultValue = "${project.build.directory}/generated-sources/hibernate-model", property = "outputDir", required = true)
     private File outputDirectory;
@@ -27,22 +26,14 @@ public class GenerateMojo extends AbstractMojo {
     @Parameter(property = "generateRepositories", required = false, defaultValue = "false")
     private boolean generateRepositories;
 
+    @Parameter(defaultValue = "${project.build.sourceDirectory}", property = "repositoriesOutputDir", required = false)
+    private File repositoriesOutputDirectory;
+
     public void execute() throws MojoExecutionException {
-        // Resolve the schema rules based on the database type.
+        // Verify the parameters.
 
-        SchemaRules rules;
-
-        switch (dbType.toLowerCase()) {
-            case "sqlite":
-                rules = new nl.gmt.data.migrate.sqlite.SchemaRules();
-                break;
-
-            case "mysql":
-                rules = new nl.gmt.data.migrate.mysql.SchemaRules();
-                break;
-
-            default:
-                throw new MojoExecutionException("Illegal dbType");
+        if (generateRepositories) {
+            Validate.notNull(repositoriesOutputDirectory, "Repositories output directory is mandatory when generating repositories");
         }
 
         // Setup for parsing the schema.
@@ -65,23 +56,33 @@ public class GenerateMojo extends AbstractMojo {
         try {
             // Parse the schema.
 
-            Schema schema = parserExecutor.parse(schemaPath.getName(), rules);
+            Schema schema = parserExecutor.parse(schemaPath.getName(), GenericSchemaRules.INSTANCE);
 
             // Run the code generator.
 
-            CodeGenerator generator = new CodeGenerator(schema);
+            File repositoriesOutputDirectory = null;
+            if (generateRepositories) {
+                repositoriesOutputDirectory = this.repositoriesOutputDirectory;
+            }
 
-            final File outputDir = getOutputDir(schema);
+            CodeGenerator generator = new CodeGenerator(
+                schema,
+                getOutputDir(outputDirectory, schema),
+                repositoriesOutputDirectory != null ? getOutputDir(repositoriesOutputDirectory, schema) : null
+            );
 
             generator.generate(new GeneratorWriter() {
+                @SuppressWarnings("ResultOfMethodCallIgnored")
                 @Override
-                public void writeFile(String fileName, String content) {
-                    File target = new File(outputDir, fileName);
+                public void writeFile(File fileName, String content, boolean overwrite) {
+                    if (!overwrite && fileName.exists()) {
+                        return;
+                    }
 
-                    target.getParentFile().mkdirs();
+                    fileName.getParentFile().mkdirs();
 
                     try {
-                        try (OutputStream os = new FileOutputStream(target)) {
+                        try (OutputStream os = new FileOutputStream(fileName)) {
                             IOUtils.write(content, os);
                         }
                     } catch (IOException e) {
@@ -94,13 +95,11 @@ public class GenerateMojo extends AbstractMojo {
         }
     }
 
-    private File getOutputDir(Schema schema) {
-        File outputDir = outputDirectory;
-
+    private File getOutputDir(File baseDir, Schema schema) {
         for (String part : schema.getNamespace().split("\\.")) {
-            outputDir = new File(outputDir, part);
+            baseDir = new File(baseDir, part);
         }
 
-        return outputDir;
+        return baseDir;
     }
 }

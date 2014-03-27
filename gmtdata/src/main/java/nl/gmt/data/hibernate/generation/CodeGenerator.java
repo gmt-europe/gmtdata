@@ -3,6 +3,7 @@ package nl.gmt.data.hibernate.generation;
 import nl.gmt.data.schema.*;
 import org.apache.commons.lang.StringEscapeUtils;
 
+import java.io.File;
 import java.util.*;
 
 public class CodeGenerator {
@@ -15,9 +16,13 @@ public class CodeGenerator {
     ));
 
     private final Schema schema;
+    private final File outputDirectory;
+    private final File repositoriesOutputDirectory;
 
-    public CodeGenerator(Schema schema) {
+    public CodeGenerator(Schema schema, File outputDirectory, File repositoriesOutputDirectory) {
         this.schema = schema;
+        this.outputDirectory = outputDirectory;
+        this.repositoriesOutputDirectory = repositoriesOutputDirectory;
     }
 
     public void generate(GeneratorWriter writer) throws SchemaException {
@@ -28,16 +33,36 @@ public class CodeGenerator {
         for (SchemaEnumType enumType : sort(schema.getEnumTypes().values())) {
             generateEnumType(enumType, writer);
         }
+
+        if (repositoriesOutputDirectory != null) {
+            for (SchemaClass klass : sort(schema.getClasses().values())) {
+                generateRepository(klass, writer);
+            }
+        }
+    }
+
+    private String getPackageName(SchemaClass klass) {
+        return getPackageName(klass, null);
+    }
+
+    private String getPackageName(SchemaClass klass, String subPackage) {
+        String result = schema.getNamespace() + ".model";
+
+        if (subPackage != null) {
+            result += "." + subPackage;
+        }
+
+        if (klass.getBoundedContext() != null) {
+            result += "." + klass.getBoundedContext();
+        }
+
+        return result;
     }
 
     private void generateClass(SchemaClass klass, GeneratorWriter writer) throws SchemaException {
         CodeWriter cw = new CodeWriter();
 
-        String packageName = schema.getNamespace() + ".model";
-        if (klass.getBoundedContext() != null)
-            packageName += "." + klass.getBoundedContext();
-
-        cw.writeln("package %s;", packageName);
+        cw.writeln("package %s;", getPackageName(klass));
         cw.writeln();
 
         cw.writeln("import org.hibernate.annotations.GenericGenerator;");
@@ -90,14 +115,15 @@ public class CodeGenerator {
         cw.unIndent();
         cw.writeln("}");
 
-        String fileName = "model/";
+        File fileName = new File(outputDirectory, "model");
 
-        if (klass.getBoundedContext() != null)
-            fileName += klass.getBoundedContext() + "/";
+        if (klass.getBoundedContext() != null) {
+            fileName = new File(fileName, klass.getBoundedContext());
+        }
 
-        fileName += klass.getName() + ".java";
+        fileName = new File(fileName, klass.getName() + ".java");
 
-        writer.writeFile(fileName, cw.toString());
+        writer.writeFile(fileName, cw.toString(), false);
     }
 
     private void generateClassBuilder(CodeWriter cw, SchemaClass klass) {
@@ -145,19 +171,18 @@ public class CodeGenerator {
 
         cw.writeln();
 
-        generateBuilderSetter(cw, foreign.getName(), foreign.getClassName(), false);
+        generateBuilderSetter(cw, foreign.getName(), foreign.getClassName());
     }
 
     private void generateBuilderSetter(CodeWriter cw, SchemaResolvedDataType dataType, String enumType, String name) {
         generateBuilderSetter(
             cw,
             name,
-            enumType != null ? enumType : getTypeName(dataType.getNativeType()),
-            dataType.getNativeType() == Boolean.class
+            enumType != null ? enumType : getTypeName(dataType.getNativeType())
         );
     }
 
-    private void generateBuilderSetter(CodeWriter cw, String name, String typeName, boolean isBoolean) {
+    private void generateBuilderSetter(CodeWriter cw, String name, String typeName) {
         String fieldName = getFieldName(name);
 
         cw.writeln(
@@ -183,8 +208,6 @@ public class CodeGenerator {
             String fieldName = getFieldName(field.getName());
 
             if (field instanceof SchemaProperty) {
-                SchemaProperty property = (SchemaProperty)field;
-
                 if (sb.length() > 0)
                     sb.append(", ");
 
@@ -582,7 +605,83 @@ public class CodeGenerator {
         cw.unIndent();
         cw.writeln("}");
 
-        writer.writeFile("model/" + enumType.getName() + ".java", cw.toString());
+        writer.writeFile(new File(new File(outputDirectory, "model"), enumType.getName() + ".java"), cw.toString(), true);
+    }
+
+    private void generateRepository(SchemaClass klass, GeneratorWriter writer) throws SchemaException {
+        generateRepositoryInterface(klass, writer);
+        generateRepositoryImplementation(klass, writer);
+    }
+
+    private void generateRepositoryInterface(SchemaClass klass, GeneratorWriter writer) {
+        CodeWriter cw = new CodeWriter();
+
+        cw.writeln("package %s;", getPackageName(klass));
+        cw.writeln();
+
+        cw.writeln("import nl.gmt.data.Repository;");
+        cw.writeln();
+
+        cw.writeln(
+            "public interface %sRepository extends Repository<%s> {",
+            klass.getName(),
+            klass.getName()
+        );
+        cw.writeln("}");
+
+        File fileName = new File(repositoriesOutputDirectory, "model");
+
+        if (klass.getBoundedContext() != null) {
+            fileName = new File(fileName, klass.getBoundedContext());
+        }
+
+        fileName = new File(fileName, klass.getName() + "Repository.java");
+
+        writer.writeFile(fileName, cw.toString(), false);
+    }
+
+    private void generateRepositoryImplementation(SchemaClass klass, GeneratorWriter writer) {
+        CodeWriter cw = new CodeWriter();
+
+        cw.writeln("package %s;", getPackageName(klass, "implementation"));
+        cw.writeln();
+
+        cw.writeln("import nl.gmt.data.hibernate.HibernateRepository;");
+        cw.writeln();
+
+        cw.writeln("import %s.%s;", getPackageName(klass), klass.getName());
+        cw.writeln("import %s.%sRepository;", getPackageName(klass), klass.getName());
+        cw.writeln();
+
+        cw.writeln("@SuppressWarnings(\"UnusedDeclaration\")");
+        cw.writeln(
+            "public class %sRepositoryImpl extends HibernateRepository<%s> implements %sRepository {",
+            klass.getName(),
+            klass.getName(),
+            klass.getName()
+        );
+        cw.indent();
+
+        cw.writeln("public %sRepositoryImpl() {", klass.getName());
+        cw.indent();
+
+        cw.writeln("super(%s.class);", klass.getName());
+
+        cw.unIndent();
+        cw.writeln("}");
+
+        cw.unIndent();
+        cw.writeln("}");
+
+        File fileName = new File(new File(repositoriesOutputDirectory, "model"), "implementation");
+
+        if (klass.getBoundedContext() != null) {
+            fileName = new File(fileName, klass.getBoundedContext());
+        }
+
+        fileName = new File(fileName, klass.getName() + "RepositoryImpl.java");
+
+        writer.writeFile(fileName, cw.toString(), false);
     }
 
     @SuppressWarnings("unchecked")

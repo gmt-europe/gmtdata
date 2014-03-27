@@ -13,15 +13,24 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
+    <dependencies>
+        <dependency>
+            <groupId>nl.gmt</groupId>
+            <artifactId>gmtdata</artifactId>
+            <version>@project.version@</version>
+        </dependency>
+    </dependencies>
+
     <build>
         <plugins>
+
             <plugin>
                 <groupId>@project.groupId@</groupId>
                 <artifactId>@project.artifactId@</artifactId>
                 <version>@project.version@</version>
                 <configuration>
-                    <dbType>sqlite</dbType>
                     <schema>${project.basedir}/src/main/resources/Database.schema</schema>
+                    <generateRepositories>true</generateRepositories>
                 </configuration>
                 <executions>
                     <execution>
@@ -33,6 +42,17 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.1</version>
+                <configuration>
+                    <source>1.7</source>
+                    <target>1.7</target>
+                </configuration>
+            </plugin>
+
         </plugins>
     </build>
 </project>
