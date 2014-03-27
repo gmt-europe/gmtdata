@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="EntryPointsManager">
-    <entry_points version="2.0" />
-  </component>
-  <component name="IdProvider" IDEtalkID="00D6EA07765B2576D2CFAB7E330D0161" />
+  <component name="IdProvider" IDEtalkID="3186753A93C7273816512F57552C6FBE" />
   <component name="MavenProjectsManager">
     <option name="originalFiles">
       <list>
-        <option value="$PROJECT_DIR$/pom.xml" />
+        <option value="$PROJECT_DIR$/gmtdata/pom.xml" />
+        <option value="$PROJECT_DIR$/gmtdata-maven-plugin/pom.xml" />
       </list>
     </option>
   </component>

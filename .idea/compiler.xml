@@ -23,10 +23,12 @@
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="true" />
         <module name="gmtdata" />
+        <module name="gmtdata-maven-plugin" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="gmtdata" target="1.7" />
+      <module name="gmtdata-maven-plugin" target="1.7" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">

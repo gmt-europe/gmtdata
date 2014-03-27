@@ -2,7 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/gmtdata.iml" filepath="$PROJECT_DIR$/gmtdata.iml" />
+      <module fileurl="file://$PROJECT_DIR$/gmtdata/gmtdata.iml" filepath="$PROJECT_DIR$/gmtdata/gmtdata.iml" />
+      <module fileurl="file://$PROJECT_DIR$/gmtdata-maven-plugin/gmtdata-maven-plugin.iml" filepath="$PROJECT_DIR$/gmtdata-maven-plugin/gmtdata-maven-plugin.iml" />
     </modules>
   </component>
 </project>
