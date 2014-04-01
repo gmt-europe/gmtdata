@@ -4,6 +4,8 @@ import nl.gmt.data.migrate.Manifest;
 import nl.gmt.data.migrate.SchemaMigrateException;
 import nl.gmt.data.schema.Schema;
 import nl.gmt.data.schema.SchemaIdAutoIncrement;
+import org.hibernate.c3p0.internal.C3P0ConnectionProvider;
+import org.hibernate.cfg.Configuration;
 
 import java.sql.*;
 import java.util.UUID;
@@ -78,5 +80,17 @@ public abstract class GenericDatabaseDriver extends DatabaseDriver {
         } catch (SQLException e) {
             throw new SchemaMigrateException("Cannot write manifest", e);
         }
+    }
+
+    protected void configureConnectionPooling(Configuration configuration, String preferredTestQuery) {
+        configuration
+            .setProperty("connection.provider_class", C3P0ConnectionProvider.class.getName())
+            .setProperty("hibernate.c3p0.acquire_increment", "3")
+            .setProperty("hibernate.c3p0.idle_test_period", "14400")
+            .setProperty("hibernate.c3p0.min_size", "0")
+            .setProperty("hibernate.c3p0.max_size", "15")
+            .setProperty("hibernate.c3p0.max_statements", "0")
+            .setProperty("hibernate.c3p0.timeout", "25200")
+            .setProperty("hibernate.c3p0.preferredTestQuery", preferredTestQuery);
     }
 }

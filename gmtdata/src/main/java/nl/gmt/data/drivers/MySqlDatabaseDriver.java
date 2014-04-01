@@ -4,6 +4,7 @@ import nl.gmt.data.migrate.SchemaMigrateException;
 import nl.gmt.data.migrate.SqlGenerator;
 import nl.gmt.data.schema.Schema;
 import nl.gmt.data.schema.SchemaRules;
+import org.hibernate.cfg.Configuration;
 import org.hibernate.dialect.MySQL5Dialect;
 
 public class MySqlDatabaseDriver extends GenericDatabaseDriver {
@@ -25,5 +26,10 @@ public class MySqlDatabaseDriver extends GenericDatabaseDriver {
     @Override
     public SchemaRules createSchemaRules() throws SchemaMigrateException {
         return new nl.gmt.data.migrate.mysql.SchemaRules();
+    }
+
+    @Override
+    public void createConfiguration(Configuration configuration) {
+        configureConnectionPooling(configuration, "SELECT 1;");
     }
 }

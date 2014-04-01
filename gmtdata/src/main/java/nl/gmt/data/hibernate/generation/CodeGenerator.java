@@ -123,7 +123,7 @@ public class CodeGenerator {
 
         fileName = new File(fileName, klass.getName() + ".java");
 
-        writer.writeFile(fileName, cw.toString(), false);
+        writer.writeFile(fileName, cw.toString(), true);
     }
 
     private void generateClassBuilder(CodeWriter cw, SchemaClass klass) {

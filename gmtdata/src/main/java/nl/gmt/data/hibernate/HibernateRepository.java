@@ -7,6 +7,7 @@ import nl.gmt.data.Repository;
 import org.apache.commons.lang.Validate;
 import org.hibernate.Criteria;
 import org.hibernate.LockOptions;
+import org.hibernate.criterion.Projections;
 
 import java.io.Serializable;
 import java.util.List;
@@ -33,6 +34,16 @@ public abstract class HibernateRepository<T extends Entity> implements Repositor
     @SuppressWarnings("unchecked")
     public List<T> getAll() {
         return (List<T>)context.createCriteria(persistentClass).list();
+    }
+
+    @Override
+    public int getCount() {
+        Number count = (Number)context
+            .createCriteria(persistentClass)
+            .setProjection(Projections.rowCount())
+            .uniqueResult();
+
+        return count.intValue();
     }
 
     @Override

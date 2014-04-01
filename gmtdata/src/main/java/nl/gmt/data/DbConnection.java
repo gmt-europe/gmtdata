@@ -27,7 +27,7 @@ public abstract class DbConnection implements DataCloseable {
     private SessionFactory sessionFactory;
     private final List<DbContextListener> contextListeners = new ArrayList<>();
     private final List<DbContextListener> unmodifiableContextListeners = Collections.unmodifiableList(contextListeners);
-    private RepositoryService repositoryService;
+    private final RepositoryService repositoryService;
     private boolean closed;
 
     protected DbConnection(String connectionString, DbType type, String schemaName) throws DataException {
@@ -61,6 +61,10 @@ public abstract class DbConnection implements DataCloseable {
             throw new DataException("Cannot load schema", e);
         }
 
+        driver.createConfiguration(configuration);
+
+        createConfiguration(configuration);
+
         StandardServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
             .applySettings(configuration.getProperties())
             .build();
@@ -68,6 +72,10 @@ public abstract class DbConnection implements DataCloseable {
         sessionFactory = configuration.buildSessionFactory(serviceRegistry);
 
         driver.configure(this);
+    }
+
+    protected void createConfiguration(Configuration configuration) {
+        
     }
 
     public DbType getType() {
