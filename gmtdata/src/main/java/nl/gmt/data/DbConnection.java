@@ -1,10 +1,16 @@
 package nl.gmt.data;
 
+import nl.gmt.Delegate;
+import nl.gmt.DelegateListener;
 import nl.gmt.data.drivers.DatabaseDriver;
 import nl.gmt.data.drivers.MySqlDatabaseDriver;
 import nl.gmt.data.drivers.SQLiteDatabaseDriver;
 import nl.gmt.data.migrate.*;
-import nl.gmt.data.schema.*;
+import nl.gmt.data.schema.Schema;
+import nl.gmt.data.schema.SchemaCallback;
+import nl.gmt.data.schema.SchemaClass;
+import nl.gmt.data.schema.SchemaParserExecutor;
+import org.apache.commons.lang.Validate;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
@@ -14,9 +20,6 @@ import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 public abstract class DbConnection<T extends EntitySchema> implements DataCloseable {
     private final String connectionString;
@@ -25,8 +28,7 @@ public abstract class DbConnection<T extends EntitySchema> implements DataClosea
     private final Schema schema;
     private final DatabaseDriver driver;
     private SessionFactory sessionFactory;
-    private final List<DbContextListener> contextListeners = new ArrayList<>();
-    private final List<DbContextListener> unmodifiableContextListeners = Collections.unmodifiableList(contextListeners);
+    private final Delegate<DbContextTransition> contextTransitioned = new Delegate<>();
     private final RepositoryService repositoryService;
     private final T entitySchema;
     private boolean closed;
@@ -73,7 +75,7 @@ public abstract class DbConnection<T extends EntitySchema> implements DataClosea
         sessionFactory = configuration.buildSessionFactory(serviceRegistry);
 
         driver.configure(this);
-        
+
         entitySchema = createEntitySchema(schema);
 
         for (EntityType entityType : entitySchema.getEntityTypes()) {
@@ -86,7 +88,7 @@ public abstract class DbConnection<T extends EntitySchema> implements DataClosea
     protected abstract T createEntitySchema(Schema schema) throws DataException;
 
     protected void createConfiguration(Configuration configuration) {
-        
+
     }
 
     public DbType getType() {
@@ -170,12 +172,19 @@ public abstract class DbConnection<T extends EntitySchema> implements DataClosea
         return sessionFactory;
     }
 
-    List<DbContextListener> getContextListeners() {
-        return unmodifiableContextListeners;
+    public void addContextTransitioned(DelegateListener<DbContextTransition> listener) {
+        contextTransitioned.add(listener);
     }
 
-    public void addContextListener(DbContextListener listener) {
-        contextListeners.add(listener);
+    public boolean removeContextTransitioned(DelegateListener<DbContextTransition> listener) {
+        return contextTransitioned.remove(listener);
+    }
+
+    void raiseContextTransitioned(DbContext context, DbContextTransition transition) {
+        Validate.notNull(context, "context");
+        Validate.notNull(transition, "transition");
+
+        contextTransitioned.call(context, transition);
     }
 
     private class SchemaCallbackImpl implements SchemaCallback {

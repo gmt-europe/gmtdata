@@ -3,20 +3,17 @@ package nl.gmt.data;
 import org.apache.commons.lang.Validate;
 import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
-import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
-import org.reflections.util.FilterBuilder;
 
 import java.lang.reflect.Modifier;
 import java.net.URL;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 public class RepositoryService {
     private final Map<Class<? extends Repository>, Class<? extends Repository>> classMap = new HashMap<>();
-
-    public static URL getUrlFromClass(Class<?> klass) {
-        return klass.getProtectionDomain().getCodeSource().getLocation();
-    }
 
     public RepositoryService(URL... urls) {
         Validate.notNull(urls, "urls");

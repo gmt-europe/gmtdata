@@ -1,10 +1,12 @@
 package nl.gmt.data;
 
+import nl.gmt.Delegate;
+import nl.gmt.DelegateListener;
+import org.apache.commons.lang.Validate;
 import org.hibernate.*;
 import org.jboss.logging.Logger;
 
 import java.io.Serializable;
-import java.util.List;
 
 public class DbContext implements DataCloseable {
     private static final Logger LOG = Logger.getLogger(DbContext.class);
@@ -13,27 +15,23 @@ public class DbContext implements DataCloseable {
     private final DbConnection db;
     private Session session;
     private DbContextState state;
-    private final List<DbContextListener> contextListeners;
+    private final Delegate<DbContextTransition> transitioned = new Delegate<>();
     private boolean closed;
 
     DbContext(DbConnection db) {
-        this.db = db;
+        Validate.notNull(db, "db");
 
-        contextListeners = db.getContextListeners();
+        this.db = db;
 
         state = DbContextState.UNKNOWN;
 
-        for (DbContextListener listener : contextListeners) {
-            listener.beforeOpenContext(this);
-        }
+        raiseTransitioned(DbContextTransition.OPENING);
 
         try {
             session = db.getSessionFactory().openSession();
             tx = session.beginTransaction();
 
-            for (DbContextListener listener : contextListeners) {
-                listener.afterOpenContext(this);
-            }
+            raiseTransitioned(DbContextTransition.OPENED);
         } catch (Throwable e) {
             // Ensure that the context is properly cleaned up if we failed to open
             // the context.
@@ -50,6 +48,20 @@ public class DbContext implements DataCloseable {
 
             throw (RuntimeException)e;
         }
+    }
+
+    private void raiseTransitioned(DbContextTransition transition) {
+        db.raiseContextTransitioned(this, transition);
+
+        transitioned.call(this, transition);
+    }
+
+    public void addTransitioned(DelegateListener<DbContextTransition> listener) {
+        transitioned.add(listener);
+    }
+
+    public boolean removeTransitioned(DelegateListener<DbContextTransition> listener) {
+        return transitioned.remove(listener);
     }
 
     public Session getSession() {
@@ -97,9 +109,7 @@ public class DbContext implements DataCloseable {
                             state = DbContextState.ABORTED;
                         }
 
-                        for (DbContextListener listener : contextListeners) {
-                            listener.beforeCloseContext(this);
-                        }
+                        raiseTransitioned(DbContextTransition.CLOSING);
 
                         boolean success = false;
 
@@ -120,9 +130,7 @@ public class DbContext implements DataCloseable {
                     }
                 }
             } finally {
-                for (DbContextListener listener : contextListeners) {
-                    listener.afterCloseContext(this);
-                }
+                raiseTransitioned(DbContextTransition.CLOSED);
             }
 
             closed = true;

@@ -1,20 +1,14 @@
 package nl.gmt.data.drivers;
 
+import nl.gmt.DelegateListener;
 import nl.gmt.data.DbConnection;
-import nl.gmt.data.DbContext;
-import nl.gmt.data.DbContextListener;
+import nl.gmt.data.DbContextTransition;
 import nl.gmt.data.migrate.SchemaMigrateException;
 import nl.gmt.data.migrate.SqlGenerator;
 import nl.gmt.data.schema.Schema;
 import nl.gmt.data.schema.SchemaRules;
-import org.apache.commons.lang.Validate;
 import org.hibernate.dialect.SQLiteDialect;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class SQLiteDatabaseDriver extends GenericDatabaseDriver {
@@ -39,6 +33,7 @@ public class SQLiteDatabaseDriver extends GenericDatabaseDriver {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void configure(DbConnection db) {
         // SQLite doesn't like concurrent access. It supports it, but when we're writing
         // from multiple threads, we may get an exception when a second thread tries to
@@ -46,41 +41,34 @@ public class SQLiteDatabaseDriver extends GenericDatabaseDriver {
         // which gives very little issues is to synchronize all transactions, which this
         // listener does.
 
-        db.addContextListener(new DbContextListenerImpl());
-    }
+        db.addContextTransitioned(new DelegateListener<DbContextTransition>() {
+            private final ReentrantLock lock = new ReentrantLock();
+            private boolean taken;
 
-    private static class DbContextListenerImpl implements DbContextListener {
-        private final ReentrantLock lock = new ReentrantLock();
-        private boolean taken;
+            @Override
+            public void call(Object sender, DbContextTransition transition) {
+                switch (transition) {
+                    case OPENING:
+                        lock.lock();
 
-        @Override
-        public void beforeOpenContext(DbContext context) {
-            lock.lock();
+                        // Prevent re-entrant locking.
 
-            // Prevent re-entrant locking.
+                        if (taken) {
+                            lock.unlock();
 
-            if (taken) {
-                lock.unlock();
+                            throw new IllegalStateException("Nested transactions are not supported");
+                        }
 
-                throw new IllegalStateException("Nested transactions are not supported");
+                        taken = true;
+                        break;
+
+                    case CLOSED:
+                        taken = false;
+
+                        lock.unlock();
+                        break;
+                }
             }
-
-            taken = true;
-        }
-
-        @Override
-        public void afterOpenContext(DbContext context) {
-        }
-
-        @Override
-        public void beforeCloseContext(DbContext context) {
-        }
-
-        @Override
-        public void afterCloseContext(DbContext context) {
-            taken = false;
-
-            lock.unlock();
-        }
+        });
     }
 }
