@@ -18,7 +18,7 @@
     <dependencies>
         <dependency>
             <groupId>nl.gmt</groupId>
-            <artifactId>gmt-core</artifactId>
+            <artifactId>gmt-core-ex</artifactId>
             <version>${gmt-core.version}</version>
         </dependency>
         <dependency>
@@ -63,11 +63,6 @@
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-c3p0</artifactId>
             <version>${hibernate-core.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.reflections</groupId>
-            <artifactId>reflections</artifactId>
-            <version>0.9.9-RC1</version>
         </dependency>
         <dependency>
             <groupId>org.apache.struts</groupId>
