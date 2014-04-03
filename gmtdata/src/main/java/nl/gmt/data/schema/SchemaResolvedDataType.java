@@ -90,7 +90,7 @@ public class SchemaResolvedDataType extends SchemaDataTypeBase {
             setEnumType(dataType.getEnumType());
         if (dataType.getUserType() != null)
             setUserType(dataType.getUserType());
-        if (dataType.getIndexed() != SchemaIndexType.UNSET)
-            setIndexed(dataType.getIndexed());
+        if (dataType.getIndexType() != SchemaIndexType.UNSET)
+            setIndexType(dataType.getIndexType());
     }
 }

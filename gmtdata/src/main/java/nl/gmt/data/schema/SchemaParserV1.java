@@ -494,7 +494,7 @@ public class SchemaParserV1 {
             case "length": element.setLength(parseXmlInteger(attribute.getValue())); return true;
             case "positions": element.setPositions(parseXmlInteger(attribute.getValue())); return true;
             case "nullable": element.setAllowNull(parseNullable(attribute.getValue())); return true;
-            case "indexed": element.setIndexed(parseIndexed(attribute.getValue())); return true;
+            case "indexed": element.setIndexType(parseIndexed(attribute.getValue())); return true;
             case "lazy": element.setLazy(parseLazy(attribute.getValue())); return true;
             case "dbName": element.setDbName(attribute.getValue()); return true;
             case "userType": element.setUserType(attribute.getValue()); return true;

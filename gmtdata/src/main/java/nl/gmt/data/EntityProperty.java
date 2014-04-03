@@ -5,8 +5,9 @@ import org.apache.commons.lang.Validate;
 
 import java.util.List;
 
-public class EntityProperty extends EntityField {
+public class EntityProperty extends EntityField implements EntityPhysicalField {
     private final SchemaProperty schemaProperty;
+    private final SchemaResolvedDataType resolvedType;
 
     public EntityProperty(SchemaProperty schemaProperty) {
         super(schemaProperty);
@@ -14,6 +15,7 @@ public class EntityProperty extends EntityField {
         Validate.notNull(schemaProperty, "schemaProperty");
 
         this.schemaProperty = schemaProperty;
+        resolvedType = schemaProperty.getResolvedDataType();
     }
 
     @Override
@@ -21,52 +23,44 @@ public class EntityProperty extends EntityField {
 
     }
 
-    public SchemaResolvedDataType getResolvedDataType() {
-        return schemaProperty.getResolvedDataType();
-    }
-
     public String getEnumType() {
-        return schemaProperty.getEnumType();
+        return resolvedType.getEnumType();
     }
 
     public String getUserType() {
-        return schemaProperty.getUserType();
+        return resolvedType.getUserType();
     }
 
+    @Override
     public String getDbName() {
         return schemaProperty.getDbName();
     }
 
     public int getLength() {
-        return schemaProperty.getLength();
+        return resolvedType.getLength();
     }
 
-    public SchemaIndexType getIndexed() {
-        return schemaProperty.getIndexed();
-    }
-
-    public String getRawDbType() {
-        return schemaProperty.getRawDbType();
+    @Override
+    public SchemaIndexType getIndexType() {
+        return resolvedType.getIndexType();
     }
 
     public SchemaDbType getDbType() {
-        return schemaProperty.getDbType();
+        return resolvedType.getDbType();
     }
 
     public boolean isLazy() {
-        return schemaProperty.getLazy() == SchemaLazy.LAZY;
+        return resolvedType.getLazy() == SchemaLazy.LAZY;
     }
 
+    @Override
     public String getResolvedDbName() {
         return schemaProperty.getResolvedDbName();
     }
 
-    public String getRawType() {
-        return schemaProperty.getRawType();
-    }
-
+    @Override
     public boolean isAllowNull() {
-        return schemaProperty.getAllowNull() == SchemaAllowNull.ALLOW;
+        return resolvedType.getAllowNull() == SchemaAllowNull.ALLOW;
     }
 
     public List<String> getTags() {
@@ -74,19 +68,19 @@ public class EntityProperty extends EntityField {
     }
 
     public int getPositions() {
-        return schemaProperty.getPositions();
+        return resolvedType.getPositions();
     }
 
     public boolean isSigned() {
-        return schemaProperty.getSigned() == SchemaSigned.SIGNED;
+        return resolvedType.getSigned() == SchemaSigned.SIGNED;
     }
 
     public Class<?> getNativeType() {
-        return schemaProperty.getNativeType();
+        return resolvedType.getNativeType();
     }
 
     public String getType() {
-        return schemaProperty.getType();
+        return resolvedType.getType();
     }
 
     public String getName() {

@@ -14,7 +14,7 @@ public abstract class SchemaDataTypeBase extends SchemaAnnotatableElement {
     private SchemaLazy lazy = SchemaLazy.UNSET;
     private String rawDbType;
     private SchemaDbType dbType = SchemaDbType.UNSET;
-    private SchemaIndexType indexed = SchemaIndexType.UNSET;
+    private SchemaIndexType indexType = SchemaIndexType.UNSET;
     private String type;
 
     SchemaDataTypeBase(SchemaParserLocation location) {
@@ -125,12 +125,12 @@ public abstract class SchemaDataTypeBase extends SchemaAnnotatableElement {
         this.dbType = dbType;
     }
 
-    public SchemaIndexType getIndexed() {
-        return indexed;
+    public SchemaIndexType getIndexType() {
+        return indexType;
     }
 
-    void setIndexed(SchemaIndexType indexed) {
-        this.indexed = indexed;
+    void setIndexType(SchemaIndexType indexType) {
+        this.indexType = indexType;
     }
 
     public String getType() {

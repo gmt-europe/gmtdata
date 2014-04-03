@@ -11,14 +11,14 @@ import java.util.Map;
 
 public abstract class EntitySchema {
     private final Map<String, EntityType> typesByName;
-    private final Map<Class<? extends Entity>, EntityType> typesByClass;
+    private final Map<Class<?>, EntityType> typesByClass;
 
     @SuppressWarnings("unchecked")
     protected EntitySchema(Schema schema) throws DataException {
         Validate.notNull(schema, "schema");
 
         Map<String, EntityType> typesByName = new HashMap<>();
-        Map<Class<? extends Entity>, EntityType> typesByClass = new HashMap<>();
+        Map<Class<?>, EntityType> typesByClass = new HashMap<>();
 
         try {
             for (EntityType type : createTypes(schema)) {
@@ -32,7 +32,7 @@ public abstract class EntitySchema {
                     className += "." + schemaClass.getBoundedContext();
                 }
 
-                typesByClass.put((Class<? extends Entity>)Class.forName(className + "." + schemaClass.getName()), type);
+                typesByClass.put(Class.forName(className + "." + schemaClass.getName()), type);
             }
         } catch (ClassNotFoundException e) {
             throw new DataException("Cannot load schema", e);
@@ -58,7 +58,7 @@ public abstract class EntitySchema {
         return result;
     }
 
-    public EntityType getEntityType(Class<? extends Entity> klass) {
+    public EntityType getEntityType(Class<?> klass) {
         Validate.notNull(klass, "klass");
 
         EntityType result = typesByClass.get(klass);

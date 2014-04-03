@@ -35,10 +35,10 @@ public class StandardDataSchemaFactory implements DataSchemaFactory {
         }
 
         for (SchemaProperty field : klass.getProperties().values()) {
-            SchemaIndexType indexed = field.getIndexed();
+            SchemaIndexType indexed = field.getIndexType();
 
             if (indexed == SchemaIndexType.UNSET) {
-                indexed = field.getResolvedDataType().getIndexed();
+                indexed = field.getResolvedDataType().getIndexType();
             }
 
             if (indexed != SchemaIndexType.UNSET) {
