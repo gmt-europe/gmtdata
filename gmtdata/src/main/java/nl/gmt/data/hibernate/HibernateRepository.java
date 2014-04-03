@@ -21,6 +21,11 @@ public abstract class HibernateRepository<T extends Entity> implements Repositor
     }
 
     @Override
+    public Class<T> getPersistentClass() {
+        return persistentClass;
+    }
+
+    @Override
     public DbContext getContext() {
         return context;
     }

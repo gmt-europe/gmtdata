@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.List;
 
 public interface Repository<T extends Entity> {
+    Class<T> getPersistentClass();
+
     DbContext getContext();
     void setContext(DbContext context);
     List<T> getAll();

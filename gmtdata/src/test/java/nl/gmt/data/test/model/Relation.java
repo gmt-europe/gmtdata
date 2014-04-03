@@ -1,4 +1,4 @@
-package nl.gmt.data.model;
+package nl.gmt.data.test.model;
 
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
@@ -58,7 +58,7 @@ public class Relation implements nl.gmt.data.Entity {
     private Gender gender;
 
     @Column(name = "Gender", nullable = false)
-    @Type(type = "nl.gmt.data.model.Gender$UserType")
+    @Type(type = "nl.gmt.data.test.model.Gender$UserType")
     public Gender getGender() {
         return this.gender;
     }

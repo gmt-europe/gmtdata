@@ -1,10 +1,12 @@
 package nl.gmt.data;
 
 import nl.gmt.data.drivers.SQLiteDriver;
-import nl.gmt.data.model.Address;
-import nl.gmt.data.model.Gender;
-import nl.gmt.data.model.Relation;
-import nl.gmt.data.model.RelationRepository;
+import nl.gmt.data.test.model.Address;
+import nl.gmt.data.test.model.Gender;
+import nl.gmt.data.test.model.Relation;
+import nl.gmt.data.test.model.RelationRepository;
+import nl.gmt.data.test.TestConnection;
+import nl.gmt.data.test.types.RelationType;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,6 +29,8 @@ public class DbConnectionFixture {
         SQLiteDriver.setPragma("journal_mode", "TRUNCATE");
 
         TestConnection db = new TestConnection("jdbc:sqlite:" + path, DbType.SQLITE);
+
+        RelationType relationType = db.getEntitySchema().getAddress().getRelation().getForeign();
 
         db.migrateDatabase();
 

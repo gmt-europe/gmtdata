@@ -26,8 +26,11 @@ public class CodeGenerator {
     }
 
     public void generate(GeneratorWriter writer) throws SchemaException {
+        generateSchema(writer);
+
         for (SchemaClass klass : sort(schema.getClasses().values())) {
             generateClass(klass, writer);
+            generateType(klass, writer);
         }
 
         for (SchemaEnumType enumType : sort(schema.getEnumTypes().values())) {
@@ -41,18 +44,183 @@ public class CodeGenerator {
         }
     }
 
-    private String getPackageName(SchemaClass klass) {
-        return getPackageName(klass, null);
+    private void generateSchema(GeneratorWriter writer) {
+        CodeWriter cw = new CodeWriter();
+
+        cw.writeln("package %s;", getTypesPackageName(null));
+        cw.writeln();
+
+        cw.writeln("import nl.gmt.data.DataException;");
+        cw.writeln("import nl.gmt.data.EntityType;");
+        cw.writeln("import nl.gmt.data.schema.Schema;");
+        cw.writeln();
+
+        cw.writeln("public class EntitySchema extends nl.gmt.data.EntitySchema {");
+        cw.indent();
+
+        for (SchemaClass klass : schema.getClasses().values()) {
+            cw.writeln("private %sType %s;", klass.getName(), getFieldName(klass.getName()));
+        }
+
+        cw.writeln();
+        cw.writeln("public EntitySchema(Schema schema) throws DataException {");
+        cw.indent();
+
+        cw.writeln("super(schema);");
+
+        cw.unIndent();
+        cw.writeln("}");
+        cw.writeln();
+
+        cw.writeln("@Override");
+        cw.writeln("protected EntityType[] createTypes(Schema schema) {");
+        cw.indent();
+
+        cw.writeln("return new EntityType[]{");
+        cw.indent();
+
+        List<SchemaClass> classes = new ArrayList<>(schema.getClasses().values());
+
+        for (int i = 0; i < classes.size(); i++) {
+            SchemaClass klass = classes.get(i);
+
+            cw.writeln(
+                "%s = new %sType(schema.getClasses().get(\"%s\"))%s",
+                getFieldName(klass.getName()),
+                klass.getName(),
+                klass.getName(),
+                i == classes.size() - 1 ? "" : ","
+            );
+        }
+
+        cw.unIndent();
+        cw.writeln("};");
+
+        cw.unIndent();
+        cw.writeln("}");
+
+        for (SchemaClass klass : schema.getClasses().values()) {
+            cw.writeln();
+            cw.writeln("public %sType get%s() {", klass.getName(), klass.getName());
+            cw.indent();
+
+            cw.writeln("return %s;", getFieldName(klass.getName()));
+
+            cw.unIndent();
+            cw.writeln("}");
+        }
+
+        cw.unIndent();
+        cw.writeln("}");
+
+        writer.writeFile(new File(new File(outputDirectory, "types"), "EntitySchema.java"), cw.toString(), true);
     }
 
-    private String getPackageName(SchemaClass klass, String subPackage) {
-        String result = schema.getNamespace() + ".model";
+    private void generateType(SchemaClass klass, GeneratorWriter writer) {
+        CodeWriter cw = new CodeWriter();
+
+        cw.writeln("package %s;", getTypesPackageName(klass));
+        cw.writeln();
+
+        cw.writeln("import nl.gmt.data.EntityForeignChild;");
+        cw.writeln("import nl.gmt.data.EntityForeignParent;");
+        cw.writeln("import nl.gmt.data.EntityProperty;");
+        cw.writeln("import nl.gmt.data.schema.SchemaClass;");
+        cw.writeln();
+
+        cw.writeln("public class %sType extends nl.gmt.data.EntityType {", klass.getName());
+        cw.indent();
+
+        cw.writeln("public %sType(SchemaClass schemaClass) {", klass.getName());
+        cw.indent();
+
+        cw.writeln("super(schemaClass);");
+
+        cw.unIndent();
+        cw.writeln("}");
+
+        for (SchemaField schemaField : klass.getFields()) {
+            cw.writeln();
+
+            if (schemaField instanceof SchemaProperty) {
+                cw.writeln("public EntityProperty get%s() {", schemaField.getName());
+                cw.indent();
+
+                cw.writeln("return (EntityProperty)getField(\"%s\");", getFieldName(schemaField.getName()));
+
+                cw.unIndent();
+                cw.writeln("}");
+            } else if (schemaField instanceof SchemaForeignParent) {
+                cw.writeln("@SuppressWarnings(\"unchecked\")");
+                cw.writeln(
+                    "public EntityForeignParent<%sType> get%s() {",
+                    ((SchemaForeignParent)schemaField).getClassName(),
+                    schemaField.getName()
+                );
+                cw.indent();
+
+                cw.writeln(
+                    "return (EntityForeignParent<%sType>)getField(\"%s\");",
+                    ((SchemaForeignParent)schemaField).getClassName(),
+                    getFieldName(schemaField.getName())
+                );
+
+                cw.unIndent();
+                cw.writeln("}");
+            } else if (schemaField instanceof SchemaForeignChild) {
+                cw.writeln("@SuppressWarnings(\"unchecked\")");
+                cw.writeln(
+                    "public EntityForeignChild<%sType> get%s() {",
+                    ((SchemaForeignChild)schemaField).getClassName(),
+                    schemaField.getName()
+                );
+                cw.indent();
+
+                cw.writeln(
+                    "return (EntityForeignChild<%sType>)getField(\"%s\");",
+                    ((SchemaForeignChild)schemaField).getClassName(),
+                    getFieldName(schemaField.getName())
+                );
+
+                cw.unIndent();
+                cw.writeln("}");
+            }
+        }
+
+        cw.unIndent();
+        cw.writeln("}");
+
+        File fileName = new File(outputDirectory, "types");
+
+        if (klass.getBoundedContext() != null) {
+            fileName = new File(fileName, klass.getBoundedContext());
+        }
+
+        fileName = new File(fileName, klass.getName() + "Type.java");
+
+        writer.writeFile(fileName, cw.toString(), true);
+    }
+
+    private String getTypesPackageName(SchemaClass klass) {
+        return getPackageName("types", klass, null);
+    }
+
+    private String getModelPackageName(SchemaClass klass) {
+        return getModelPackageName(klass, null);
+    }
+
+    private String getModelPackageName(SchemaClass klass, String subPackage) {
+        return getPackageName("model", klass, subPackage);
+    }
+
+    private String getPackageName(String namespace, SchemaClass klass, String subPackage) {
+        String result = schema.getNamespace() + "." + namespace;
 
         if (subPackage != null) {
             result += "." + subPackage;
         }
 
-        if (klass.getBoundedContext() != null) {
+        if (klass != null && klass.getBoundedContext() != null) {
             result += "." + klass.getBoundedContext();
         }
 
@@ -62,7 +230,7 @@ public class CodeGenerator {
     private void generateClass(SchemaClass klass, GeneratorWriter writer) throws SchemaException {
         CodeWriter cw = new CodeWriter();
 
-        cw.writeln("package %s;", getPackageName(klass));
+        cw.writeln("package %s;", getModelPackageName(klass));
         cw.writeln();
 
         cw.writeln("import org.hibernate.annotations.GenericGenerator;");
@@ -616,7 +784,7 @@ public class CodeGenerator {
     private void generateRepositoryInterface(SchemaClass klass, GeneratorWriter writer) {
         CodeWriter cw = new CodeWriter();
 
-        cw.writeln("package %s;", getPackageName(klass));
+        cw.writeln("package %s;", getModelPackageName(klass));
         cw.writeln();
 
         cw.writeln("import nl.gmt.data.Repository;");
@@ -643,14 +811,14 @@ public class CodeGenerator {
     private void generateRepositoryImplementation(SchemaClass klass, GeneratorWriter writer) {
         CodeWriter cw = new CodeWriter();
 
-        cw.writeln("package %s;", getPackageName(klass, "implementation"));
+        cw.writeln("package %s;", getModelPackageName(klass, "implementation"));
         cw.writeln();
 
         cw.writeln("import nl.gmt.data.hibernate.HibernateRepository;");
         cw.writeln();
 
-        cw.writeln("import %s.%s;", getPackageName(klass), klass.getName());
-        cw.writeln("import %s.%sRepository;", getPackageName(klass), klass.getName());
+        cw.writeln("import %s.%s;", getModelPackageName(klass), klass.getName());
+        cw.writeln("import %s.%sRepository;", getModelPackageName(klass), klass.getName());
         cw.writeln();
 
         cw.writeln("@SuppressWarnings(\"UnusedDeclaration\")");

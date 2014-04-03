@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public abstract class DbConnection implements DataCloseable {
+public abstract class DbConnection<T extends EntitySchema> implements DataCloseable {
     private final String connectionString;
     private final DbType type;
     private final String schemaName;
@@ -28,6 +28,7 @@ public abstract class DbConnection implements DataCloseable {
     private final List<DbContextListener> contextListeners = new ArrayList<>();
     private final List<DbContextListener> unmodifiableContextListeners = Collections.unmodifiableList(contextListeners);
     private final RepositoryService repositoryService;
+    private final T entitySchema;
     private boolean closed;
 
     protected DbConnection(String connectionString, DbType type, String schemaName) throws DataException {
@@ -72,7 +73,17 @@ public abstract class DbConnection implements DataCloseable {
         sessionFactory = configuration.buildSessionFactory(serviceRegistry);
 
         driver.configure(this);
+        
+        entitySchema = createEntitySchema(schema);
+
+        for (EntityType entityType : entitySchema.getEntityTypes()) {
+            for (EntityField field : entityType.getFields()) {
+                field.resolve(entitySchema);
+            }
+        }
     }
+
+    protected abstract T createEntitySchema(Schema schema) throws DataException;
 
     protected void createConfiguration(Configuration configuration) {
         
@@ -84,6 +95,10 @@ public abstract class DbConnection implements DataCloseable {
 
     public RepositoryService getRepositoryService() {
         return repositoryService;
+    }
+
+    public T getEntitySchema() {
+        return entitySchema;
     }
 
     private void addClasses(Configuration configuration) throws ClassNotFoundException {

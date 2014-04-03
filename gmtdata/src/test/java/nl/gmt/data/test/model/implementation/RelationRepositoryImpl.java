@@ -1,8 +1,8 @@
-package nl.gmt.data.model.implementation;
+package nl.gmt.data.test.model.implementation;
 
 import nl.gmt.data.hibernate.HibernateRepository;
-import nl.gmt.data.model.Relation;
-import nl.gmt.data.model.RelationRepository;
+import nl.gmt.data.test.model.Relation;
+import nl.gmt.data.test.model.RelationRepository;
 
 public class RelationRepositoryImpl extends HibernateRepository<Relation> implements RelationRepository {
     public RelationRepositoryImpl() {

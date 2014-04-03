@@ -1,4 +1,4 @@
-package nl.gmt.data.model;
+package nl.gmt.data.test.model;
 
 import org.hibernate.annotations.GenericGenerator;
 
