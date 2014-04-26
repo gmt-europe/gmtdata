@@ -29,7 +29,7 @@ public class SchemaIndex extends SchemaAnnotatableElement {
     }
 
     String toSmallString() {
-        String result = String.format("(`{0}`)", StringUtils.join(fields, "` `"));
+        String result = String.format("(`%s`)", StringUtils.join(fields, "` `"));
 
         if (type == SchemaIndexType.UNIQUE || type == SchemaIndexType.PRIMARY)
             result = type.toString().toLowerCase() + " " + result;

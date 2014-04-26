@@ -2,9 +2,7 @@ package nl.gmt.data;
 
 import nl.gmt.Delegate;
 import nl.gmt.DelegateListener;
-import nl.gmt.data.drivers.DatabaseDriver;
-import nl.gmt.data.drivers.MySqlDatabaseDriver;
-import nl.gmt.data.drivers.SQLiteDatabaseDriver;
+import nl.gmt.data.drivers.*;
 import nl.gmt.data.migrate.*;
 import nl.gmt.data.schema.Schema;
 import nl.gmt.data.schema.SchemaCallback;
@@ -16,7 +14,7 @@ import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 
-import java.io.InputStream;
+import java.io.*;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -46,6 +44,8 @@ public abstract class DbConnection<T extends EntitySchema> implements DataClosea
         switch (type) {
             case SQLITE: driver = new SQLiteDatabaseDriver(); break;
             case MYSQL: driver = new MySqlDatabaseDriver(); break;
+            case PROGRESS: driver = new ProgressDatabaseDriver(); break;
+            case SQLSERVER: driver = new SqlServerDatabaseDriver(); break;
             default: throw new DataException("Illegal database type");
         }
 
@@ -110,7 +110,7 @@ public abstract class DbConnection<T extends EntitySchema> implements DataClosea
             String className = ns + ".";
 
             if (klass.getBoundedContext() != null)
-                className += "model.";
+                className += klass.getBoundedContext() + ".";
 
             className += klass.getName();
 

@@ -1,13 +1,13 @@
 <component name="libraryTable">
   <library name="Maven: nl.gmt:gmt-core:0.1-SNAPSHOT">
     <CLASSES>
-      <root url="jar://$MAVEN_REPOSITORY$/nl/gmt/gmt-core/0.1-SNAPSHOT/gmt-core-0.1-SNAPSHOT.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/nl/gmt/gmt-core/0.1-SNAPSHOT/gmt-core-0.1-20140421.110456-4.jar!/" />
     </CLASSES>
     <JAVADOC>
-      <root url="jar://$MAVEN_REPOSITORY$/nl/gmt/gmt-core/0.1-SNAPSHOT/gmt-core-0.1-SNAPSHOT-javadoc.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/nl/gmt/gmt-core/0.1-SNAPSHOT/gmt-core-0.1-20140421.110456-4-javadoc.jar!/" />
     </JAVADOC>
     <SOURCES>
-      <root url="jar://$MAVEN_REPOSITORY$/nl/gmt/gmt-core/0.1-SNAPSHOT/gmt-core-0.1-SNAPSHOT-sources.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/nl/gmt/gmt-core/0.1-SNAPSHOT/gmt-core-0.1-20140421.110456-4-sources.jar!/" />
     </SOURCES>
   </library>
 </component>

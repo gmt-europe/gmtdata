@@ -50,20 +50,15 @@ public class CodeGenerator {
         cw.writeln("package %s;", getTypesPackageName(null));
         cw.writeln();
 
-        cw.writeln("import nl.gmt.data.DataException;");
-        cw.writeln("import nl.gmt.data.EntityType;");
-        cw.writeln("import nl.gmt.data.schema.Schema;");
-        cw.writeln();
-
         cw.writeln("public class EntitySchema extends nl.gmt.data.EntitySchema {");
         cw.indent();
 
         for (SchemaClass klass : schema.getClasses().values()) {
-            cw.writeln("private %sType %s;", klass.getName(), getFieldName(klass.getName()));
+            cw.writeln("private %s %s;", getTypeClassName(klass.getName()), getFieldName(klass.getName()));
         }
 
         cw.writeln();
-        cw.writeln("public EntitySchema(Schema schema) throws DataException {");
+        cw.writeln("public EntitySchema(nl.gmt.data.schema.Schema schema) throws nl.gmt.data.DataException {");
         cw.indent();
 
         cw.writeln("super(schema);");
@@ -73,10 +68,10 @@ public class CodeGenerator {
         cw.writeln();
 
         cw.writeln("@Override");
-        cw.writeln("protected EntityType[] createTypes(Schema schema) {");
+        cw.writeln("protected nl.gmt.data.EntityType[] createTypes(nl.gmt.data.schema.Schema schema) {");
         cw.indent();
 
-        cw.writeln("return new EntityType[]{");
+        cw.writeln("return new nl.gmt.data.EntityType[]{");
         cw.indent();
 
         List<SchemaClass> classes = new ArrayList<>(schema.getClasses().values());
@@ -85,9 +80,9 @@ public class CodeGenerator {
             SchemaClass klass = classes.get(i);
 
             cw.writeln(
-                "%s = new %sType(schema.getClasses().get(\"%s\"))%s",
+                "%s = new %s(schema.getClasses().get(\"%s\"))%s",
                 getFieldName(klass.getName()),
-                klass.getName(),
+                getTypeClassName(klass.getName()),
                 klass.getName(),
                 i == classes.size() - 1 ? "" : ","
             );
@@ -101,7 +96,7 @@ public class CodeGenerator {
 
         for (SchemaClass klass : schema.getClasses().values()) {
             cw.writeln();
-            cw.writeln("public %sType get%s() {", klass.getName(), klass.getName());
+            cw.writeln("public %s get%s() {", getTypeClassName(klass.getName()), klass.getName());
             cw.indent();
 
             cw.writeln("return %s;", getFieldName(klass.getName()));
@@ -122,16 +117,10 @@ public class CodeGenerator {
         cw.writeln("package %s;", getTypesPackageName(klass));
         cw.writeln();
 
-        cw.writeln("import nl.gmt.data.EntityForeignChild;");
-        cw.writeln("import nl.gmt.data.EntityForeignParent;");
-        cw.writeln("import nl.gmt.data.EntityProperty;");
-        cw.writeln("import nl.gmt.data.schema.SchemaClass;");
-        cw.writeln();
-
         cw.writeln("public class %sType extends nl.gmt.data.EntityType {", klass.getName());
         cw.indent();
 
-        cw.writeln("public %sType(SchemaClass schemaClass) {", klass.getName());
+        cw.writeln("public %sType(nl.gmt.data.schema.SchemaClass schemaClass) {", klass.getName());
         cw.indent();
 
         cw.writeln("super(schemaClass);");
@@ -143,25 +132,25 @@ public class CodeGenerator {
             cw.writeln();
 
             if (schemaField instanceof SchemaProperty) {
-                cw.writeln("public EntityProperty get%s() {", schemaField.getName());
+                cw.writeln("public nl.gmt.data.EntityProperty get%s() {", schemaField.getName());
                 cw.indent();
 
-                cw.writeln("return (EntityProperty)getField(\"%s\");", getFieldName(schemaField.getName()));
+                cw.writeln("return (nl.gmt.data.EntityProperty)getField(\"%s\");", getFieldName(schemaField.getName()));
 
                 cw.unIndent();
                 cw.writeln("}");
             } else if (schemaField instanceof SchemaForeignParent) {
                 cw.writeln("@SuppressWarnings(\"unchecked\")");
                 cw.writeln(
-                    "public EntityForeignParent<%sType> get%s() {",
-                    ((SchemaForeignParent)schemaField).getClassName(),
+                    "public nl.gmt.data.EntityForeignParent<%s> get%s() {",
+                    getTypeClassName(((SchemaForeignParent)schemaField).getClassName()),
                     schemaField.getName()
                 );
                 cw.indent();
 
                 cw.writeln(
-                    "return (EntityForeignParent<%sType>)getField(\"%s\");",
-                    ((SchemaForeignParent)schemaField).getClassName(),
+                    "return (nl.gmt.data.EntityForeignParent<%s>)getField(\"%s\");",
+                    getTypeClassName(((SchemaForeignParent)schemaField).getClassName()),
                     getFieldName(schemaField.getName())
                 );
 
@@ -170,15 +159,15 @@ public class CodeGenerator {
             } else if (schemaField instanceof SchemaForeignChild) {
                 cw.writeln("@SuppressWarnings(\"unchecked\")");
                 cw.writeln(
-                    "public EntityForeignChild<%sType> get%s() {",
-                    ((SchemaForeignChild)schemaField).getClassName(),
+                    "public nl.gmt.data.EntityForeignChild<%s> get%s() {",
+                    getTypeClassName(((SchemaForeignChild)schemaField).getClassName()),
                     schemaField.getName()
                 );
                 cw.indent();
 
                 cw.writeln(
-                    "return (EntityForeignChild<%sType>)getField(\"%s\");",
-                    ((SchemaForeignChild)schemaField).getClassName(),
+                    "return (nl.gmt.data.EntityForeignChild<%s>)getField(\"%s\");",
+                    getTypeClassName(((SchemaForeignChild)schemaField).getClassName()),
                     getFieldName(schemaField.getName())
                 );
 
@@ -233,18 +222,8 @@ public class CodeGenerator {
         cw.writeln("package %s;", getModelPackageName(klass));
         cw.writeln();
 
-        cw.writeln("import org.hibernate.annotations.GenericGenerator;");
-        cw.writeln("import org.hibernate.annotations.Parameter;");
-        cw.writeln("import org.hibernate.annotations.Type;");
-        cw.writeln();
-
-        cw.writeln("import javax.persistence.*;");
-        cw.writeln("import java.util.Date;");
-        cw.writeln("import java.util.Set;");
-        cw.writeln();
-
-        cw.writeln("@Entity");
-        cw.writeln("@Table(name = \"%s\")", StringEscapeUtils.escapeJava(klass.getResolvedDbName()));
+        cw.writeln("@javax.persistence.Entity");
+        cw.writeln("@javax.persistence.Table(name = \"`%s`\")", StringEscapeUtils.escapeJava(klass.getResolvedDbName()));
         cw.writeln(
             "public class %s implements nl.gmt.data.Entity {",
             klass.getName(),
@@ -323,23 +302,31 @@ public class CodeGenerator {
     }
 
     private void generateBuilderProperty(CodeWriter cw, SchemaProperty property) {
-        generateField(cw, property.getResolvedDataType(), property.getEnumType(), property.getName());
+        generateField(cw, property.getResolvedDataType(), getEnumType(property.getEnumType()), property.getName());
 
         cw.writeln();
 
-        generateBuilderSetter(cw, property.getResolvedDataType(), property.getEnumType(), property.getName());
+        generateBuilderSetter(cw, property.getResolvedDataType(), getEnumType(property.getEnumType()), property.getName());
+    }
+
+    private String getEnumType(String enumType) {
+        if (enumType == null) {
+            return null;
+        }
+
+        return schema.getNamespace() + ".model." + enumType;
     }
 
     private void generateBuilderForeignParent(CodeWriter cw, SchemaForeignParent foreign) {
         cw.writeln(
             "private %s %s;",
-            foreign.getClassName(),
+            getClassName(foreign.getClassName()),
             getFieldName(foreign.getName())
         );
 
         cw.writeln();
 
-        generateBuilderSetter(cw, foreign.getName(), foreign.getClassName());
+        generateBuilderSetter(cw, foreign.getName(), getClassName(foreign.getClassName()));
     }
 
     private void generateBuilderSetter(CodeWriter cw, SchemaResolvedDataType dataType, String enumType, String name) {
@@ -416,7 +403,7 @@ public class CodeGenerator {
 
                 sb.append(String.format(
                     "%s %s",
-                    property.getEnumType() != null ? property.getEnumType() : getTypeName(property.getResolvedDataType().getNativeType()),
+                    property.getEnumType() != null ? getEnumType(property.getEnumType()) : getTypeName(property.getResolvedDataType().getNativeType()),
                     fieldName
                 ));
 
@@ -429,7 +416,7 @@ public class CodeGenerator {
 
                 sb.append(String.format(
                     "%s %s",
-                    foreign.getClassName(),
+                    getClassName(foreign.getClassName()),
                     fieldName
                 ));
 
@@ -461,6 +448,22 @@ public class CodeGenerator {
         cw.writeln();
     }
 
+    private String getClassName(String className) {
+        return getClassName(schema.getClasses().get(className));
+    }
+
+    private String getClassName(SchemaClass klass) {
+        return schema.getNamespace() + ".model." + klass.getFullName();
+    }
+
+    private String getTypeClassName(String className) {
+        return getTypeClassName(schema.getClasses().get(className));
+    }
+
+    private String getTypeClassName(SchemaClass klass) {
+        return schema.getNamespace() + ".types." + klass.getFullName() + "Type";
+    }
+
     private void generateIdProperty(CodeWriter cw, SchemaClassIdProperty property) throws SchemaException {
         if (property.getCompositeId() != null)
             throw new SchemaException("Composite ID's are not supported");
@@ -469,27 +472,27 @@ public class CodeGenerator {
 
         cw.writeln();
 
-        cw.writeln("@Id");
+        cw.writeln("@javax.persistence.Id");
 
         if (property.getAutoIncrement() == SchemaIdAutoIncrement.YES) {
-            cw.writeln("@GeneratedValue(strategy = GenerationType.IDENTITY)");
+            cw.writeln("@javax.persistence.GeneratedValue(strategy = javax.persistence.GenerationType.IDENTITY)");
         } else if (property.getDbSequence() != null) {
-            cw.writeln("@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = \"SEQ_GEN\")");
+            cw.writeln("@javax.persistence.GeneratedValue(strategy = javax.persistence.GenerationType.SEQUENCE, generator = \"SEQ_GEN\")");
             cw.writeln(
-                "@SequenceGenerator(name = \"SEQ_GEN\", sequenceName = \"%s\")",
+                "@javax.persistence.SequenceGenerator(name = \"SEQ_GEN\", sequenceName = \"%s\")",
                 StringEscapeUtils.escapeJava(property.getDbSequence())
             );
         } else if (property.getGenerator() != null) {
             SchemaGenerator generator = property.getGenerator();
 
             cw.writeln(
-                "@GeneratedValue(generator = \"%s\")",
+                "@javax.persistence.GeneratedValue(generator = \"%s\")",
                 StringEscapeUtils.escapeJava(generator.getName())
             );
 
             StringBuilder sb = new StringBuilder();
 
-            sb.append("@GenericGenerator(name = \"");
+            sb.append("@org.hibernate.annotations.GenericGenerator(name = \"");
             sb.append(StringEscapeUtils.escapeJava(generator.getName()));
             sb.append("\", strategy = \"");
             sb.append(StringEscapeUtils.escapeJava(generator.getStrategy()));
@@ -506,7 +509,7 @@ public class CodeGenerator {
                     else
                         hadOne = true;
 
-                    sb.append("@Parameter(name = \"");
+                    sb.append("@org.hibernate.annotations.Parameter(name = \"");
                     sb.append(StringEscapeUtils.escapeJava(parameter.getName()));
                     sb.append("\", value = \"");
                     sb.append(StringEscapeUtils.escapeJava(parameter.getValue()));
@@ -583,7 +586,7 @@ public class CodeGenerator {
 
         if (klass == java.lang.Byte.class)
             typeName = "byte";
-        else if (klass == java.util.UUID.class || klass == java.util.Date.class)
+        else if (klass == java.util.UUID.class || klass == java.util.Date.class || klass == java.math.BigDecimal.class)
             typeName = klass.getName();
         else if (klass.getPackage().getName().equals("java.lang"))
             typeName = klass.getSimpleName();
@@ -613,9 +616,9 @@ public class CodeGenerator {
     private void generateColumnAnnotations(CodeWriter cw, String dbName, SchemaResolvedDataType dataType) {
         StringBuilder sb = new StringBuilder();
 
-        sb.append("@Column(name = \"");
+        sb.append("@javax.persistence.Column(name = \"`");
         sb.append(StringEscapeUtils.escapeJava(dbName));
-        sb.append("\"");
+        sb.append("`\"");
 
         if (dataType.getAllowNull() != SchemaAllowNull.ALLOW)
             sb.append(", nullable = false");
@@ -650,26 +653,26 @@ public class CodeGenerator {
             case LONG_TEXT:
             case MEDIUM_TEXT:
             case TINY_TEXT:
-                cw.writeln("@Lob");
+                cw.writeln("@javax.persistence.Lob");
                 break;
         }
          */
 
         if (dataType.getLazy() == SchemaLazy.LAZY)
-            cw.writeln("@Basic(fetch = FetchType.LAZY");
+            cw.writeln("@javax.persistence.Basic(fetch = FetchType.LAZY");
     }
 
     private void generateProperty(CodeWriter cw, SchemaProperty property) {
-        generateField(cw, property.getResolvedDataType(), property.getEnumType(), property.getName());
+        generateField(cw, property.getResolvedDataType(), getEnumType(property.getEnumType()), property.getName());
 
         cw.writeln();
 
         generateColumnAnnotations(cw, property.getResolvedDbName(), property.getResolvedDataType());
 
         if (property.getEnumType() != null)
-            cw.writeln("@Type(type = \"%s.model.%s$UserType\")", schema.getNamespace(), property.getEnumType());
+            cw.writeln("@org.hibernate.annotations.Type(type = \"%s$UserType\")", getEnumType(property.getEnumType()));
 
-        generateGetterSetter(cw, property.getResolvedDataType(), property.getEnumType(), property.getName());
+        generateGetterSetter(cw, property.getResolvedDataType(), getEnumType(property.getEnumType()), property.getName());
     }
 
     private void generateForeign(CodeWriter cw, SchemaForeignBase foreign) throws SchemaException {
@@ -683,32 +686,32 @@ public class CodeGenerator {
         SchemaClass linkClass = schema.getClasses().get(foreign.getClassName());
 
         cw.writeln(
-            "private Set<%s> %s;",
-            linkClass.getName(),
+            "private java.util.Set<%s> %s;",
+            getClassName(linkClass.getName()),
             getFieldName(foreign.getName())
         );
 
         cw.writeln();
 
-        cw.writeln("@OneToMany(mappedBy = \"%s\")", getFieldName(foreign.getClassProperty(), false));
+        cw.writeln("@javax.persistence.OneToMany(mappedBy = \"%s\", fetch = javax.persistence.FetchType.LAZY)", getFieldName(foreign.getClassProperty(), false));
 
-        generateGetterSetter(cw, foreign.getName(), "Set<" + linkClass.getName() + ">", false);
+        generateGetterSetter(cw, foreign.getName(), "java.util.Set<" + getClassName(linkClass.getName()) + ">", false);
     }
 
     private void generateForeignParent(CodeWriter cw, SchemaForeignParent foreign) {
         cw.writeln(
             "private %s %s;",
-            foreign.getClassName(),
+            getClassName(foreign.getClassName()),
             getFieldName(foreign.getName())
         );
 
         cw.writeln();
 
-        cw.writeln("@ManyToOne");
+        cw.writeln("@javax.persistence.ManyToOne(fetch = javax.persistence.FetchType.LAZY)");
 
-        cw.writeln("@JoinColumn(name = \"%s\")", StringEscapeUtils.escapeJava(foreign.getResolvedDbName()));
+        cw.writeln("@javax.persistence.JoinColumn(name = \"`%s`\")", StringEscapeUtils.escapeJava(foreign.getResolvedDbName()));
 
-        generateGetterSetter(cw, foreign.getName(), foreign.getClassName(), false);
+        generateGetterSetter(cw, foreign.getName(), getClassName(foreign.getClassName()), false);
     }
 
     private void generateEnumType(SchemaEnumType enumType, GeneratorWriter writer) {
@@ -717,11 +720,7 @@ public class CodeGenerator {
         cw.writeln("package %s.model;", schema.getNamespace());
         cw.writeln();
 
-        cw.writeln("import nl.gmt.data.hibernate.PersistentEnum;");
-        cw.writeln("import nl.gmt.data.hibernate.PersistentEnumUserType;");
-        cw.writeln();
-
-        cw.writeln("public enum %s implements PersistentEnum {", enumType.getName());
+        cw.writeln("public enum %s implements nl.gmt.data.hibernate.PersistentEnum {", enumType.getName());
         cw.indent();
 
         List<SchemaEnumTypeField> fields = sort(enumType.getFields().values());
@@ -757,7 +756,7 @@ public class CodeGenerator {
         cw.writeln();
 
         cw.writeln(
-            "public static class UserType extends PersistentEnumUserType<%s> {",
+            "public static class UserType extends nl.gmt.data.hibernate.PersistentEnumUserType<%s> {",
             enumType.getName()
         );
         cw.indent();
