@@ -10,9 +10,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 public class DataSchemaReader extends nl.gmt.data.migrate.DataSchemaReader {
     protected DataSchemaReader(Connection connection) {
@@ -22,7 +22,7 @@ public class DataSchemaReader extends nl.gmt.data.migrate.DataSchemaReader {
     @Override
     public Map<String, DataSchemaTable> getTables() throws SchemaMigrateException {
         try {
-            Map<String, DataSchemaTable> tables = new HashMap<>();
+            Map<String, DataSchemaTable> tables = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
             // Load the tables.
 
