@@ -7,7 +7,7 @@ import nl.gmt.data.schema.SchemaClass;
 
 public class RelationType extends EntityType {
     public RelationType(SchemaClass schemaClass) {
-        super(schemaClass);
+        super(schemaClass, nl.gmt.data.test.model.Relation.class);
     }
 
     public EntityProperty getId() {

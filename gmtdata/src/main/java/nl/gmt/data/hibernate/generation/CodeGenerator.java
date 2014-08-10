@@ -123,7 +123,7 @@ public class CodeGenerator {
         cw.writeln("public %sType(nl.gmt.data.schema.SchemaClass schemaClass) {", klass.getName());
         cw.indent();
 
-        cw.writeln("super(schemaClass);");
+        cw.writeln("super(schemaClass, %s.%s.class);", getModelPackageName(klass), klass.getName());
 
         cw.unIndent();
         cw.writeln("}");

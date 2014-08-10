@@ -20,22 +20,12 @@ public abstract class EntitySchema {
         Map<String, EntityType> typesByName = new HashMap<>();
         Map<Class<?>, EntityType> typesByClass = new HashMap<>();
 
-        try {
-            for (EntityType type : createTypes(schema)) {
-                SchemaClass schemaClass = type.getSchemaClass();
+        for (EntityType type : createTypes(schema)) {
+            SchemaClass schemaClass = type.getSchemaClass();
 
-                typesByName.put(schemaClass.getName(), type);
-
-                String className = schema.getNamespace() + ".model";
-
-                if (schemaClass.getBoundedContext() != null) {
-                    className += "." + schemaClass.getBoundedContext();
-                }
-
-                typesByClass.put(Class.forName(className + "." + schemaClass.getName()), type);
-            }
-        } catch (ClassNotFoundException e) {
-            throw new DataException("Cannot load schema", e);
+            typesByName.put(schemaClass.getName(), type);
+            typesByName.put(type.getModel().getSimpleName(), type);
+            typesByClass.put(type.getModel(), type);
         }
 
         this.typesByName = Collections.unmodifiableMap(typesByName);

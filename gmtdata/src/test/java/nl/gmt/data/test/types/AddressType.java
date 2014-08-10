@@ -6,7 +6,7 @@ import nl.gmt.data.schema.SchemaClass;
 
 public class AddressType extends nl.gmt.data.EntityType {
     public AddressType(SchemaClass schemaClass) {
-        super(schemaClass);
+        super(schemaClass, nl.gmt.data.test.model.Address.class);
     }
 
     public EntityProperty getId() {

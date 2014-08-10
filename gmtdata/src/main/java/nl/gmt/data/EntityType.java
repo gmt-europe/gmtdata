@@ -11,9 +11,12 @@ import java.util.Map;
 public class EntityType {
     private final SchemaClass schemaClass;
     private final Map<String, EntityField> fields;
+    private final Class<?> model;
 
-    public EntityType(SchemaClass schemaClass) {
+    public EntityType(SchemaClass schemaClass, Class<?> model) {
+        this.model = model;
         Validate.notNull(schemaClass, "schemaClass");
+        Validate.notNull(model, "model");
 
         this.schemaClass = schemaClass;
 
@@ -57,5 +60,9 @@ public class EntityType {
     @Override
     public String toString() {
         return schemaClass.getName();
+    }
+
+    public Class<?> getModel() {
+        return model;
     }
 }
