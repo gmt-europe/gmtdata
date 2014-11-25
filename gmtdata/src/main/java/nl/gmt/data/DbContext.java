@@ -177,8 +177,9 @@ public class DbContext implements DataCloseable {
         session.persist(entity);
     }
 
-    public Entity load(Class theClass, Serializable id, LockOptions lockOptions) {
-        return (Entity)session.load(theClass, id, lockOptions);
+    @SuppressWarnings("unchecked")
+    public <T extends Entity> T load(Class<T> theClass, Serializable id, LockOptions lockOptions) {
+        return (T)session.load(theClass, id, lockOptions);
     }
 
     public void saveOrUpdate(Entity entity) {
@@ -245,8 +246,9 @@ public class DbContext implements DataCloseable {
         session.update(entity);
     }
 
-    public Entity get(Class clazz, Serializable id, LockOptions lockOptions) {
-        return (Entity)session.get(clazz, id, lockOptions);
+    @SuppressWarnings("unchecked")
+    public <T extends Entity> T get(Class<T> clazz, Serializable id, LockOptions lockOptions) {
+        return (T)session.get(clazz, id, lockOptions);
     }
 
     public Criteria createCriteria(String entityName) {
@@ -261,8 +263,9 @@ public class DbContext implements DataCloseable {
         session.delete(entityName, entity);
     }
 
-    public Entity get(Class clazz, Serializable id) {
-        return (Entity)session.get(clazz, id);
+    @SuppressWarnings("unchecked")
+    public <T extends Entity> T get(Class<T> clazz, Serializable id) {
+        return (T)session.get(clazz, id);
     }
 
     public void clear() {
@@ -285,8 +288,9 @@ public class DbContext implements DataCloseable {
         return session.isReadOnly(entityOrProxy);
     }
 
-    public Entity load(Class theClass, Serializable id) {
-        return (Entity)session.load(theClass, id);
+    @SuppressWarnings("unchecked")
+    public <T extends Entity> T load(Class<T> theClass, Serializable id) {
+        return (T)session.load(theClass, id);
     }
 
     public void setReadOnly(Entity entityOrProxy, boolean readOnly) {
