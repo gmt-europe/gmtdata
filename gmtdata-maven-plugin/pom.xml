@@ -4,7 +4,7 @@
 
     <groupId>nl.gmt</groupId>
     <artifactId>gmtdata-maven-plugin</artifactId>
-    <version>0.2-SNAPSHOT</version>
+    <version>0.3-SNAPSHOT</version>
     <packaging>maven-plugin</packaging>
 
     <name>gmtdata-maven-plugin</name>
@@ -12,7 +12,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <gmtdata.version>0.2-SNAPSHOT</gmtdata.version>
+        <gmtdata.version>0.3-SNAPSHOT</gmtdata.version>
         <junit.version>4.8.2</junit.version>
         <maven-plugin-annotations.version>3.2</maven-plugin-annotations.version>
         <maven-plugin-api.version>2.0</maven-plugin-api.version>
