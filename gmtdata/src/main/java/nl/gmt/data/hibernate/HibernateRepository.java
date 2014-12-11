@@ -74,7 +74,7 @@ public abstract class HibernateRepository<T extends Entity> implements Repositor
         return (T)load(persistentClass, id);
     }
 
-    protected <T extends Repository> T getRepository(Class<T> repositoryClass) {
+    protected <R extends Repository> R getRepository(Class<R> repositoryClass) {
         return context.getRepository(repositoryClass);
     }
 
@@ -94,7 +94,7 @@ public abstract class HibernateRepository<T extends Entity> implements Repositor
         return context.createCriteria(entityName, alias);
     }
 
-    protected Entity load(Class theClass, Serializable id, LockOptions lockOptions) {
+    protected <E extends Entity> E load(Class<E> theClass, Serializable id, LockOptions lockOptions) {
         return context.load(theClass, id, lockOptions);
     }
 
@@ -110,7 +110,7 @@ public abstract class HibernateRepository<T extends Entity> implements Repositor
         return context.createCriteria(persistentClass);
     }
 
-    protected Entity get(Class clazz, Serializable id, LockOptions lockOptions) {
+    protected <E extends Entity> E get(Class<E> clazz, Serializable id, LockOptions lockOptions) {
         return context.get(clazz, id, lockOptions);
     }
 
@@ -118,7 +118,7 @@ public abstract class HibernateRepository<T extends Entity> implements Repositor
         return context.createCriteria(entityName);
     }
 
-    protected Entity get(Class clazz, Serializable id) {
+    protected <E extends Entity> E get(Class<E> clazz, Serializable id) {
         return context.get(clazz, id);
     }
 
@@ -130,7 +130,7 @@ public abstract class HibernateRepository<T extends Entity> implements Repositor
         return context.createCriteria(persistentClass, alias);
     }
 
-    protected Entity load(Class theClass, Serializable id) {
+    protected <E extends Entity> E load(Class<E> theClass, Serializable id) {
         return context.load(theClass, id);
     }
 }
