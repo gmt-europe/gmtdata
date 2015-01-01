@@ -6,7 +6,7 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "Address")
-public class Address implements nl.gmt.data.Entity {
+public class Address extends nl.gmt.data.Entity {
     public Address() {
     }
 

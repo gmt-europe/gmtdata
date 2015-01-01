@@ -225,7 +225,7 @@ public class CodeGenerator {
         cw.writeln("@javax.persistence.Entity");
         cw.writeln("@javax.persistence.Table(name = \"`%s`\")", StringEscapeUtils.escapeJava(klass.getResolvedDbName()));
         cw.writeln(
-            "public class %s implements nl.gmt.data.Entity {",
+            "public class %s extends nl.gmt.data.Entity {",
             klass.getName(),
             getTypeName(klass.getResolvedIdProperty().getResolvedDataType().getNativeType())
         );

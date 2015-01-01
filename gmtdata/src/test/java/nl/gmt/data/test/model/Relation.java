@@ -8,7 +8,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "Relation")
-public class Relation implements nl.gmt.data.Entity {
+public class Relation extends nl.gmt.data.Entity {
     public Relation() {
     }
 
