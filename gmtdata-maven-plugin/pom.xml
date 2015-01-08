@@ -7,7 +7,17 @@
     <version>1.0</version>
     <packaging>maven-plugin</packaging>
 
-    <name>gmtdata-maven-plugin</name>
+    <name>GMT Data Maven Plugin</name>
+    <description>Maven plugin for GMT Data</description>
+    <url>https://github.com/gmt-europe/gmtdata</url>
+
+    <licenses>
+        <license>
+            <name>GNU LESSER GENERAL PUBLIC LICENSE Version 3</name>
+            <url>https://www.gnu.org/licenses/lgpl-3.0-standalone.html</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
