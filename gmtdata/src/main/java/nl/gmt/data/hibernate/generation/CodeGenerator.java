@@ -1,7 +1,7 @@
 package nl.gmt.data.hibernate.generation;
 
 import nl.gmt.data.schema.*;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 
 import java.io.File;
 import java.util.*;

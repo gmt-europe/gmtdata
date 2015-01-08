@@ -1,7 +1,7 @@
 package nl.gmt.data.migrate;
 
 import nl.gmt.data.schema.*;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 public class DataSchemaField extends DataSchemaObject {
     private String name;

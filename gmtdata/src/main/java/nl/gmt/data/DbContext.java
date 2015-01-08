@@ -1,8 +1,8 @@
 package nl.gmt.data;
 
-import nl.gmt.Delegate;
-import nl.gmt.DelegateListener;
-import org.apache.commons.lang.Validate;
+import nl.gmt.data.support.Delegate;
+import nl.gmt.data.support.DelegateListener;
+import org.apache.commons.lang3.Validate;
 import org.hibernate.*;
 import org.jboss.logging.Logger;
 

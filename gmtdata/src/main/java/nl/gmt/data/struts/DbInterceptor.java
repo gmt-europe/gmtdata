@@ -5,7 +5,7 @@ import com.opensymphony.xwork2.interceptor.AbstractInterceptor;
 import com.opensymphony.xwork2.interceptor.PreResultListener;
 import nl.gmt.data.DbConnection;
 import nl.gmt.data.DbContext;
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.Validate;
 
 public class DbInterceptor extends AbstractInterceptor {
     private static final ThreadLocal<DbContext> CONTEXT = new ThreadLocal<>();

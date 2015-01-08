@@ -3,7 +3,7 @@ package nl.gmt.data.migrate;
 import nl.gmt.data.DataException;
 import nl.gmt.data.drivers.DatabaseDriver;
 import nl.gmt.data.schema.SchemaCallback;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.w3c.dom.Document;

@@ -2,7 +2,7 @@ package nl.gmt.data.schema;
 
 import nl.gmt.data.migrate.SchemaMigrateException;
 import nl.gmt.data.migrate.SqlGenerator;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 public class SchemaResolvedDataType extends SchemaDataTypeBase {
     static SchemaResolvedDataType create(Schema schema, SchemaRules rules, SchemaProperty property) throws SchemaException {

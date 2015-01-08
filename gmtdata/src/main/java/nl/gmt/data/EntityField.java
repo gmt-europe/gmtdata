@@ -1,7 +1,7 @@
 package nl.gmt.data;
 
 import nl.gmt.data.schema.SchemaField;
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.Validate;
 
 public abstract class EntityField {
     private final String fieldName;

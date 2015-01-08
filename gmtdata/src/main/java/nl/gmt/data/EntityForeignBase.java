@@ -2,7 +2,7 @@ package nl.gmt.data;
 
 import nl.gmt.data.schema.SchemaForeignBase;
 import nl.gmt.data.schema.SchemaForeignType;
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.Validate;
 
 import java.util.List;
 

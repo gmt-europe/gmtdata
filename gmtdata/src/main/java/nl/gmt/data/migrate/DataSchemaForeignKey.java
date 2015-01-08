@@ -3,7 +3,7 @@ package nl.gmt.data.migrate;
 import nl.gmt.data.schema.Schema;
 import nl.gmt.data.schema.SchemaClass;
 import nl.gmt.data.schema.SchemaForeignParent;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 

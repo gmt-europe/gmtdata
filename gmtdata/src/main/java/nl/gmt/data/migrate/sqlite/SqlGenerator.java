@@ -5,7 +5,7 @@ import nl.gmt.data.migrate.*;
 import nl.gmt.data.schema.Schema;
 import nl.gmt.data.schema.SchemaDbType;
 import nl.gmt.data.schema.SchemaIndexType;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.sql.Connection;
 import java.util.ArrayList;

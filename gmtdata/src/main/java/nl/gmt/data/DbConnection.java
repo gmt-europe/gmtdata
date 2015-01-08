@@ -1,20 +1,20 @@
 package nl.gmt.data;
 
-import nl.gmt.Delegate;
-import nl.gmt.DelegateListener;
 import nl.gmt.data.drivers.*;
 import nl.gmt.data.migrate.*;
 import nl.gmt.data.schema.Schema;
 import nl.gmt.data.schema.SchemaCallback;
 import nl.gmt.data.schema.SchemaClass;
 import nl.gmt.data.schema.SchemaParserExecutor;
-import org.apache.commons.lang.Validate;
+import nl.gmt.data.support.Delegate;
+import nl.gmt.data.support.DelegateListener;
+import org.apache.commons.lang3.Validate;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 
-import java.io.*;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;

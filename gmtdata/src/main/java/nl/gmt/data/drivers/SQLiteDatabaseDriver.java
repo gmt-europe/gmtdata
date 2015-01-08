@@ -1,12 +1,12 @@
 package nl.gmt.data.drivers;
 
-import nl.gmt.DelegateListener;
 import nl.gmt.data.DbConnection;
 import nl.gmt.data.DbContextTransition;
 import nl.gmt.data.migrate.SchemaMigrateException;
 import nl.gmt.data.migrate.SqlGenerator;
 import nl.gmt.data.schema.Schema;
 import nl.gmt.data.schema.SchemaRules;
+import nl.gmt.data.support.DelegateListener;
 import org.hibernate.dialect.SQLiteDialect;
 
 import java.util.concurrent.locks.ReentrantLock;

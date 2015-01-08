@@ -1,6 +1,6 @@
 package nl.gmt.data.drivers;
 
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.Validate;
 
 import java.sql.*;
 import java.util.HashMap;

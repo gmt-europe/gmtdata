@@ -4,7 +4,7 @@
 
     <groupId>nl.gmt</groupId>
     <artifactId>gmtdata-maven-plugin</artifactId>
-    <version>0.4-SNAPSHOT</version>
+    <version>1.0</version>
     <packaging>maven-plugin</packaging>
 
     <name>gmtdata-maven-plugin</name>
@@ -12,11 +12,13 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <gmtdata.version>0.4-SNAPSHOT</gmtdata.version>
-        <junit.version>4.8.2</junit.version>
-        <maven-plugin-annotations.version>3.2</maven-plugin-annotations.version>
-        <maven-plugin-api.version>2.0</maven-plugin-api.version>
-        <plexus-utils.version>3.0.8</plexus-utils.version>
+        <gmtdata.version>1.0</gmtdata.version>
+        <junit.version>4.11</junit.version>
+        <maven-plugin-annotations.version>3.3</maven-plugin-annotations.version>
+        <maven-plugin-api.version>3.2.5</maven-plugin-api.version>
+        <plexus-utils.version>3.0.21</plexus-utils.version>
+        <maven-invoker-plugin.version>1.9</maven-invoker-plugin.version>
+        <maven-compiler-plugin.version>3.2</maven-compiler-plugin.version>
     </properties>
 
     <dependencies>
@@ -49,19 +51,6 @@
         </dependency>
     </dependencies>
 
-    <distributionManagement>
-        <snapshotRepository>
-            <id>snapshots</id>
-            <name>Titan Snapshots Repository</name>
-            <url>http://titan:8082/nexus/content/repositories/snapshots/</url>
-        </snapshotRepository>
-        <repository>
-            <id>releases</id>
-            <name>Titan Releases Repository</name>
-            <url>http://titan:8082/nexus/content/repositories/releases/</url>
-        </repository>
-    </distributionManagement>
-
     <build>
         <plugins>
 
@@ -86,7 +75,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.1</version>
+                <version>${maven-compiler-plugin.version}</version>
                 <configuration>
                     <source>1.7</source>
                     <target>1.7</target>
@@ -105,7 +94,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-invoker-plugin</artifactId>
-                        <version>1.7</version>
+                        <version>${maven-invoker-plugin.version}</version>
                         <configuration>
                             <debug>true</debug>
                             <cloneProjectsTo>${project.build.directory}/it</cloneProjectsTo>

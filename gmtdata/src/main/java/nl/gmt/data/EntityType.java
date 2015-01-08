@@ -1,7 +1,7 @@
 package nl.gmt.data;
 
 import nl.gmt.data.schema.*;
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.Validate;
 
 import java.util.Collection;
 import java.util.Collections;
