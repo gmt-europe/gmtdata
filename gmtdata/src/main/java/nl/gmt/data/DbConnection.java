@@ -44,8 +44,6 @@ public abstract class DbConnection<T extends EntitySchema> implements DataClosea
         switch (type) {
             case SQLITE: driver = new SQLiteDatabaseDriver(); break;
             case MYSQL: driver = new MySqlDatabaseDriver(); break;
-            case PROGRESS: driver = new ProgressDatabaseDriver(); break;
-            case SQLSERVER: driver = new SqlServerDatabaseDriver(); break;
             default: throw new DataException("Illegal database type");
         }
 
