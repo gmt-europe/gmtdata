@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <xs:schema attributeFormDefault="unqualified"
            elementFormDefault="qualified"
-           targetNamespace="http://schemas.gmt.nl/gmtdata/2014/02/hibernate-schema"
+           targetNamespace="http://schemas.gmt.nl/gmtdata/2015/01/hibernate-schema"
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           xmlns:nhs="http://schemas.gmt.nl/gmtdata/2014/02/hibernate-schema">
+           xmlns:nhs="http://schemas.gmt.nl/gmtdata/2015/01/hibernate-schema">
 
     <xs:element name="schema">
         <xs:complexType>
@@ -13,6 +13,7 @@
                         <xs:element ref="nhs:settings" minOccurs="0"/>
                         <xs:element ref="nhs:enumTypes" minOccurs="0"/>
                         <xs:element ref="nhs:dataTypes" minOccurs="0"/>
+                        <xs:element ref="nhs:mixins" minOccurs="0"/>
                         <xs:element ref="nhs:classes" minOccurs="0"/>
                     </xs:sequence>
                     <xs:attribute name="namespace" type="xs:string" use="optional"/>
@@ -109,53 +110,14 @@
                                         </xs:complexType>
                                     </xs:element>
                                     <xs:choice minOccurs="0" maxOccurs="unbounded">
-                                        <xs:element name="property">
-                                            <xs:complexType>
-                                                <xs:complexContent>
-                                                    <xs:extension base="nhs:DataType"/>
-                                                </xs:complexContent>
-                                            </xs:complexType>
-                                        </xs:element>
-                                        <xs:element name="foreignParent">
-                                            <xs:complexType>
-                                                <xs:complexContent>
-                                                    <xs:extension base="nhs:SchemaElement">
-                                                        <xs:attribute name="name" type="xs:string" use="required"/>
-                                                        <xs:attribute name="class" type="xs:string" use="required"/>
-                                                        <xs:attribute name="indexed" type="nhs:Indexed" use="optional"/>
-                                                        <xs:attribute name="nullable" type="xs:boolean" use="optional"/>
-                                                        <xs:attribute name="dbName" type="xs:string" use="optional"/>
-                                                    </xs:extension>
-                                                </xs:complexContent>
-                                            </xs:complexType>
-                                        </xs:element>
-                                        <xs:element name="foreignChild">
-                                            <xs:complexType>
-                                                <xs:complexContent>
-                                                    <xs:extension base="nhs:SchemaElement">
-                                                        <xs:attribute name="name" type="xs:string" use="required"/>
-                                                        <xs:attribute name="class" type="xs:string" use="required"/>
-                                                        <xs:attribute name="classProperty" type="xs:string"
-                                                                      use="required"/>
-                                                    </xs:extension>
-                                                </xs:complexContent>
-                                            </xs:complexType>
-                                        </xs:element>
-                                        <xs:element name="index">
-                                            <xs:complexType>
-                                                <xs:complexContent>
-                                                    <xs:extension base="nhs:SchemaElement">
-                                                        <xs:attribute name="properties" type="xs:string"
-                                                                      use="required"/>
-                                                        <xs:attribute name="unique" type="xs:boolean" use="optional"/>
-                                                    </xs:extension>
-                                                </xs:complexContent>
-                                            </xs:complexType>
-                                        </xs:element>
+                                        <xs:element name="property" type="nhs:ClassProperty"/>
+                                        <xs:element name="foreignParent" type="nhs:ClassForeignParent"/>
+                                        <xs:element name="foreignChild" type="nhs:ClassForeignChild"/>
+                                        <xs:element name="index" type="nhs:ClassIndex"/>
                                     </xs:choice>
                                 </xs:sequence>
                                 <xs:attribute name="name" type="xs:string" use="required"/>
-                                <xs:attribute name="boundedContext" type="xs:string" use="optional"/>
+                                <xs:attribute name="mixins" type="xs:string" use="optional"/>
                                 <xs:attribute name="dbName" type="xs:string" use="optional"/>
                                 <xs:attribute name="persister" type="xs:string" use="optional"/>
                             </xs:extension>
@@ -165,6 +127,81 @@
             </xs:sequence>
         </xs:complexType>
     </xs:element>
+
+    <xs:element name="mixins">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element minOccurs="0" maxOccurs="unbounded" name="mixin">
+                    <xs:complexType>
+                        <xs:complexContent>
+                            <xs:extension base="nhs:SchemaElement">
+                                <xs:sequence>
+                                    <xs:element name="idProperty" minOccurs="0">
+                                        <xs:complexType>
+                                            <xs:complexContent>
+                                                <xs:extension base="nhs:IdProperty">
+                                                    <xs:attribute name="dbSequence" type="xs:string" use="optional"/>
+                                                    <xs:attribute name="dbIdName" type="xs:string" use="optional"/>
+                                                    <xs:attribute name="compositeId" type="xs:string" use="optional"/>
+                                                </xs:extension>
+                                            </xs:complexContent>
+                                        </xs:complexType>
+                                    </xs:element>
+                                    <xs:choice minOccurs="0" maxOccurs="unbounded">
+                                        <xs:element name="property" type="nhs:ClassProperty"/>
+                                        <xs:element name="foreignParent" type="nhs:ClassForeignParent"/>
+                                        <xs:element name="foreignChild" type="nhs:ClassForeignChild"/>
+                                        <xs:element name="index" type="nhs:ClassIndex"/>
+                                    </xs:choice>
+                                </xs:sequence>
+                                <xs:attribute name="name" type="xs:string" use="required"/>
+                                <xs:attribute name="mixins" type="xs:string" use="optional"/>
+                            </xs:extension>
+                        </xs:complexContent>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:complexType name="ClassProperty">
+        <xs:complexContent>
+            <xs:extension base="nhs:DataType"/>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="ClassForeignParent">
+        <xs:complexContent>
+            <xs:extension base="nhs:SchemaElement">
+                <xs:attribute name="name" type="xs:string" use="required"/>
+                <xs:attribute name="class" type="xs:string" use="required"/>
+                <xs:attribute name="indexed" type="nhs:Indexed" use="optional"/>
+                <xs:attribute name="nullable" type="xs:boolean" use="optional"/>
+                <xs:attribute name="dbName" type="xs:string" use="optional"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="ClassForeignChild">
+        <xs:complexContent>
+            <xs:extension base="nhs:SchemaElement">
+                <xs:attribute name="name" type="xs:string" use="required"/>
+                <xs:attribute name="class" type="xs:string" use="required"/>
+                <xs:attribute name="classProperty" type="xs:string"
+                              use="required"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="ClassIndex">
+        <xs:complexContent>
+            <xs:extension base="nhs:SchemaElement">
+                <xs:attribute name="properties" type="xs:string"
+                              use="required"/>
+                <xs:attribute name="unique" type="xs:boolean" use="optional"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
 
     <xs:complexType name="SchemaElement">
         <xs:attribute name="tags" type="xs:string" use="optional"/>
@@ -205,7 +242,7 @@
         <xs:complexContent>
             <xs:extension base="nhs:SchemaElement">
                 <xs:sequence>
-                    <xs:element ref="nhs:generator" minOccurs="0" />
+                    <xs:element ref="nhs:generator" minOccurs="0"/>
                 </xs:sequence>
                 <xs:attribute name="type" type="xs:string" use="optional"/>
                 <xs:attribute name="autoIncrement" type="xs:boolean" use="optional"/>

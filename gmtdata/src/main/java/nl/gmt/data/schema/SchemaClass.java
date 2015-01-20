@@ -1,18 +1,6 @@
 package nl.gmt.data.schema;
 
-import java.util.*;
-
-public class SchemaClass extends SchemaAnnotatableElement implements Comparable<SchemaClass> {
-    private final Map<String, SchemaProperty> properties = new HashMap<>();
-    private final Map<String, SchemaProperty> unmodifiableProperties = Collections.unmodifiableMap(properties);
-    private final Map<String, SchemaForeignBase> foreigns = new HashMap<>();
-    private final Map<String, SchemaForeignBase> unmodifiableForeigns = Collections.unmodifiableMap(foreigns);
-    private final List<SchemaIndex> indexes = new ArrayList<>();
-    private final List<SchemaIndex> unmodifiableIndexes = Collections.unmodifiableList(indexes);
-    private final List<SchemaField> fields = new ArrayList<>();
-    private final List<SchemaField> unmodifiableFields = Collections.unmodifiableList(fields);
-    private String name;
-    private String boundedContext;
+public class SchemaClass extends SchemaClassBase {
     private String dbName;
     private String persister;
     private SchemaClassIdProperty idProperty;
@@ -21,49 +9,6 @@ public class SchemaClass extends SchemaAnnotatableElement implements Comparable<
 
     SchemaClass(SchemaParserLocation location) {
         super(location);
-    }
-
-    public String getFullName() {
-        if (boundedContext == null)
-            return name;
-
-        return boundedContext + "." + name;
-    }
-
-    public String getFullViewName() {
-        return getFullName() + "View";
-    }
-
-    public Map<String, SchemaProperty> getProperties() {
-        return unmodifiableProperties;
-    }
-
-    public Map<String, SchemaForeignBase> getForeigns() {
-        return unmodifiableForeigns;
-    }
-
-    public List<SchemaIndex> getIndexes() {
-        return unmodifiableIndexes;
-    }
-
-    public List<SchemaField> getFields() {
-        return unmodifiableFields;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    void setName(String name) {
-        this.name = name;
-    }
-
-    public String getBoundedContext() {
-        return boundedContext;
-    }
-
-    void setBoundedContext(String boundedContext) {
-        this.boundedContext = boundedContext;
     }
 
     public String getDbName() {
@@ -104,29 +49,5 @@ public class SchemaClass extends SchemaAnnotatableElement implements Comparable<
 
     void setResolvedDbName(String resolvedDbName) {
         this.resolvedDbName = resolvedDbName;
-    }
-
-    void addProperty(SchemaProperty property) {
-        properties.put(property.getName(), property);
-        fields.add(property);
-    }
-
-    void addForeign(SchemaForeignBase foreign) {
-        foreigns.put(foreign.getName(), foreign);
-        fields.add(foreign);
-    }
-
-    void addIndex(SchemaIndex index) {
-        indexes.add(index);
-    }
-
-    @Override
-    public String toString() {
-        return name;
-    }
-
-    @Override
-    public int compareTo(SchemaClass other) {
-        return name.compareTo(other.name);
     }
 }

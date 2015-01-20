@@ -4,10 +4,7 @@ import nl.gmt.data.schema.Schema;
 import nl.gmt.data.schema.SchemaClass;
 import org.apache.commons.lang3.Validate;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public abstract class EntitySchema {
     private final Map<String, EntityType> typesByName;
@@ -17,7 +14,7 @@ public abstract class EntitySchema {
     protected EntitySchema(Schema schema) throws DataException {
         Validate.notNull(schema, "schema");
 
-        Map<String, EntityType> typesByName = new HashMap<>();
+        Map<String, EntityType> typesByName = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
         Map<Class<?>, EntityType> typesByClass = new HashMap<>();
 
         for (EntityType type : createTypes(schema)) {
@@ -39,16 +36,30 @@ public abstract class EntitySchema {
     }
 
     public EntityType getEntityType(String name) {
+        return getEntityType(name, true);
+    }
+
+    public EntityType getEntityType(String name, boolean throwException) {
         Validate.notNull(name, "name");
+
+        // HACK: We should find a better solution for this.
+
+        int pos = name.lastIndexOf('.');
+        if (pos != -1) {
+            name = name.substring(pos + 1);
+        }
 
         EntityType result = typesByName.get(name);
 
-        Validate.notNull(result, "Entity not found");
+        if (throwException) {
+            Validate.notNull(result, "Entity not found");
+        }
 
         return result;
     }
 
-    public EntityType getEntityType(Class<?> klass) {
+    @SuppressWarnings("unchecked")
+    public EntityType getEntityType(Class<? extends Entity> klass) {
         Validate.notNull(klass, "klass");
 
         EntityType result = typesByClass.get(klass);

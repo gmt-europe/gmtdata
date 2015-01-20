@@ -10,8 +10,8 @@ public abstract class EntityForeignBase<T extends EntityType> extends EntityFiel
     private final SchemaForeignBase schemaForeignBase;
     private EntityType foreign;
 
-    protected EntityForeignBase(SchemaForeignBase schemaForeignBase) {
-        super(schemaForeignBase);
+    protected EntityForeignBase(SchemaForeignBase schemaForeignBase, EntityFieldAccessor accessor, EntityType entityType) {
+        super(schemaForeignBase, accessor, entityType);
 
         Validate.notNull(schemaForeignBase, "schemaForeignBase");
 

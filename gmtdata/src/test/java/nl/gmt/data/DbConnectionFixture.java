@@ -22,13 +22,17 @@ import static org.junit.Assert.assertNotNull;
 @RunWith(JUnit4.class)
 public class DbConnectionFixture {
     private TestConnection openDb() throws Exception {
-        String path = "./tmp/gmtdatatest.db3";
+        String path = "./tmp/test.db3";
 
         new File(path).getParentFile().mkdirs();
 
         SQLiteDriver.setPragma("journal_mode", "TRUNCATE");
 
-        TestConnection db = new TestConnection("jdbc:sqlite:" + path, DbType.SQLITE);
+        DbConfiguration cfg = new DbConfiguration();
+        cfg.setConnectionString("jdbc:sqlite:" + path);
+        cfg.setType(DbType.SQLITE);
+
+        TestConnection db = new TestConnection(cfg);
 
         RelationType relationType = db.getEntitySchema().getAddress().getRelation().getForeign();
 

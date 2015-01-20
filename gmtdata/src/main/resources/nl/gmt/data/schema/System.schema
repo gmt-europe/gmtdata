@@ -1,45 +1,46 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<schema xmlns="http://schemas.gmt.nl/gmtdata/2014/02/hibernate-schema">
-  <!--
-    This system schema is included before the user provided schemas are parsed.
-    Everything that is required to be present with every run is defined here.
+<schema xmlns="http://schemas.gmt.nl/gmtdata/2015/01/hibernate-schema">
+    <!--
+      This system schema is included before the user provided schemas are parsed.
+      Everything that is required to be present with every run is defined here.
 
-    All data types are defined as not-nullable because this is the default for MySQL.
-  -->
-  <dataTypes>
+      All data types are defined as not-nullable because this is the default for MySQL.
+    -->
+    <dataTypes>
 
-    <!-- Numeric data types -->
+        <!-- Numeric data types -->
 
-    <dataType name="int" dbType="int" nativeType="java.lang.Integer" nullable="false" signed="true" />
-    <dataType name="uint" type="int" signed="false" nativeType="java.lang.Integer" />
-    <dataType name="short" dbType="smallint" nativeType="java.lang.Short" nullable="false" signed="true" />
-    <dataType name="ushort" type="short" nativeType="java.lang.Short" signed="false" />
-    <dataType name="decimal" dbType="decimal" nativeType="java.math.BigDecimal" nullable="false" signed="true" />
-    <dataType name="double" dbType="double" nativeType="java.lang.Double" nullable="false" signed="true" />
+        <dataType name="int" dbType="int" nativeType="java.lang.Integer" nullable="false" signed="true"/>
+        <dataType name="uint" type="int" signed="false" nativeType="java.lang.Integer"/>
+        <dataType name="short" dbType="smallint" nativeType="java.lang.Short" nullable="false" signed="true"/>
+        <dataType name="ushort" type="short" nativeType="java.lang.Short" signed="false"/>
+        <dataType name="decimal" dbType="decimal" nativeType="java.math.BigDecimal" nullable="false" signed="true"/>
+        <dataType name="double" dbType="double" nativeType="java.lang.Double" nullable="false" signed="true"/>
 
-    <!-- Text data types -->
+        <!-- Text data types -->
 
-    <dataType name="string" dbType="varchar" nativeType="java.lang.String" nullable="false" />
-    <dataType name="fixed-string" dbType="char" nativeType="java.lang.String" nullable="false" />
-    <dataType name="text" dbType="text" nativeType="java.lang.String" nullable="false" />
-    <dataType name="tiny-text" dbType="tinytext" nativeType="java.lang.String" nullable="false" />
-    <dataType name="medium-text" dbType="mediumtext" nativeType="java.lang.String" nullable="false" />
-    <dataType name="long-text" dbType="longtext" nativeType="java.lang.String" nullable="false" />
+        <dataType name="string" dbType="varchar" nativeType="java.lang.String" nullable="false"/>
+        <dataType name="fixed-string" dbType="char" nativeType="java.lang.String" nullable="false"/>
+        <dataType name="text" dbType="text" nativeType="java.lang.String" nullable="false"/>
+        <dataType name="tiny-text" dbType="tinytext" nativeType="java.lang.String" nullable="false"/>
+        <dataType name="medium-text" dbType="mediumtext" nativeType="java.lang.String" nullable="false"/>
+        <dataType name="long-text" dbType="longtext" nativeType="java.lang.String" nullable="false"/>
 
-    <!-- Binary types -->
+        <!-- Binary types -->
 
-    <dataType name="binary" dbType="varbinary" nativeType="[Ljava.lang.Byte;" nullable="false" />
-    <dataType name="fixed-binary" dbType="binary" nativeType="[Ljava.lang.Byte;" nullable="false" />
-    <dataType name="blob" dbType="blob" nativeType="[Ljava.lang.Byte;" nullable="false" />
-    <dataType name="tiny-blob" dbType="tinyblob" nativeType="[Ljava.lang.Byte;" nullable="false" />
-    <dataType name="medium-blob" dbType="mediumblob" nativeType="[Ljava.lang.Byte;" nullable="false" />
-    <dataType name="long-blob" dbType="longblob" nativeType="[Ljava.lang.Byte;" nullable="false" />
+        <dataType name="binary" dbType="varbinary" nativeType="[Ljava.lang.Byte;" nullable="false"/>
+        <dataType name="fixed-binary" dbType="binary" nativeType="[Ljava.lang.Byte;" nullable="false"/>
+        <dataType name="blob" dbType="blob" nativeType="[Ljava.lang.Byte;" nullable="false"/>
+        <dataType name="tiny-blob" dbType="tinyblob" nativeType="[Ljava.lang.Byte;" nullable="false"/>
+        <dataType name="medium-blob" dbType="mediumblob" nativeType="[Ljava.lang.Byte;" nullable="false"/>
+        <dataType name="long-blob" dbType="longblob" nativeType="[Ljava.lang.Byte;" nullable="false"/>
 
-    <!-- Special types -->
+        <!-- Special types -->
 
-    <dataType name="datetime" dbType="datetime" nativeType="java.util.Date" nullable="false" />
-    <dataType name="guid" dbType="guid" nativeType="java.util.UUID" nullable="false" />
-    <dataType name="bool" dbType="tinyint" length="1" nativeType="java.lang.Boolean" nullable="false" signed="true" />
+        <dataType name="date" dbType="datetime" nativeType="java.util.Date" nullable="false"/>
+        <dataType name="datetime" dbType="datetime" nativeType="org.joda.time.DateTime" nullable="false"/>
+        <dataType name="guid" dbType="guid" nativeType="java.util.UUID" nullable="false"/>
+        <dataType name="bool" dbType="tinyint" length="1" nativeType="java.lang.Boolean" nullable="false" signed="true"/>
 
-  </dataTypes>
+    </dataTypes>
 </schema>

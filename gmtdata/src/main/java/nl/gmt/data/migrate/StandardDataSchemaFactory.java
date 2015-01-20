@@ -10,9 +10,18 @@ public class StandardDataSchemaFactory implements DataSchemaFactory {
         result.setName(klass.getResolvedDbName());
         result.setAutoIncrement(-1);
 
-        // Add all fields
+        // Add details for the ID field.
 
         result.addField(createIdField(klass));
+        result.getIndexes().add(createPrimaryIndex(klass));
+
+        addClassItems(klass, klass, schema, result);
+
+        return result;
+    }
+
+    private void addClassItems(SchemaClass baseClass, SchemaClassBase klass, Schema schema, DataSchemaTable result) throws SchemaMigrateException {
+        // Add all fields
 
         for (SchemaProperty field : klass.getProperties().values()) {
             result.addField(createProperty(field));
@@ -25,8 +34,6 @@ public class StandardDataSchemaFactory implements DataSchemaFactory {
         }
 
         // Add all indexes
-
-        result.getIndexes().add(createPrimaryIndex(klass));
 
         for (SchemaForeignBase foreign : klass.getForeigns().values()) {
             if (foreign.getType() == SchemaForeignType.PARENT) {
@@ -47,7 +54,7 @@ public class StandardDataSchemaFactory implements DataSchemaFactory {
         }
 
         for (SchemaIndex index : klass.getIndexes()) {
-            result.getIndexes().add(createFromIndex(index, klass, schema));
+            result.getIndexes().add(createFromIndex(index, baseClass, klass, schema));
         }
 
         // Add all foreign keys
@@ -58,13 +65,19 @@ public class StandardDataSchemaFactory implements DataSchemaFactory {
             }
         }
 
-        return result;
+        // Recurse into the mixins.
+
+        for (String name : klass.getMixins()) {
+            SchemaMixin mixin = schema.getMixins().get(name);
+
+            addClassItems(baseClass, mixin, schema, result);
+        }
     }
 
     public DataSchemaField createIdField(SchemaClass klass) throws SchemaMigrateException {
         DataSchemaField result = new DataSchemaField();
 
-        result.setName(klass.getResolvedIdProperty().getResolvedDbIdName());
+        result.setName(klass.getResolvedIdProperty().getResolvedDbName());
         result.setAutoIncrement(klass.getResolvedIdProperty().getAutoIncrement() == SchemaIdAutoIncrement.YES);
 
         result.initializeType(klass.getResolvedIdProperty().getResolvedDataType());
@@ -104,7 +117,7 @@ public class StandardDataSchemaFactory implements DataSchemaFactory {
         DataSchemaIndex result = new DataSchemaIndex();
 
         result.setName(null);
-        result.getFields().add(klass.getResolvedIdProperty().getResolvedDbIdName());
+        result.getFields().add(klass.getResolvedIdProperty().getResolvedDbName());
         result.setType(SchemaIndexType.PRIMARY);
 
         return result;
@@ -136,14 +149,14 @@ public class StandardDataSchemaFactory implements DataSchemaFactory {
         return result;
     }
 
-    public DataSchemaIndex createFromIndex(SchemaIndex index, SchemaClass klass, Schema schema) {
+    public DataSchemaIndex createFromIndex(SchemaIndex index, SchemaClass baseClass, SchemaClassBase klass, Schema schema) {
         DataSchemaIndex result = new DataSchemaIndex();
 
         for (String field : index.getFields()) {
             String name;
 
-            if (field.equals(schema.getIdProperty().getName())) {
-                name = klass.getResolvedIdProperty().getResolvedDbIdName();
+            if (field.equals(schema.getIdProperty().getName()) && klass instanceof SchemaClass) {
+                name = baseClass.getResolvedIdProperty().getResolvedDbName();
             } else if (klass.getProperties().containsKey(field)) {
                 name = klass.getProperties().get(field).getResolvedDbName();
             } else {
@@ -167,7 +180,7 @@ public class StandardDataSchemaFactory implements DataSchemaFactory {
         result.setName(null);
         result.setField(foreign.getResolvedDbName());
         result.setLinkTable(linkTable.getResolvedDbName());
-        result.setLinkField(linkTable.getResolvedIdProperty().getResolvedDbIdName());
+        result.setLinkField(linkTable.getResolvedIdProperty().getResolvedDbName());
 
         return result;
     }

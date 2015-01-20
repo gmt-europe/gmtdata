@@ -3,7 +3,10 @@ package nl.gmt.gmtdata.maven;
 import nl.gmt.data.hibernate.generation.CodeGenerator;
 import nl.gmt.data.hibernate.generation.GeneratorWriter;
 import nl.gmt.data.migrate.SqlStatement;
-import nl.gmt.data.schema.*;
+import nl.gmt.data.schema.Schema;
+import nl.gmt.data.schema.SchemaCallback;
+import nl.gmt.data.schema.SchemaException;
+import nl.gmt.data.schema.SchemaParserExecutor;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.maven.plugin.AbstractMojo;
@@ -18,7 +21,10 @@ import java.io.*;
 @Mojo(name = "hibernate-model", defaultPhase = LifecyclePhase.GENERATE_SOURCES)
 public class GenerateMojo extends AbstractMojo {
     @Parameter(property = "schema", required = true)
-    private File schema;
+    private String schema;
+
+    @Parameter(property = "searchPaths", required = true)
+    private File[] searchPaths;
 
     @Parameter(defaultValue = "${project.build.directory}/generated-sources/hibernate-model", property = "outputDir", required = true)
     private File outputDirectory;
@@ -29,6 +35,13 @@ public class GenerateMojo extends AbstractMojo {
     @Parameter(defaultValue = "${project.build.sourceDirectory}", property = "repositoriesOutputDir", required = false)
     private File repositoriesOutputDirectory;
 
+    @Parameter(property = "packageName", required = false)
+    private String packageName;
+
+    @Parameter(property = "generateSchema", required = false, defaultValue = "true")
+    private boolean generateSchema;
+
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     public void execute() throws MojoExecutionException {
         // Verify the parameters.
 
@@ -38,14 +51,18 @@ public class GenerateMojo extends AbstractMojo {
 
         // Setup for parsing the schema.
 
-        File schemaPath = this.schema.getAbsoluteFile();
-
-        final File path = schemaPath.getParentFile();
-
         SchemaParserExecutor parserExecutor = new SchemaParserExecutor(new SchemaCallback() {
             @Override
             public InputStream loadFile(String schema) throws Exception {
-                return new FileInputStream(new File(path, schema));
+                for (File searchPath : searchPaths) {
+                    File file = new File(searchPath, schema);
+
+                    if (file.exists()) {
+                        return new FileInputStream(file);
+                    }
+                }
+
+                throw new FileNotFoundException(schema);
             }
 
             @Override
@@ -56,7 +73,7 @@ public class GenerateMojo extends AbstractMojo {
         try {
             // Parse the schema.
 
-            Schema schema = parserExecutor.parse(schemaPath.getName(), GenericSchemaRules.INSTANCE);
+            Schema schema = parserExecutor.parse(this.schema, GenericSchemaRules.INSTANCE);
 
             // Run the code generator.
 
@@ -67,12 +84,13 @@ public class GenerateMojo extends AbstractMojo {
 
             CodeGenerator generator = new CodeGenerator(
                 schema,
-                getOutputDir(outputDirectory, schema),
-                repositoriesOutputDirectory != null ? getOutputDir(repositoriesOutputDirectory, schema) : null
+                outputDirectory,
+                repositoriesOutputDirectory != null ? repositoriesOutputDirectory : null,
+                packageName,
+                generateSchema
             );
 
             generator.generate(new GeneratorWriter() {
-                @SuppressWarnings("ResultOfMethodCallIgnored")
                 @Override
                 public void writeFile(File fileName, String content, boolean overwrite) {
                     if (!overwrite && fileName.exists()) {
@@ -93,13 +111,5 @@ public class GenerateMojo extends AbstractMojo {
         } catch (SchemaException e) {
             throw new MojoExecutionException("Cannot generate code", e);
         }
-    }
-
-    private File getOutputDir(File baseDir, Schema schema) {
-        for (String part : schema.getNamespace().split("\\.")) {
-            baseDir = new File(baseDir, part);
-        }
-
-        return baseDir;
     }
 }

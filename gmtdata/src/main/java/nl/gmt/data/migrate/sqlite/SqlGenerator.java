@@ -1,10 +1,10 @@
 package nl.gmt.data.migrate.sqlite;
 
 import nl.gmt.data.DataException;
-import nl.gmt.data.migrate.*;
 import nl.gmt.data.schema.Schema;
 import nl.gmt.data.schema.SchemaDbType;
 import nl.gmt.data.schema.SchemaIndexType;
+import nl.gmt.data.migrate.*;
 import org.apache.commons.lang3.StringUtils;
 
 import java.sql.Connection;
@@ -46,7 +46,7 @@ public class SqlGenerator extends nl.gmt.data.migrate.SqlGenerator {
 
     @Override
     protected DataSchemaReader createDataSchemaReader() {
-        return new nl.gmt.data.migrate.sqlite.DataSchemaReader(connection);
+        return new DataSchemaReader(connection);
     }
 
     @Override

@@ -1,6 +1,8 @@
 package nl.gmt.data.migrate;
 
-import nl.gmt.data.schema.*;
+import nl.gmt.data.schema.SchemaDbType;
+import nl.gmt.data.schema.SchemaResolvedDataType;
+import nl.gmt.data.schema.SchemaRules;
 import org.apache.commons.lang3.StringUtils;
 
 public class DataSchemaField extends DataSchemaObject {
@@ -72,7 +74,7 @@ public class DataSchemaField extends DataSchemaObject {
             nullable == other.nullable &&
             autoIncrement == other.autoIncrement &&
             rules.dbTypesEqual(this, other) &&
-            DataSchemaTable.extensionsEquals(this, other);
+            extensionsEquals(this, other);
     }
 
     public String getName() {

@@ -1,18 +1,17 @@
 package nl.gmt.data.test;
 
+import nl.gmt.data.support.ReflectionUtils;
 import nl.gmt.data.DataException;
-import nl.gmt.data.DbConnection;
-import nl.gmt.data.DbType;
+import nl.gmt.data.DbConfiguration;
 import nl.gmt.data.RepositoryService;
 import nl.gmt.data.schema.Schema;
-import nl.gmt.data.support.ReflectionUtils;
 import nl.gmt.data.test.types.EntitySchema;
+import nl.gmt.data.DbConnection;
 
 public class TestConnection extends DbConnection<EntitySchema> {
-    public TestConnection(String connectionString, DbType type) throws DataException {
+    public TestConnection(DbConfiguration configuration) throws DataException {
         super(
-            connectionString,
-            type,
+            configuration,
             "Database.schema",
             new RepositoryService(ReflectionUtils.getUrlFromClass(TestConnection.class))
         );

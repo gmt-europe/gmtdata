@@ -1,6 +1,6 @@
 package nl.gmt.data.schema;
 
-public class SchemaProperty extends SchemaDataTypeBase implements SchemaField {
+public class SchemaProperty extends SchemaDataTypeBase implements SchemaPropertyField {
     private SchemaResolvedDataType resolvedDataType;
     private String resolvedDbName;
 

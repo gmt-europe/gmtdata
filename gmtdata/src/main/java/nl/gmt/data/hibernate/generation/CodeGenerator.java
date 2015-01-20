@@ -1,7 +1,10 @@
 package nl.gmt.data.hibernate.generation;
 
+import nl.gmt.data.contrib.joda.PersistentDateTime;
+import nl.gmt.data.contrib.joda.PersistentLocalDateTime;
 import nl.gmt.data.schema.*;
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.util.*;
@@ -18,43 +21,68 @@ public class CodeGenerator {
     private final Schema schema;
     private final File outputDirectory;
     private final File repositoriesOutputDirectory;
+    private final String packageName;
+    private final boolean generateSchema;
 
-    public CodeGenerator(Schema schema, File outputDirectory, File repositoriesOutputDirectory) {
+    public CodeGenerator(Schema schema, File outputDirectory, File repositoriesOutputDirectory, String packageName, boolean generateSchema) {
         this.schema = schema;
         this.outputDirectory = outputDirectory;
         this.repositoriesOutputDirectory = repositoriesOutputDirectory;
+        this.packageName = packageName;
+        this.generateSchema = generateSchema;
     }
 
     public void generate(GeneratorWriter writer) throws SchemaException {
-        generateSchema(writer);
+        if (generateSchema) {
+            generateSchema(writer);
+        }
+
+        for (SchemaMixin mixin : sort(schema.getMixins().values())) {
+            if (packageNameMatches(mixin.getPackageName())) {
+                generateInterface(mixin, writer);
+            }
+        }
 
         for (SchemaClass klass : sort(schema.getClasses().values())) {
-            generateClass(klass, writer);
-            generateType(klass, writer);
+            if (packageNameMatches(klass.getPackageName())) {
+                generateClass(klass, writer);
+                generateType(klass, writer);
+            }
         }
 
         for (SchemaEnumType enumType : sort(schema.getEnumTypes().values())) {
-            generateEnumType(enumType, writer);
+            if (packageNameMatches(enumType.getPackageName())) {
+                generateEnumType(enumType, writer);
+            }
         }
 
         if (repositoriesOutputDirectory != null) {
             for (SchemaClass klass : sort(schema.getClasses().values())) {
-                generateRepository(klass, writer);
+                if (packageNameMatches(klass.getPackageName())) {
+                    generateRepository(klass, writer);
+                }
             }
         }
+    }
+
+    private boolean packageNameMatches(String packageName) {
+        return
+            this.packageName != null &&
+            packageName != null &&
+            packageName.equals(this.packageName);
     }
 
     private void generateSchema(GeneratorWriter writer) {
         CodeWriter cw = new CodeWriter();
 
-        cw.writeln("package %s;", getTypesPackageName(null));
+        cw.writeln("package %s.types;", packageName);
         cw.writeln();
 
         cw.writeln("public class EntitySchema extends nl.gmt.data.EntitySchema {");
         cw.indent();
 
         for (SchemaClass klass : schema.getClasses().values()) {
-            cw.writeln("private %s %s;", getTypeClassName(klass.getName()), getFieldName(klass.getName()));
+            cw.writeln("private %s %s;", getTypeClassName(klass.getFullName()), getFieldName(klass.getName()));
         }
 
         cw.writeln();
@@ -82,8 +110,8 @@ public class CodeGenerator {
             cw.writeln(
                 "%s = new %s(schema.getClasses().get(\"%s\"))%s",
                 getFieldName(klass.getName()),
-                getTypeClassName(klass.getName()),
-                klass.getName(),
+                getTypeClassName(klass.getFullName()),
+                klass.getFullName(),
                 i == classes.size() - 1 ? "" : ","
             );
         }
@@ -96,7 +124,7 @@ public class CodeGenerator {
 
         for (SchemaClass klass : schema.getClasses().values()) {
             cw.writeln();
-            cw.writeln("public %s get%s() {", getTypeClassName(klass.getName()), klass.getName());
+            cw.writeln("public %s get%s() {", getTypeClassName(klass.getFullName()), klass.getName());
             cw.indent();
 
             cw.writeln("return %s;", getFieldName(klass.getName()));
@@ -108,13 +136,15 @@ public class CodeGenerator {
         cw.unIndent();
         cw.writeln("}");
 
-        writer.writeFile(new File(new File(outputDirectory, "types"), "EntitySchema.java"), cw.toString(), true);
+        File fileName = buildFileName(outputDirectory, packageName, "types", "EntitySchema.java");
+
+        writer.writeFile(fileName, cw.toString(), true);
     }
 
-    private void generateType(SchemaClass klass, GeneratorWriter writer) {
+    private void generateType(SchemaClass klass, GeneratorWriter writer) throws SchemaException {
         CodeWriter cw = new CodeWriter();
 
-        cw.writeln("package %s;", getTypesPackageName(klass));
+        cw.writeln("package %s.types;", packageName);
         cw.writeln();
 
         cw.writeln("public class %sType extends nl.gmt.data.EntityType {", klass.getName());
@@ -128,6 +158,33 @@ public class CodeGenerator {
         cw.unIndent();
         cw.writeln("}");
 
+        generateTypeProperties(cw, klass);
+
+        generateTypeMixins(cw, klass.getMixins(), new HashSet<SchemaMixin>());
+
+        cw.unIndent();
+        cw.writeln("}");
+
+        File fileName = buildFileName(outputDirectory, klass.getPackageName(), "types", klass.getName() + "Type.java");
+
+        writer.writeFile(fileName, cw.toString(), true);
+    }
+
+    private void generateTypeMixins(CodeWriter cw, List<String> mixins, Set<SchemaMixin> seen) throws SchemaException {
+        for (String name : mixins) {
+            SchemaMixin mixin = schema.getMixins().get(name);
+
+            if (seen.contains(mixin))
+                continue;
+            seen.add(mixin);
+
+            generateTypeProperties(cw, mixin);
+
+            generateTypeMixins(cw, mixin.getMixins(), seen);
+        }
+    }
+
+    private void generateTypeProperties(CodeWriter cw, SchemaClassBase klass) {
         for (SchemaField schemaField : klass.getFields()) {
             cw.writeln();
 
@@ -175,45 +232,106 @@ public class CodeGenerator {
                 cw.writeln("}");
             }
         }
+    }
 
-        cw.unIndent();
-        cw.writeln("}");
+    private File buildFileName(File outputDirectory, String... parts) {
+        File file = outputDirectory;
 
-        File fileName = new File(outputDirectory, "types");
-
-        if (klass.getBoundedContext() != null) {
-            fileName = new File(fileName, klass.getBoundedContext());
+        for (int i = 0; i < parts.length - 1; i++) {
+            for (String part : StringUtils.split(parts[i], '.')) {
+                file = new File(file, part);
+            }
         }
 
-        fileName = new File(fileName, klass.getName() + "Type.java");
+        // The last element is the file name. Don't process this for dots.
 
-        writer.writeFile(fileName, cw.toString(), true);
+        return new File(file, parts[parts.length - 1]);
     }
 
-    private String getTypesPackageName(SchemaClass klass) {
-        return getPackageName("types", klass, null);
+    private String getTypesPackageName(SchemaClassBase klass) {
+        return getTypesPackageName(klass, null);
     }
 
-    private String getModelPackageName(SchemaClass klass) {
+    private String getTypesPackageName(SchemaClassBase klass, String subPackage) {
+        return getPackageName("types", klass, subPackage);
+    }
+
+    private String getModelPackageName(SchemaClassBase klass) {
         return getModelPackageName(klass, null);
     }
 
-    private String getModelPackageName(SchemaClass klass, String subPackage) {
+    private String getModelPackageName(SchemaClassBase klass, String subPackage) {
         return getPackageName("model", klass, subPackage);
     }
 
-    private String getPackageName(String namespace, SchemaClass klass, String subPackage) {
-        String result = schema.getNamespace() + "." + namespace;
+    private String getPackageName(String namespace, SchemaClassBase klass, String subPackage) {
+        String result = klass.getPackageName();
+
+        if (namespace != null) {
+            result += "." + namespace;
+        }
 
         if (subPackage != null) {
             result += "." + subPackage;
         }
 
-        if (klass != null && klass.getBoundedContext() != null) {
-            result += "." + klass.getBoundedContext();
+        return result;
+    }
+
+    private void generateInterface(SchemaMixin mixin, GeneratorWriter writer) throws SchemaException {
+        CodeWriter cw = new CodeWriter();
+
+        cw.writeln("package %s;", getModelPackageName(mixin));
+        cw.writeln();
+
+        List<String> interfaces = new ArrayList<>();
+
+        resolveMixins(interfaces, mixin.getMixins());
+
+        cw.writeln(
+            "public interface %s%s {",
+            mixin.getName(),
+            interfaces.size() == 0 ? "" : " extends " + StringUtils.join(interfaces, ", ")
+        );
+        cw.indent();
+
+        // Generate accessors for the properties.
+
+        for (SchemaProperty property : sort(mixin.getProperties().values())) {
+            cw.writeln();
+
+            generateInterfaceGetterSetter(cw, property.getResolvedDataType(), getEnumType(property.getEnumType()), property.getName());
         }
 
-        return result;
+        for (SchemaForeignBase foreign : sort(mixin.getForeigns().values())) {
+            cw.writeln();
+
+            switch (foreign.getType()) {
+                case CHILD:
+                    SchemaClass linkClass = schema.getClasses().get(foreign.getClassName());
+                    generateInterfaceGetterSetter(cw, foreign.getName(), "java.util.Set<" + getClassName(linkClass.getName()) + ">", false);
+                    break;
+
+                case PARENT:
+                    generateInterfaceGetterSetter(cw, foreign.getName(), getClassName(foreign.getClassName()), false);
+                    break;
+            }
+        }
+
+        cw.unIndent();
+        cw.writeln("}");
+
+        File fileName = buildFileName(outputDirectory, mixin.getPackageName(), "model", mixin.getName() + ".java");
+
+        writer.writeFile(fileName, cw.toString(), true);
+    }
+
+    private void resolveMixins(List<String> interfaces, List<String> mixins) {
+        for (String name : mixins) {
+            SchemaMixin mixin = schema.getMixins().get(name);
+
+            interfaces.add(getClassName(mixin));
+        }
     }
 
     private void generateClass(SchemaClass klass, GeneratorWriter writer) throws SchemaException {
@@ -222,12 +340,16 @@ public class CodeGenerator {
         cw.writeln("package %s;", getModelPackageName(klass));
         cw.writeln();
 
+        List<String> interfaces = new ArrayList<>();
+
+        resolveMixins(interfaces, klass.getMixins());
+
         cw.writeln("@javax.persistence.Entity");
         cw.writeln("@javax.persistence.Table(name = \"`%s`\")", StringEscapeUtils.escapeJava(klass.getResolvedDbName()));
         cw.writeln(
-            "public class %s extends nl.gmt.data.Entity {",
+            "public class %s extends nl.gmt.data.Entity%s {",
             klass.getName(),
-            getTypeName(klass.getResolvedIdProperty().getResolvedDataType().getNativeType())
+            interfaces.size() == 0 ? "" : " implements " + StringUtils.join(interfaces, ", ")
         );
         cw.indent();
 
@@ -243,6 +365,23 @@ public class CodeGenerator {
 
         generateIdProperty(cw, klass.getResolvedIdProperty());
 
+        generatePropertiesAndForeigns(cw, klass);
+
+        generateClassMixins(cw, klass.getMixins(), new HashSet<SchemaMixin>());
+
+        cw.writeln();
+
+        generateClassBuilder(cw, klass);
+
+        cw.unIndent();
+        cw.writeln("}");
+
+        File fileName = buildFileName(outputDirectory, klass.getPackageName(), "model", klass.getName() + ".java");
+
+        writer.writeFile(fileName, cw.toString(), true);
+    }
+
+    private void generatePropertiesAndForeigns(CodeWriter cw, SchemaClassBase klass) throws SchemaException {
         for (SchemaProperty property : sort(klass.getProperties().values())) {
             cw.writeln();
 
@@ -254,26 +393,23 @@ public class CodeGenerator {
 
             generateForeign(cw, foreign);
         }
-
-        cw.writeln();
-
-        generateClassBuilder(cw, klass);
-
-        cw.unIndent();
-        cw.writeln("}");
-
-        File fileName = new File(outputDirectory, "model");
-
-        if (klass.getBoundedContext() != null) {
-            fileName = new File(fileName, klass.getBoundedContext());
-        }
-
-        fileName = new File(fileName, klass.getName() + ".java");
-
-        writer.writeFile(fileName, cw.toString(), true);
     }
 
-    private void generateClassBuilder(CodeWriter cw, SchemaClass klass) {
+    private void generateClassMixins(CodeWriter cw, List<String> mixins, Set<SchemaMixin> seen) throws SchemaException {
+        for (String name : mixins) {
+            SchemaMixin mixin = schema.getMixins().get(name);
+
+            if (seen.contains(mixin))
+                continue;
+            seen.add(mixin);
+
+            generatePropertiesAndForeigns(cw, mixin);
+
+            generateClassMixins(cw, mixin.getMixins(), seen);
+        }
+    }
+
+    private void generateClassBuilder(CodeWriter cw, SchemaClass klass) throws SchemaException {
         cw.writeln(
             "public static class Builder {",
             klass.getName(),
@@ -314,10 +450,14 @@ public class CodeGenerator {
             return null;
         }
 
-        return schema.getNamespace() + ".model." + enumType;
+        int pos = enumType.lastIndexOf('.');
+
+        assert pos != -1;
+
+        return enumType.substring(0, pos) + ".model." + enumType.substring(pos + 1);
     }
 
-    private void generateBuilderForeignParent(CodeWriter cw, SchemaForeignParent foreign) {
+    private void generateBuilderForeignParent(CodeWriter cw, SchemaForeignParent foreign) throws SchemaException {
         cw.writeln(
             "private %s %s;",
             getClassName(foreign.getClassName()),
@@ -388,7 +528,7 @@ public class CodeGenerator {
         cw.writeln("}");
     }
 
-    private void generatePropertyConstructor(CodeWriter cw, SchemaClass klass) {
+    private void generatePropertyConstructor(CodeWriter cw, SchemaClass klass) throws SchemaException {
         StringBuilder sb = new StringBuilder();
         List<String> assignments = new ArrayList<>();
 
@@ -448,20 +588,24 @@ public class CodeGenerator {
         cw.writeln();
     }
 
-    private String getClassName(String className) {
-        return getClassName(schema.getClasses().get(className));
+    private String getClassName(String className) throws SchemaException {
+        SchemaClass klass = schema.getClasses().get(className);
+        if (klass == null) {
+            throw new SchemaException(String.format("Cannot resolve class '%s'", className));
+        }
+        return getClassName(klass);
     }
 
-    private String getClassName(SchemaClass klass) {
-        return schema.getNamespace() + ".model." + klass.getFullName();
+    private String getClassName(SchemaClassBase klass) {
+        return klass.getPackageName() + ".model." + klass.getName();
     }
 
     private String getTypeClassName(String className) {
         return getTypeClassName(schema.getClasses().get(className));
     }
 
-    private String getTypeClassName(SchemaClass klass) {
-        return schema.getNamespace() + ".types." + klass.getFullName() + "Type";
+    private String getTypeClassName(SchemaClassBase klass) {
+        return klass.getPackageName() + ".types." + klass.getName() + "Type";
     }
 
     private void generateIdProperty(CodeWriter cw, SchemaClassIdProperty property) throws SchemaException {
@@ -524,7 +668,7 @@ public class CodeGenerator {
             cw.writeln(sb.toString());
         }
 
-        generateColumnAnnotations(cw, property.getResolvedDbIdName(), property.getResolvedDataType());
+        generateColumnAnnotations(cw, property.getResolvedDbName(), property.getResolvedDataType());
 
         cw.writeln("@Override");
 
@@ -574,6 +718,33 @@ public class CodeGenerator {
         cw.writeln("}");
     }
 
+    private void generateInterfaceGetterSetter(CodeWriter cw, String name, String typeName, boolean isBoolean) {
+        String fieldName = getFieldName(name);
+
+        cw.writeln(
+            "%s %s%s();",
+            typeName,
+            isBoolean ? "is" : "get",
+            name
+        );
+        cw.writeln();
+        cw.writeln(
+            "void set%s(%s %s);",
+            name,
+            typeName,
+            fieldName
+        );
+    }
+
+    private void generateInterfaceGetterSetter(CodeWriter cw, SchemaResolvedDataType dataType, String enumType, String name) {
+        generateInterfaceGetterSetter(
+            cw,
+            name,
+            enumType != null ? enumType : getTypeName(dataType.getNativeType()),
+            dataType.getNativeType() == Boolean.class
+        );
+    }
+
     private String getTypeName(Class<?> klass) {
         boolean isArray = false;
 
@@ -586,7 +757,7 @@ public class CodeGenerator {
 
         if (klass == java.lang.Byte.class)
             typeName = "byte";
-        else if (klass == java.util.UUID.class || klass == java.util.Date.class || klass == java.math.BigDecimal.class)
+        else if (klass == java.util.UUID.class || klass == java.util.Date.class || klass == java.math.BigDecimal.class || klass == org.joda.time.DateTime.class || klass == org.joda.time.LocalDateTime.class)
             typeName = klass.getName();
         else if (klass.getPackage().getName().equals("java.lang"))
             typeName = klass.getSimpleName();
@@ -614,6 +785,18 @@ public class CodeGenerator {
     }
 
     private void generateColumnAnnotations(CodeWriter cw, String dbName, SchemaResolvedDataType dataType) {
+        if (dataType.getNativeType() == org.joda.time.DateTime.class) {
+            cw.writeln(
+                "@org.hibernate.annotations.Type(type=\"%s\")",
+                PersistentDateTime.class.getName()
+            );
+        } else if (dataType.getNativeType() == org.joda.time.LocalDateTime.class) {
+            cw.writeln(
+                "@org.hibernate.annotations.Type(type=\"%s\")",
+                PersistentLocalDateTime.class.getName()
+            );
+        }
+
         StringBuilder sb = new StringBuilder();
 
         sb.append("@javax.persistence.Column(name = \"`");
@@ -682,12 +865,12 @@ public class CodeGenerator {
         }
     }
 
-    private void generateForeignChild(CodeWriter cw, SchemaForeignChild foreign) {
+    private void generateForeignChild(CodeWriter cw, SchemaForeignChild foreign) throws SchemaException {
         SchemaClass linkClass = schema.getClasses().get(foreign.getClassName());
 
         cw.writeln(
             "private java.util.Set<%s> %s;",
-            getClassName(linkClass.getName()),
+            getClassName(linkClass),
             getFieldName(foreign.getName())
         );
 
@@ -695,10 +878,10 @@ public class CodeGenerator {
 
         cw.writeln("@javax.persistence.OneToMany(mappedBy = \"%s\", fetch = javax.persistence.FetchType.LAZY)", getFieldName(foreign.getClassProperty(), false));
 
-        generateGetterSetter(cw, foreign.getName(), "java.util.Set<" + getClassName(linkClass.getName()) + ">", false);
+        generateGetterSetter(cw, foreign.getName(), "java.util.Set<" + getClassName(linkClass) + ">", false);
     }
 
-    private void generateForeignParent(CodeWriter cw, SchemaForeignParent foreign) {
+    private void generateForeignParent(CodeWriter cw, SchemaForeignParent foreign) throws SchemaException {
         cw.writeln(
             "private %s %s;",
             getClassName(foreign.getClassName()),
@@ -717,7 +900,7 @@ public class CodeGenerator {
     private void generateEnumType(SchemaEnumType enumType, GeneratorWriter writer) {
         CodeWriter cw = new CodeWriter();
 
-        cw.writeln("package %s.model;", schema.getNamespace());
+        cw.writeln("package %s.model;", enumType.getPackageName());
         cw.writeln();
 
         cw.writeln("public enum %s implements nl.gmt.data.hibernate.PersistentEnum {", enumType.getName());
@@ -772,7 +955,9 @@ public class CodeGenerator {
         cw.unIndent();
         cw.writeln("}");
 
-        writer.writeFile(new File(new File(outputDirectory, "model"), enumType.getName() + ".java"), cw.toString(), true);
+        File fileName = buildFileName(outputDirectory, enumType.getPackageName(), "model", enumType.getName() + ".java");
+
+        writer.writeFile(fileName, cw.toString(), true);
     }
 
     private void generateRepository(SchemaClass klass, GeneratorWriter writer) throws SchemaException {
@@ -796,13 +981,7 @@ public class CodeGenerator {
         );
         cw.writeln("}");
 
-        File fileName = new File(repositoriesOutputDirectory, "model");
-
-        if (klass.getBoundedContext() != null) {
-            fileName = new File(fileName, klass.getBoundedContext());
-        }
-
-        fileName = new File(fileName, klass.getName() + "Repository.java");
+        File fileName = buildFileName(repositoriesOutputDirectory, klass.getPackageName(), "model", klass.getName() + "Repository.java");
 
         writer.writeFile(fileName, cw.toString(), false);
     }
@@ -840,13 +1019,7 @@ public class CodeGenerator {
         cw.unIndent();
         cw.writeln("}");
 
-        File fileName = new File(new File(repositoriesOutputDirectory, "model"), "implementation");
-
-        if (klass.getBoundedContext() != null) {
-            fileName = new File(fileName, klass.getBoundedContext());
-        }
-
-        fileName = new File(fileName, klass.getName() + "RepositoryImpl.java");
+        File fileName = buildFileName(repositoriesOutputDirectory, klass.getPackageName(), "model", "implementation", klass.getName() + "RepositoryImpl.java");
 
         writer.writeFile(fileName, cw.toString(), false);
     }

@@ -8,8 +8,8 @@ import org.apache.commons.lang3.Validate;
 public class EntityForeignParent<T extends EntityType> extends EntityForeignBase<T> implements EntityPhysicalField {
     private final SchemaForeignParent schemaForeignParent;
 
-    public EntityForeignParent(SchemaForeignParent schemaForeignParent) {
-        super(schemaForeignParent);
+    public EntityForeignParent(SchemaForeignParent schemaForeignParent, EntityFieldAccessor accessor, EntityType entityType) {
+        super(schemaForeignParent, accessor, entityType);
 
         Validate.notNull(schemaForeignParent, "schemaForeignParent");
         

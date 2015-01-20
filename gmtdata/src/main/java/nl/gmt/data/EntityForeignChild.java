@@ -7,8 +7,8 @@ public class EntityForeignChild<T extends EntityType> extends EntityForeignBase<
     private final SchemaForeignChild schemaForeignChild;
     private EntityForeignParent foreignProperty;
 
-    public EntityForeignChild(SchemaForeignChild schemaForeignChild) {
-        super(schemaForeignChild);
+    public EntityForeignChild(SchemaForeignChild schemaForeignChild, EntityFieldAccessor accessor, EntityType entityType) {
+        super(schemaForeignChild, accessor, entityType);
 
         Validate.notNull(schemaForeignChild, "schemaForeignChild");
 
@@ -21,7 +21,7 @@ public class EntityForeignChild<T extends EntityType> extends EntityForeignBase<
 
         super.resolve(schema);
 
-        foreignProperty = (EntityForeignParent)getForeign().getField(EntityField.createFieldName(getClassProperty()));
+        foreignProperty = (EntityForeignParent)getForeign().getField(createFieldName(getClassProperty()));
     }
 
     public String getClassProperty() {

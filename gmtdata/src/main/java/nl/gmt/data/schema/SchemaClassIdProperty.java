@@ -1,21 +1,22 @@
 package nl.gmt.data.schema;
 
-public class SchemaClassIdProperty extends SchemaIdPropertyBase {
-    private String dbIdName;
+public class SchemaClassIdProperty extends SchemaIdPropertyBase implements SchemaPropertyField {
+    private String dbName;
     private String dbSequence;
     private SchemaCompositeId compositeId;
-    private String resolvedDbIdName;
+    private String resolvedDbName;
 
     public SchemaClassIdProperty(SchemaParserLocation location) {
         super(location);
     }
 
-    public String getDbIdName() {
-        return dbIdName;
+    @Override
+    public String getDbName() {
+        return dbName;
     }
 
-    void setDbIdName(String dbIdName) {
-        this.dbIdName = dbIdName;
+    void setDbName(String dbName) {
+        this.dbName = dbName;
     }
 
     public String getDbSequence() {
@@ -34,11 +35,22 @@ public class SchemaClassIdProperty extends SchemaIdPropertyBase {
         this.compositeId = compositeId;
     }
 
-    public String getResolvedDbIdName() {
-        return resolvedDbIdName;
+    @Override
+    public String getResolvedDbName() {
+        return resolvedDbName;
     }
 
-    void setResolvedDbIdName(String resolvedDbIdName) {
-        this.resolvedDbIdName = resolvedDbIdName;
+    void setResolvedDbName(String resolvedDbIdName) {
+        this.resolvedDbName = resolvedDbIdName;
+    }
+
+    @Override
+    public String getName() {
+        return "Id";
+    }
+
+    @Override
+    public int compareTo(SchemaField other) {
+        return getName().compareTo(other.getName());
     }
 }

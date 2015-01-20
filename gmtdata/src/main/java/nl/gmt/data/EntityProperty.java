@@ -1,21 +1,30 @@
 package nl.gmt.data;
 
+import nl.gmt.data.hibernate.PersistentEnum;
 import nl.gmt.data.schema.*;
 import org.apache.commons.lang3.Validate;
 
 import java.util.List;
 
 public class EntityProperty extends EntityField implements EntityPhysicalField {
-    private final SchemaProperty schemaProperty;
+    private final SchemaPropertyField schemaProperty;
     private final SchemaResolvedDataType resolvedType;
+    private final Class<? extends PersistentEnum> enumClass;
 
-    public EntityProperty(SchemaProperty schemaProperty) {
-        super(schemaProperty);
+    @SuppressWarnings("unchecked")
+    public EntityProperty(SchemaPropertyField schemaProperty, EntityFieldAccessor accessor, EntityType entityType) {
+        super(schemaProperty, accessor, entityType);
 
         Validate.notNull(schemaProperty, "schemaProperty");
 
         this.schemaProperty = schemaProperty;
         resolvedType = schemaProperty.getResolvedDataType();
+
+        if (resolvedType.getEnumType() != null) {
+            enumClass = (Class<? extends PersistentEnum>)accessor.getType();
+        } else {
+            enumClass = null;
+        }
     }
 
     @Override
@@ -25,6 +34,10 @@ public class EntityProperty extends EntityField implements EntityPhysicalField {
 
     public String getEnumType() {
         return resolvedType.getEnumType();
+    }
+
+    public Class<? extends PersistentEnum> getEnumClass() {
+        return enumClass;
     }
 
     public String getUserType() {

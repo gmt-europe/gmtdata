@@ -436,4 +436,20 @@ public abstract class DatabaseTests extends DatabaseTestBase {
 "</classes>"
         );
     }
+
+    @Test
+    public void includeMixins() {
+        execute(
+"<mixins>" +
+"  <mixin name=\"MixinA\">" +
+"    <property name=\"MixinPropertyA\" type=\"int\"/>" +
+"  </mixin>" +
+"</mixins>" +
+"<classes>" +
+"  <class name=\"TableA\" mixins=\"MixinA\">" +
+"    <property name=\"PropertyA\" type=\"int\"/>" +
+"  </class>" +
+"</classes>"
+        );
+    }
 }

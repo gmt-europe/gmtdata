@@ -49,8 +49,9 @@ public class SchemaParserExecutor {
             List<String> toParse = new ArrayList<>();
 
             for (Map.Entry<String, Boolean> entry : includes.entrySet()) {
-                if (!entry.getValue())
+                if (!entry.getValue()) {
                     toParse.add(entry.getKey());
+                }
             }
 
             if (toParse.size() == 0)
@@ -90,6 +91,9 @@ public class SchemaParserExecutor {
 
         try {
             is = callback.loadFile(schemaName);
+            if (is == null) {
+                throw new IOException(String.format("Schema '%s' not found", schemaName));
+            }
         } catch (Exception e) {
             throw new SchemaException("Cannot load schema", e);
         }
@@ -106,19 +110,14 @@ public class SchemaParserExecutor {
 
         hashes.add(Hex.encodeHexString(DigestUtils.sha1(bytes)));
 
-        SchemaParserV1 parser = new SchemaParserV1();
-
         SchemaParserResult result;
 
         try (InputStream bis = new ByteArrayInputStream(bytes)) {
-            result = parser.parse(bis, schemaName, schema);
+            result = new SchemaParserV1(schema, schemaName).parse(bis);
         }
 
         for (String include : result.getIncludes()) {
             includes.put(include, false);
         }
-
-        if (!result.isGenerateResources())
-            schema.addSuppressResourceGeneration(schemaName);
     }
 }

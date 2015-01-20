@@ -7,32 +7,22 @@ import java.math.BigDecimal;
 import java.util.*;
 
 public class Schema extends SchemaAnnotatableElement {
-    private String namespace;
     private String enumDataType;
-    private SchemaParserLocation namespaceLocation;
     private SchemaParserLocation enumDataTypeLocation;
     private final Map<String, SchemaDataType> dataTypes = new HashMap<>();
     private final Map<String, SchemaDataType> unmodifiableDataTypes = Collections.unmodifiableMap(dataTypes);
     private final Map<String, SchemaClass> classes = new HashMap<>();
     private final Map<String, SchemaClass> unmodifiableClasses = Collections.unmodifiableMap(classes);
+    private final Map<String, SchemaMixin> mixins = new HashMap<>();
+    private final Map<String, SchemaMixin> unmodifiableMixins = Collections.unmodifiableMap(mixins);
     private final Map<String, SchemaEnumType> enumTypes = new HashMap<>();
     private final Map<String, SchemaEnumType> unmodifiableEnumTypes = Collections.unmodifiableMap(enumTypes);
     private SchemaIdProperty idProperty;
     private List<String> baseIncludes;
     private String schemaHash;
-    private final List<String> suppressResourceGeneration = new ArrayList<>();
-    private final List<String> unmodifiableSuppressResourceGeneration = Collections.unmodifiableList(suppressResourceGeneration);
 
     Schema() {
         super(null);
-    }
-
-    public String getNamespace() {
-        return namespace;
-    }
-
-    void setNamespace(String namespace) {
-        this.namespace = namespace;
     }
 
     public String getEnumDataType() {
@@ -41,14 +31,6 @@ public class Schema extends SchemaAnnotatableElement {
 
     void setEnumDataType(String enumDataType) {
         this.enumDataType = enumDataType;
-    }
-
-    public SchemaParserLocation getNamespaceLocation() {
-        return namespaceLocation;
-    }
-
-    void setNamespaceLocation(SchemaParserLocation namespaceLocation) {
-        this.namespaceLocation = namespaceLocation;
     }
 
     public SchemaParserLocation getEnumDataTypeLocation() {
@@ -65,6 +47,10 @@ public class Schema extends SchemaAnnotatableElement {
 
     public Map<String, SchemaClass> getClasses() {
         return unmodifiableClasses;
+    }
+
+    public Map<String, SchemaMixin> getMixins() {
+        return unmodifiableMixins;
     }
 
     public Map<String, SchemaEnumType> getEnumTypes() {
@@ -95,10 +81,6 @@ public class Schema extends SchemaAnnotatableElement {
         this.schemaHash = schemaHash;
     }
 
-    public List<String> getSuppressResourceGeneration() {
-        return unmodifiableSuppressResourceGeneration;
-    }
-
     void validate(SchemaRules rules) throws SchemaException {
         resolveDataTypes(rules);
         resolveDbNames();
@@ -109,6 +91,72 @@ public class Schema extends SchemaAnnotatableElement {
         validateDecimalProperties();
         validateIndexes();
         validateEnumTypeFields();
+        validateMixins();
+    }
+
+    private void validateMixins() throws SchemaException {
+        for (SchemaClass klass : classes.values()) {
+            validateMixin(klass);
+        }
+
+        for (SchemaMixin mixin : mixins.values()) {
+            validateMixin(mixin);
+        }
+    }
+
+    private void validateMixin(SchemaClassBase klass) throws SchemaException {
+        // Find the full set of referenced mixins.
+
+        Set<SchemaMixin> mixins = new HashSet<>();
+
+        resolveMixins(klass.getMixins(), mixins);
+
+        // Verify there are no duplicate names.
+
+        Set<String> properties = new HashSet<>();
+
+        validateProperties(klass, klass, properties);
+
+        for (SchemaMixin mixin : mixins) {
+            validateProperties(klass, mixin, properties);
+        }
+    }
+
+    private void validateProperties(SchemaClassBase self, SchemaClassBase klass, Set<String> properties) throws SchemaException {
+        for (String property : klass.getProperties().keySet()) {
+            if (properties.contains(property)) {
+                throw new SchemaException(String.format(
+                    "Duplicate property '%s' on '%s' from mixin '%s'",
+                    property,
+                    self.getName(),
+                    klass.getName()
+                ));
+            }
+        }
+
+        for (String property : klass.getForeigns().keySet()) {
+            if (properties.contains(property)) {
+                throw new SchemaException(String.format(
+                    "Duplicate property '%s' on '%s' from mixin '%s'",
+                    property,
+                    self.getName(),
+                    klass.getName()
+                ));
+            }
+        }
+    }
+
+    private void resolveMixins(List<String> included, Set<SchemaMixin> mixins) throws SchemaException {
+        for (String name : included) {
+            SchemaMixin mixin = this.mixins.get(name);
+
+            if (mixin == null)
+                throw new SchemaException(String.format("Mixin '%s' not found", name));
+
+            mixins.add(mixin);
+
+            resolveMixins(mixin.getMixins(), mixins);
+        }
     }
 
     private void resolveDataTypes(SchemaRules rules) throws SchemaException {
@@ -125,12 +173,20 @@ public class Schema extends SchemaAnnotatableElement {
 
             klass.setResolvedIdProperty(createResolvedIdProperty(klass));
 
-            for (SchemaProperty property : klass.getProperties().values()) {
-                resolveDataTypeElement(property);
+            resolveProperties(rules, klass);
+        }
 
-                if (property.getType() != null)
-                    property.setResolvedDataType(SchemaResolvedDataType.create(this, rules, property));
-            }
+        for (SchemaMixin mixin : mixins.values()) {
+            resolveProperties(rules, mixin);
+        }
+    }
+
+    private void resolveProperties(SchemaRules rules, SchemaClassBase klass) throws SchemaException {
+        for (SchemaProperty property : klass.getProperties().values()) {
+            resolveDataTypeElement(property);
+
+            if (property.getType() != null)
+                property.setResolvedDataType(SchemaResolvedDataType.create(this, rules, property));
         }
     }
 
@@ -141,32 +197,40 @@ public class Schema extends SchemaAnnotatableElement {
                     ? klass.getDbName()
                     : klass.getName()
             );
-            klass.getResolvedIdProperty().setResolvedDbIdName(
-                klass.getResolvedIdProperty().getDbIdName() != null
-                    ? klass.getResolvedIdProperty().getDbIdName()
+            klass.getResolvedIdProperty().setResolvedDbName(
+                klass.getResolvedIdProperty().getDbName() != null
+                    ? klass.getResolvedIdProperty().getDbName()
                     : idProperty.getName()
             );
 
-            for (SchemaProperty property : klass.getProperties().values()) {
-                property.setResolvedDbName(
-                    property.getDbName() != null
-                        ? property.getDbName()
-                        : property.getName()
-                );
-            }
+            resolveDbNames(klass);
+        }
 
-            for (SchemaForeignBase foreign : klass.getForeigns().values()) {
-                if (foreign.getType() != SchemaForeignType.PARENT)
-                    continue;
+        for (SchemaMixin mixin : mixins.values()) {
+            resolveDbNames(mixin);
+        }
+    }
 
-                SchemaForeignParent foreignParent = (SchemaForeignParent)foreign;
+    private void resolveDbNames(SchemaClassBase klass) {
+        for (SchemaProperty property : klass.getProperties().values()) {
+            property.setResolvedDbName(
+                property.getDbName() != null
+                    ? property.getDbName()
+                    : property.getName()
+            );
+        }
 
-                foreignParent.setResolvedDbName(
-                    foreignParent.getDbName() != null
-                      ? foreignParent.getDbName()
-                        : (foreignParent.getName() + idProperty.getForeignPostfix())
-                );
-            }
+        for (SchemaForeignBase foreign : klass.getForeigns().values()) {
+            if (foreign.getType() != SchemaForeignType.PARENT)
+                continue;
+
+            SchemaForeignParent foreignParent = (SchemaForeignParent)foreign;
+
+            foreignParent.setResolvedDbName(
+                foreignParent.getDbName() != null
+                ? foreignParent.getDbName()
+                : (foreignParent.getName() + idProperty.getForeignPostfix())
+            );
         }
     }
 
@@ -185,7 +249,7 @@ public class Schema extends SchemaAnnotatableElement {
         SchemaClassIdProperty klassIdProperty = klass.getIdProperty();
         if (klassIdProperty != null) {
             result.setDbSequence(klassIdProperty.getDbSequence());
-            result.setDbIdName(klassIdProperty.getDbIdName());
+            result.setDbName(klassIdProperty.getDbName());
             result.setCompositeId(klassIdProperty.getCompositeId());
 
             if (klassIdProperty.getType() != null)
@@ -239,76 +303,116 @@ public class Schema extends SchemaAnnotatableElement {
         }
 
         for (SchemaClass klass : classes.values()) {
-            for (SchemaProperty property : klass.getProperties().values()) {
-                if (property.getEnumType() != null && !enumTypes.containsKey(property.getEnumType()))
-                    throw new SchemaException(String.format("Enum type '%s' not found", property.getEnumType()));
-            }
+            validateEnumTypes(klass);
+        }
+
+        for (SchemaMixin mixin : mixins.values()) {
+            validateEnumTypes(mixin);
+        }
+    }
+
+    private void validateEnumTypes(SchemaClassBase klass) throws SchemaException {
+        for (SchemaProperty property : klass.getProperties().values()) {
+            if (property.getEnumType() != null && !enumTypes.containsKey(property.getEnumType()))
+                throw new SchemaException(String.format("Enum type '%s' not found", property.getEnumType()));
         }
     }
 
     private void validateForeignKeys() throws SchemaException {
         for (SchemaClass klass : classes.values()) {
-            for (SchemaForeignBase foreign : klass.getForeigns().values()) {
-                SchemaClass linkedClass = classes.get(foreign.getClassName());
+            validateForeignKeys(klass);
+        }
 
-                if (linkedClass == null)
-                    throw new SchemaException(String.format("Class '%s' not found", foreign.getClassName()));
+        for (SchemaMixin mixin : mixins.values()) {
+            validateForeignKeys(mixin);
+        }
+    }
 
-                switch (foreign.getType()) {
-                    case CHILD:
-                        SchemaForeignChild foreignChild = (SchemaForeignChild)foreign;
+    private void validateForeignKeys(SchemaClassBase klass) throws SchemaException {
+        for (SchemaForeignBase foreign : klass.getForeigns().values()) {
+            SchemaClass linkedClass = classes.get(foreign.getClassName());
 
-                        SchemaForeignBase linkForeign = linkedClass.getForeigns().get(foreignChild.getClassProperty());
-                        if (linkForeign == null)
-                            throw new SchemaException(String.format("Foreign child property '%s' not found", foreignChild.getClassProperty()), foreign.getLocation());
-                        if (linkForeign.getType() != SchemaForeignType.PARENT)
-                            throw new SchemaException(String.format("Foreign child property '%s' is not a parent", foreignChild.getClassName()), foreign.getLocation());
-                        break;
-                }
+            if (linkedClass == null)
+                throw new SchemaException(String.format("Class '%s' not found", foreign.getClassName()));
+
+            switch (foreign.getType()) {
+                case CHILD:
+                    SchemaForeignChild foreignChild = (SchemaForeignChild)foreign;
+
+                    SchemaForeignBase linkForeign = linkedClass.getForeigns().get(foreignChild.getClassProperty());
+                    if (linkForeign == null)
+                        throw new SchemaException(String.format("Foreign child property '%s' not found", foreignChild.getClassProperty()), foreign.getLocation());
+                    if (linkForeign.getType() != SchemaForeignType.PARENT)
+                        throw new SchemaException(String.format("Foreign child property '%s' is not a parent", foreignChild.getClassName()), foreign.getLocation());
+                    break;
             }
         }
     }
 
     private void validateIndexConflicts() throws SchemaException {
         for (SchemaClass klass : classes.values()) {
-            for (SchemaIndex index : klass.getIndexes()) {
-                for (SchemaIndex conflicting : klass.getIndexes()) {
-                    if (index != conflicting && index.conflictsWith(conflicting))
-                        throw new SchemaException(String.format("Index '%s' conflicts with index '%s'", index.toSmallString(), conflicting.toSmallString()), index.getLocation());
-                }
+            validateIndexConflicts(klass);
+        }
 
-                for (SchemaForeignBase foreign : klass.getForeigns().values()) {
-                    if (
-                        foreign.getType() == SchemaForeignType.PARENT &&
-                        index.conflictsWith((SchemaForeignParent)foreign)
-                    )
-                        throw new SchemaException(String.format("Index '%s' conflicts with foreign '%s'", index.toSmallString(), foreign.getName()), index.getLocation());
-                }
+        for (SchemaMixin mixin : mixins.values()) {
+            validateIndexConflicts(mixin);
+        }
+    }
+
+    private void validateIndexConflicts(SchemaClassBase klass) throws SchemaException {
+        for (SchemaIndex index : klass.getIndexes()) {
+            for (SchemaIndex conflicting : klass.getIndexes()) {
+                if (index != conflicting && index.conflictsWith(conflicting))
+                    throw new SchemaException(String.format("Index '%s' conflicts with index '%s'", index.toSmallString(), conflicting.toSmallString()), index.getLocation());
+            }
+
+            for (SchemaForeignBase foreign : klass.getForeigns().values()) {
+                if (
+                    foreign.getType() == SchemaForeignType.PARENT &&
+                    index.conflictsWith((SchemaForeignParent)foreign)
+                )
+                    throw new SchemaException(String.format("Index '%s' conflicts with foreign '%s'", index.toSmallString(), foreign.getName()), index.getLocation());
             }
         }
     }
 
     private void validateDecimalProperties() throws SchemaException {
         for (SchemaClass klass : classes.values()) {
-            for (SchemaProperty property : klass.getProperties().values()) {
-                if (
-                    property.getResolvedDataType() != null &&
-                    property.getResolvedDataType().getNativeType() == BigDecimal.class && (
-                        property.getResolvedDataType().getLength() == -1 ||
-                        property.getResolvedDataType().getPositions() == -1
-                    )
+            validateDecimalProperties(klass);
+        }
+
+        for (SchemaMixin mixin : mixins.values()) {
+            validateDecimalProperties(mixin);
+        }
+    }
+
+    private void validateDecimalProperties(SchemaClassBase klass) throws SchemaException {
+        for (SchemaProperty property : klass.getProperties().values()) {
+            if (
+                property.getResolvedDataType() != null &&
+                property.getResolvedDataType().getNativeType() == BigDecimal.class && (
+                    property.getResolvedDataType().getLength() == -1 ||
+                    property.getResolvedDataType().getPositions() == -1
                 )
-                    throw new SchemaException(String.format("Decimal property '%s' has no length or positions set", property.getName()), property.getLocation());
-            }
+            )
+                throw new SchemaException(String.format("Decimal property '%s' has no length or positions set", property.getName()), property.getLocation());
         }
     }
 
     private void validateIndexes() throws SchemaException {
         for (SchemaClass klass : classes.values()) {
-            for (SchemaIndex index : klass.getIndexes()) {
-                if (index.getFields().size() == 0)
-                    throw new SchemaException("Index has zero fields", index.getLocation());
-            }
+            validateIndexes(klass);
+        }
+
+        for (SchemaMixin mixin : mixins.values()) {
+            validateIndexes(mixin);
+        }
+    }
+
+    private void validateIndexes(SchemaClassBase klass) throws SchemaException {
+        for (SchemaIndex index : klass.getIndexes()) {
+            if (index.getFields().size() == 0)
+                throw new SchemaException("Index has zero fields", index.getLocation());
         }
     }
 
@@ -324,14 +428,14 @@ public class Schema extends SchemaAnnotatableElement {
     }
 
     void addClass(SchemaClass klass) {
-        classes.put(klass.getName(), klass);
+        classes.put(klass.getFullName(), klass);
+    }
+
+    void addMixin(SchemaMixin mixin) {
+        mixins.put(mixin.getFullName(), mixin);
     }
 
     void addEnumType(SchemaEnumType enumType) {
-        enumTypes.put(enumType.getName(), enumType);
-    }
-
-    void addSuppressResourceGeneration(String schemaName) {
-        suppressResourceGeneration.add(schemaName);
+        enumTypes.put(enumType.getFullName(), enumType);
     }
 }

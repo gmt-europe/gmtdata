@@ -33,7 +33,7 @@ public abstract class GenericDatabaseDriver extends DatabaseDriver {
         ResultSetMetaData metaData = rs.getMetaData();
 
         for (int i = 0; i < metaData.getColumnCount(); i++) {
-            if (metaData.getColumnName(i) == "SchemaHash")
+            if (metaData.getColumnName(i).equals("SchemaHash"))
                 return rs.getString(i);
         }
 

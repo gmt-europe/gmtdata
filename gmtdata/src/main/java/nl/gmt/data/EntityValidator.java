@@ -42,6 +42,7 @@ public class EntityValidator {
         validate(entity, mode, false, assumeValid);
     }
 
+    @SuppressWarnings("unchecked")
     public void validate(Entity entity, EntityValidatorMode mode, boolean runInterceptors, Set<String> assumeValid) {
         Validate.notNull(entity, "entity");
         Validate.notNull(mode, "mode");

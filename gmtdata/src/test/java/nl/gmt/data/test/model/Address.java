@@ -3,6 +3,7 @@ package nl.gmt.data.test.model;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
+import javax.persistence.Entity;
 
 @Entity
 @Table(name = "Address")

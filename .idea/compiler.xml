@@ -24,15 +24,16 @@
         <processorPath useClasspath="true" />
         <module name="gmtdata" />
         <module name="gmtdata-maven-plugin" />
+        <module name="gmtdata-test" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="gmtdata" target="1.7" />
       <module name="gmtdata-maven-plugin" target="1.7" />
+      <module name="gmtdata-test" target="1.7" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_STRING" value="-Xlint:unchecked" />
   </component>
 </project>
-

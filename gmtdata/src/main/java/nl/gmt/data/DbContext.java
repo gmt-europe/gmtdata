@@ -1,7 +1,7 @@
 package nl.gmt.data;
 
-import nl.gmt.data.support.Delegate;
 import nl.gmt.data.support.DelegateListener;
+import nl.gmt.data.support.Delegate;
 import org.apache.commons.lang3.Validate;
 import org.hibernate.*;
 import org.jboss.logging.Logger;
@@ -13,25 +13,34 @@ public class DbContext implements DataCloseable {
 
     private final Transaction tx;
     private final DbConnection db;
+    private final DbTenant tenant;
     private Session session;
     private DbContextState state;
     private final Delegate<DbContextTransition> transitioned = new Delegate<>();
     private boolean closed;
 
-    DbContext(DbConnection db) {
+    DbContext(DbConnection db, DbTenant tenant) {
         Validate.notNull(db, "db");
 
         this.db = db;
+        this.tenant = tenant;
 
         state = DbContextState.UNKNOWN;
 
         raiseTransitioned(DbContextTransition.OPENING);
 
         try {
-            session = db.getSessionFactory().openSession();
+            if (tenant != null) {
+                session = db.getSessionFactory().withOptions().tenantIdentifier(tenant.getDatabase()).openSession();
+            } else {
+                session = db.getSessionFactory().openSession();
+            }
+
             tx = session.beginTransaction();
 
             raiseTransitioned(DbContextTransition.OPENED);
+
+            db.setCurrentContext(this);
         } catch (Throwable e) {
             // Ensure that the context is properly cleaned up if we failed to open
             // the context.
@@ -48,6 +57,14 @@ public class DbContext implements DataCloseable {
 
             throw (RuntimeException)e;
         }
+    }
+
+    public DbConnection getConnection() {
+        return db;
+    }
+
+    public DbTenant getTenant() {
+        return tenant;
     }
 
     private void raiseTransitioned(DbContextTransition transition) {
@@ -100,41 +117,45 @@ public class DbContext implements DataCloseable {
 
     @Override
     public void close() {
-        if (!closed) {
-            try {
-                if (session != null) {
+        if (closed) {
+            return;
+        }
+
+        db.clearCurrentContext();
+
+        try {
+            if (session != null) {
+                try {
+                    if (state == DbContextState.UNKNOWN) {
+                        LOG.warn("Aborting transaction because it was not committed or rolled back");
+                        state = DbContextState.ABORTED;
+                    }
+
+                    raiseTransitioned(DbContextTransition.CLOSING);
+
+                    boolean success = false;
+
                     try {
-                        if (state == DbContextState.UNKNOWN) {
-                            LOG.warn("Aborting transaction because it was not committed or rolled back");
-                            state = DbContextState.ABORTED;
-                        }
-
-                        raiseTransitioned(DbContextTransition.CLOSING);
-
-                        boolean success = false;
-
-                        try {
-                            if (state == DbContextState.COMMITTED) {
-                                session.flush();
-                                tx.commit();
-                                success = true;
-                            }
-                        } finally {
-                            if (!success) {
-                                tx.rollback();
-                            }
+                        if (state == DbContextState.COMMITTED) {
+                            session.flush();
+                            tx.commit();
+                            success = true;
                         }
                     } finally {
-                        session.close();
-                        session = null;
+                        if (!success) {
+                            tx.rollback();
+                        }
                     }
+                } finally {
+                    session.close();
+                    session = null;
                 }
-            } finally {
-                raiseTransitioned(DbContextTransition.CLOSED);
             }
-
-            closed = true;
+        } finally {
+            raiseTransitioned(DbContextTransition.CLOSED);
         }
+
+        closed = true;
     }
 
     public void refresh(Entity entity, LockOptions lockOptions) {

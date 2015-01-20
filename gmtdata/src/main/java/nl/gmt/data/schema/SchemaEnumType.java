@@ -6,6 +6,7 @@ import java.util.Map;
 
 public class SchemaEnumType extends SchemaAnnotatableElement implements Comparable<SchemaEnumType> {
     private String name;
+    private String packageName;
     private final Map<String, SchemaEnumTypeField> fields = new HashMap<>();
     private final Map<String, SchemaEnumTypeField> unmodifiableFields = Collections.unmodifiableMap(fields);
 
@@ -17,8 +18,26 @@ public class SchemaEnumType extends SchemaAnnotatableElement implements Comparab
         return name;
     }
 
-    void setName(String name) {
-        this.name = name;
+    public String getPackageName() {
+        return packageName;
+    }
+
+    public String getFullName() {
+        if (packageName != null) {
+            return packageName + "." + name;
+        }
+
+        return name;
+    }
+
+    void setFullName(String fullName) {
+        int pos = fullName.lastIndexOf('.');
+        if (pos == -1) {
+            name = fullName;
+        } else {
+            packageName = fullName.substring(0, pos);
+            name = fullName.substring(pos + 1);
+        }
     }
 
     public Map<String, SchemaEnumTypeField> getFields() {

@@ -30,7 +30,7 @@ public class MySqlTests extends DatabaseTests {
         super.execute(
             String.format(
 "<?xml version=\"1.0\" encoding=\"utf-8\"?>" +
-"<schema xmlns=\"http://schemas.gmt.nl/gmtdata/2014/02/hibernate-schema\"" +
+"<schema xmlns=\"http://schemas.gmt.nl/gmtdata/2015/01/hibernate-schema\"" +
 "        namespace=\"UnitTestAssembly\">" +
 "  <settings>" +
 "    <idProperty name=\"Id\" type=\"int\" autoIncrement=\"true\" foreignPostfix=\"Id\">" +

@@ -1,8 +1,8 @@
 package nl.gmt.data.migrate.mysql;
 
-import nl.gmt.data.migrate.*;
 import nl.gmt.data.schema.SchemaDbType;
 import nl.gmt.data.schema.SchemaIndexType;
+import nl.gmt.data.migrate.*;
 import org.apache.commons.lang3.StringUtils;
 
 import java.sql.Connection;

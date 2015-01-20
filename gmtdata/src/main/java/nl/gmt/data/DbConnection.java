@@ -1,13 +1,12 @@
 package nl.gmt.data;
 
+import nl.gmt.data.support.Delegate;
+import nl.gmt.data.support.DelegateListener;
 import nl.gmt.data.drivers.*;
 import nl.gmt.data.migrate.*;
 import nl.gmt.data.schema.Schema;
 import nl.gmt.data.schema.SchemaCallback;
-import nl.gmt.data.schema.SchemaClass;
 import nl.gmt.data.schema.SchemaParserExecutor;
-import nl.gmt.data.support.Delegate;
-import nl.gmt.data.support.DelegateListener;
 import org.apache.commons.lang3.Validate;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistry;
@@ -20,10 +19,10 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public abstract class DbConnection<T extends EntitySchema> implements DataCloseable {
+    private final ThreadLocal<DbContext> currentContext = new ThreadLocal<>();
     private final String connectionString;
     private final DbType type;
     private final String schemaName;
-    private final Schema schema;
     private final DatabaseDriver driver;
     private SessionFactory sessionFactory;
     private final Delegate<DbContextTransition> contextTransitioned = new Delegate<>();
@@ -31,13 +30,12 @@ public abstract class DbConnection<T extends EntitySchema> implements DataClosea
     private final T entitySchema;
     private boolean closed;
 
-    protected DbConnection(String connectionString, DbType type, String schemaName) throws DataException {
-        this(connectionString, type, schemaName, null);
-    }
+    protected DbConnection(DbConfiguration configuration, String schemaName, RepositoryService repositoryService) throws DataException {
+        Validate.notNull(configuration, "configuration");
+        Validate.notNull(schemaName, "schemaName");
 
-    protected DbConnection(String connectionString, DbType type, String schemaName, RepositoryService repositoryService) throws DataException {
-        this.connectionString = connectionString;
-        this.type = type;
+        this.connectionString = configuration.getConnectionString();
+        this.type = configuration.getType();
         this.schemaName = schemaName;
         this.repositoryService = repositoryService;
 
@@ -49,32 +47,39 @@ public abstract class DbConnection<T extends EntitySchema> implements DataClosea
 
         SchemaParserExecutor parserExecutor = new SchemaParserExecutor(new SchemaCallbackImpl());
 
-        Configuration configuration= new Configuration()
+        Configuration cfg = new Configuration()
             .setProperty("hibernate.dialect", driver.getDialectType())
             .setProperty("hibernate.connection.url", connectionString)
             .setProperty("hibernate.connection.driver_class", driver.getConnectionType());
 
+        if (configuration.isEnableMultiTenancy()) {
+            cfg.setProperty("hibernate.multi_tenant_connection_provider", DbMultiTenantConnectionProvider.class.getName());
+            cfg.setProperty("hibernate.multiTenancy", "SCHEMA");
+        }
+
+        Schema schema;
+
         try {
             schema = parserExecutor.parse(schemaName, driver.createSchemaRules());
-
-            addClasses(configuration);
         } catch (Throwable e) {
             throw new DataException("Cannot load schema", e);
         }
 
-        driver.createConfiguration(configuration);
+        entitySchema = createEntitySchema(schema);
 
-        createConfiguration(configuration);
+        addClasses(cfg);
+
+        driver.createConfiguration(cfg);
+
+        createConfiguration(cfg);
 
         StandardServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
-            .applySettings(configuration.getProperties())
+            .applySettings(cfg.getProperties())
             .build();
 
-        sessionFactory = configuration.buildSessionFactory(serviceRegistry);
+        sessionFactory = cfg.buildSessionFactory(serviceRegistry);
 
         driver.configure(this);
-
-        entitySchema = createEntitySchema(schema);
 
         for (EntityType entityType : entitySchema.getEntityTypes()) {
             for (EntityField field : entityType.getFields()) {
@@ -101,18 +106,9 @@ public abstract class DbConnection<T extends EntitySchema> implements DataClosea
         return entitySchema;
     }
 
-    private void addClasses(Configuration configuration) throws ClassNotFoundException {
-        String ns = schema.getNamespace() + ".model";
-
-        for (SchemaClass klass : schema.getClasses().values()) {
-            String className = ns + ".";
-
-            if (klass.getBoundedContext() != null)
-                className += klass.getBoundedContext() + ".";
-
-            className += klass.getName();
-
-            configuration.addAnnotatedClass(Class.forName(className));
+    private void addClasses(Configuration configuration) {
+        for (EntityType entityType : entitySchema.getEntityTypes()) {
+            configuration.addAnnotatedClass(entityType.getModel());
         }
     }
 
@@ -129,6 +125,10 @@ public abstract class DbConnection<T extends EntitySchema> implements DataClosea
     }
 
     public void migrateDatabase() throws DataException, SchemaMigrateException, SQLException {
+        migrateDatabase(null);
+    }
+
+    public void migrateDatabase(DbTenant tenant) throws DataException, SchemaMigrateException, SQLException {
         SchemaCallbackImpl callback = new SchemaCallbackImpl();
 
         DataSchemaExecutor executor = new DataSchemaExecutor(
@@ -144,6 +144,10 @@ public abstract class DbConnection<T extends EntitySchema> implements DataClosea
         executor.execute();
 
         try (Connection connection = driver.createConnection(connectionString)) {
+            if (tenant != null) {
+                connection.setCatalog(tenant.getDatabase());
+            }
+
             for (SqlStatement statement : callback.statements) {
                 if (statement.getType() == SqlStatementType.STATEMENT) {
                     try (Statement stmt = connection.createStatement()) {
@@ -155,11 +159,15 @@ public abstract class DbConnection<T extends EntitySchema> implements DataClosea
     }
 
     public DbContext openContext() {
+        return openContext(null);
+    }
+
+    public DbContext openContext(DbTenant tenant) {
         if (isClosed()) {
             throw new IllegalStateException("Connection has already been closed");
         }
 
-        return new DbContext(this);
+        return new DbContext(this, tenant);
     }
 
     public boolean isClosed() {
@@ -185,12 +193,36 @@ public abstract class DbConnection<T extends EntitySchema> implements DataClosea
         contextTransitioned.call(context, transition);
     }
 
+    void setCurrentContext(DbContext context) throws DataException {
+        if (currentContext.get() != null) {
+            throw new DataException("Cannot open multiple contexts");
+        }
+
+        currentContext.set(context);
+    }
+
+    void clearCurrentContext() {
+        assert currentContext.get() != null;
+
+        currentContext.remove();
+    }
+
+    public DbContext getCurrentContext() {
+        return currentContext.get();
+    }
+
     private class SchemaCallbackImpl implements SchemaCallback {
         private Iterable<SqlStatement> statements;
 
         @Override
         public InputStream loadFile(String schema) throws Exception {
-            return DbConnection.this.getClass().getResourceAsStream(schema);
+            // First try the schema name as is. If that doesn't resolve, try resolving it as an absolute path.
+
+            InputStream stream = DbConnection.this.getClass().getResourceAsStream(schema);
+            if (stream != null) {
+                return stream;
+            }
+            return DbConnection.this.getClass().getResourceAsStream("/" + schema);
         }
 
         @Override
