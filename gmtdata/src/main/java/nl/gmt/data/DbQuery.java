@@ -3,6 +3,7 @@ package nl.gmt.data;
 import org.hibernate.*;
 import org.hibernate.transform.ResultTransformer;
 import org.hibernate.type.Type;
+import org.joda.time.DateTime;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -196,6 +197,11 @@ public class DbQuery<T> implements Iterable<T> {
 
     public DbQuery<T> setDate(String name, Date date) {
         query.setDate(name, date);
+        return this;
+    }
+
+    public DbQuery<T> setDateTime(String name, DateTime date) {
+        query.setParameter(name, date);
         return this;
     }
 
@@ -443,6 +449,11 @@ public class DbQuery<T> implements Iterable<T> {
 
     public DbQuery<T> setDate(int position, Date date) {
         query.setDate(position, date);
+        return this;
+    }
+
+    public DbQuery<T> setDateTime(int position, DateTime date) {
+        query.setParameter(position, date);
         return this;
     }
 
