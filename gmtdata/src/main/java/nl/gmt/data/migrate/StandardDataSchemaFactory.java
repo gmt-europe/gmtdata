@@ -149,7 +149,7 @@ public class StandardDataSchemaFactory implements DataSchemaFactory {
         return result;
     }
 
-    public DataSchemaIndex createFromIndex(SchemaIndex index, SchemaClass baseClass, SchemaClassBase klass, Schema schema) {
+    public DataSchemaIndex createFromIndex(SchemaIndex index, SchemaClass baseClass, SchemaClassBase klass, Schema schema) throws SchemaMigrateException {
         DataSchemaIndex result = new DataSchemaIndex();
 
         for (String field : index.getFields()) {
@@ -158,9 +158,17 @@ public class StandardDataSchemaFactory implements DataSchemaFactory {
             if (field.equals(schema.getIdProperty().getName()) && klass instanceof SchemaClass) {
                 name = baseClass.getResolvedIdProperty().getResolvedDbName();
             } else if (klass.getProperties().containsKey(field)) {
-                name = klass.getProperties().get(field).getResolvedDbName();
+                SchemaProperty property = klass.getProperties().get(field);
+                if (property == null) {
+                    throw new SchemaMigrateException(String.format("Cannot find index property '%s' of entity '%s'", field, klass.getFullName()));
+                }
+                name = property.getResolvedDbName();
             } else {
-                name = ((SchemaForeignParent)klass.getForeigns().get(field)).getResolvedDbName();
+                SchemaForeignParent property = (SchemaForeignParent)klass.getForeigns().get(field);
+                if (property == null) {
+                    throw new SchemaMigrateException(String.format("Cannot find index property '%s' of entity '%s'", field, klass.getFullName()));
+                }
+                name = property.getResolvedDbName();
             }
 
             result.getFields().add(name);
