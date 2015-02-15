@@ -7,6 +7,8 @@ import org.hibernate.*;
 import org.jboss.logging.Logger;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
 public class DbContext implements DataCloseable {
     private static final Logger LOG = Logger.getLogger(DbContext.class);
@@ -18,6 +20,7 @@ public class DbContext implements DataCloseable {
     private DbContextState state;
     private final Delegate<DbContextTransition> transitioned = new Delegate<>();
     private boolean closed;
+    private Map<String, Object> userProperties;
 
     DbContext(DbConnection db, DbTenant tenant) {
         Validate.notNull(db, "db");
@@ -316,5 +319,13 @@ public class DbContext implements DataCloseable {
 
     public void setReadOnly(Entity entityOrProxy, boolean readOnly) {
         session.setReadOnly(entityOrProxy, readOnly);
+    }
+
+    public Map<String, Object> getUserProperties() {
+        if (userProperties == null) {
+            userProperties = new HashMap<>();
+        }
+
+        return userProperties;
     }
 }
