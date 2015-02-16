@@ -12,6 +12,11 @@ import java.util.Map;
 
 public class DbContext implements DataCloseable {
     private static final Logger LOG = Logger.getLogger(DbContext.class);
+    private static boolean throwExceptionOnAbort;
+
+    public static void setThrowExceptionOnAbort(boolean value) {
+        throwExceptionOnAbort = value;
+    }
 
     private final Transaction tx;
     private final DbConnection db;
@@ -126,12 +131,15 @@ public class DbContext implements DataCloseable {
 
         db.clearCurrentContext();
 
+        boolean aborted = false;
+
         try {
             if (session != null) {
                 try {
                     if (state == DbContextState.UNKNOWN) {
                         LOG.warn("Aborting transaction because it was not committed or rolled back");
                         state = DbContextState.ABORTED;
+                        aborted = true;
                     }
 
                     raiseTransitioned(DbContextTransition.CLOSING);
@@ -159,6 +167,10 @@ public class DbContext implements DataCloseable {
         }
 
         closed = true;
+
+        if (aborted && throwExceptionOnAbort) {
+            throw new DbContextAbortedException("Aborting transaction because it was not committed or rolled back");
+        }
     }
 
     public void refresh(Entity entity, LockOptions lockOptions) {
