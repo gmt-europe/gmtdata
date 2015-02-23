@@ -2,11 +2,12 @@ package nl.gmt.data.test.types;
 
 import nl.gmt.data.EntityForeignParent;
 import nl.gmt.data.EntityProperty;
+import nl.gmt.data.schema.Schema;
 import nl.gmt.data.schema.SchemaClass;
 
 public class AddressType extends nl.gmt.data.EntityType {
-    public AddressType(SchemaClass schemaClass) {
-        super(schemaClass, nl.gmt.data.test.model.Address.class);
+    public AddressType(Schema schema, SchemaClass schemaClass) {
+        super(schema, schemaClass, nl.gmt.data.test.model.Address.class);
     }
 
     public EntityProperty getId() {

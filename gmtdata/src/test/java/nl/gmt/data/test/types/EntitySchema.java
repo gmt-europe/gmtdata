@@ -15,8 +15,8 @@ public class EntitySchema extends nl.gmt.data.EntitySchema {
     @Override
     protected EntityType[] createTypes(Schema schema) {
         return new EntityType[]{
-            address = new AddressType(schema.getClasses().get("Address")),
-            relation = new RelationType(schema.getClasses().get("Relation"))
+            address = new AddressType(schema, schema.getClasses().get("Address")),
+            relation = new RelationType(schema, schema.getClasses().get("Relation"))
         };
     }
 

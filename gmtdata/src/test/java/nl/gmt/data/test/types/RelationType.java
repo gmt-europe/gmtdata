@@ -3,11 +3,12 @@ package nl.gmt.data.test.types;
 import nl.gmt.data.EntityForeignChild;
 import nl.gmt.data.EntityProperty;
 import nl.gmt.data.EntityType;
+import nl.gmt.data.schema.Schema;
 import nl.gmt.data.schema.SchemaClass;
 
 public class RelationType extends EntityType {
-    public RelationType(SchemaClass schemaClass) {
-        super(schemaClass, nl.gmt.data.test.model.Relation.class);
+    public RelationType(Schema schema, SchemaClass schemaClass) {
+        super(schema, schemaClass, nl.gmt.data.test.model.Relation.class);
     }
 
     public EntityProperty getId() {

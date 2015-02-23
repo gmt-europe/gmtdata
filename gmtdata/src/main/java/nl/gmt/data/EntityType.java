@@ -4,17 +4,15 @@ import nl.gmt.data.schema.*;
 import org.apache.commons.lang3.Validate;
 
 import java.lang.reflect.Method;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 public class EntityType {
     private final SchemaClass schemaClass;
     private final Map<String, EntityField> fields;
     private final Class<? extends Entity> model;
 
-    public EntityType(SchemaClass schemaClass, Class<? extends Entity> model) {
+    public EntityType(Schema schema, SchemaClass schemaClass, Class<? extends Entity> model) {
+        Validate.notNull(schema, "schema");
         Validate.notNull(schemaClass, "schemaClass");
         Validate.notNull(model, "model");
 
@@ -27,7 +25,25 @@ public class EntityType {
 
         fields.put(idField.getFieldName(), idField);
 
-        for (SchemaField schemaField : schemaClass.getFields()) {
+        addFields(schemaClass.getFields(), fields);
+
+        recurseMixins(schema, schemaClass.getMixins(), fields);
+
+        this.fields = Collections.unmodifiableMap(fields);
+    }
+
+    private void recurseMixins(Schema schema, List<String> mixins, Map<String, EntityField> fields) {
+        for (String name : mixins) {
+            SchemaMixin mixin = schema.getMixins().get(name);
+
+            addFields(mixin.getFields(), fields);
+
+            recurseMixins(schema, mixin.getMixins(), fields);
+        }
+    }
+
+    private void addFields(Collection<? extends SchemaField> schemaFields, Map<String, EntityField> fields) {
+        for (SchemaField schemaField : schemaFields) {
             EntityField field;
 
             EntityFieldAccessor accessor = createAccessor(schemaField);
@@ -42,8 +58,6 @@ public class EntityType {
 
             fields.put(field.getFieldName(), field);
         }
-
-        this.fields = Collections.unmodifiableMap(fields);
     }
 
     private EntityFieldAccessor createAccessor(SchemaField schemaField) {

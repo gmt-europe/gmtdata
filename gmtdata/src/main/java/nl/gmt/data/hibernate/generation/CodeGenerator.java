@@ -108,7 +108,7 @@ public class CodeGenerator {
             SchemaClass klass = classes.get(i);
 
             cw.writeln(
-                "%s = new %s(schema.getClasses().get(\"%s\"))%s",
+                "%s = new %s(schema, schema.getClasses().get(\"%s\"))%s",
                 getFieldName(klass.getName()),
                 getTypeClassName(klass.getFullName()),
                 klass.getFullName(),
@@ -150,10 +150,10 @@ public class CodeGenerator {
         cw.writeln("public class %sType extends nl.gmt.data.EntityType {", klass.getName());
         cw.indent();
 
-        cw.writeln("public %sType(nl.gmt.data.schema.SchemaClass schemaClass) {", klass.getName());
+        cw.writeln("public %sType(nl.gmt.data.schema.Schema schema, nl.gmt.data.schema.SchemaClass schemaClass) {", klass.getName());
         cw.indent();
 
-        cw.writeln("super(schemaClass, %s.%s.class);", getModelPackageName(klass), klass.getName());
+        cw.writeln("super(schema, schemaClass, %s.%s.class);", getModelPackageName(klass), klass.getName());
 
         cw.unIndent();
         cw.writeln("}");
