@@ -6,338 +6,266 @@ public abstract class DatabaseTests extends DatabaseTestBase {
     @Test
     public void createTable() {
         execute(
-"<classes>" +
-"  <class name=\"Table\" />" +
-"</classes>"
+"<class name=\"Table\" />"
         );
     }
 
     @Test
     public void createTableWithProperty() {
         execute(
-"<classes>" +
-"  <class name=\"Table\">"+
-"    <property name=\"Property\" type=\"string\" length=\"10\" />" +
-"  </class>" +
-"</classes>"
+"<class name=\"Table\">"+
+"  <property name=\"Property\" type=\"string\" length=\"10\" />" +
+"</class>"
         );
     }
 
     @Test
     public void createTableWithForeignKey() {
         execute(
-"<classes>" +
-"  <class name=\"TableA\" />" +
-"  <class name=\"TableB\">" +
-"    <foreignParent name=\"A\" class=\"TableA\" />" +
-"  </class>" +
-"</classes>"
+"<class name=\"TableA\" />" +
+"<class name=\"TableB\">" +
+"  <foreignParent name=\"A\" class=\"TableA\" />" +
+"</class>"
         );
     }
 
     @Test
     public void createTableWithSingleIndex() {
         execute(
-"<classes>" +
-"  <class name=\"Table\">" +
-"    <property name=\"Property\" type=\"int\" indexed=\"true\" />" +
-"  </class>" +
-"</classes>"
+"<class name=\"Table\">" +
+"  <property name=\"Property\" type=\"int\" indexed=\"true\" />" +
+"</class>"
         );
     }
 
     @Test
     public void createTableWithSingleUniqueIndex() {
         execute(
-"<classes>" +
-"  <class name=\"Table\">" +
-"    <property name=\"Property\" type=\"int\" indexed=\"unique\" />" +
-"  </class>" +
-"</classes>"
+"<class name=\"Table\">" +
+"  <property name=\"Property\" type=\"int\" indexed=\"unique\" />" +
+"</class>"
         );
     }
 
     @Test
     public void createTableWithMultiFieldIndex() {
         execute(
-"<classes>" +
-"  <class name=\"Table\">" +
-"    <property name=\"PropertyA\" type=\"int\" />" +
-"    <property name=\"PropertyB\" type=\"int\" />" +
-"    <index properties=\"PropertyA,PropertyB\" />" +
-"  </class>" +
-"</classes>"
+"<class name=\"Table\">" +
+"  <property name=\"PropertyA\" type=\"int\" />" +
+"  <property name=\"PropertyB\" type=\"int\" />" +
+"  <index properties=\"PropertyA,PropertyB\" />" +
+"</class>"
         );
     }
 
     @Test
     public void addProperty() {
         execute(
-"<classes>" +
-"  <class name=\"Table\" />" +
-"</classes>"
+"<class name=\"Table\" />"
         );
 
         execute(
-"<classes>" +
-"  <class name=\"Table\">" +
-"    <property name=\"Property\" type=\"int\" />" +
-"  </class>" +
-"</classes>"
+"<class name=\"Table\">" +
+"  <property name=\"Property\" type=\"int\" />" +
+"</class>"
         );
     }
 
     @Test
     public void removeProperty() {
         execute(
-"<classes>" +
-"  <class name=\"Table\">" +
-"    <property name=\"Property\" type=\"int\" />" +
-"  </class>" +
-"</classes>"
+"<class name=\"Table\">" +
+"  <property name=\"Property\" type=\"int\" />" +
+"</class>"
         );
 
         execute(
-"<classes>" +
-"  <class name=\"Table\">" +
-"  </class>" +
-"</classes>"
+"<class name=\"Table\">" +
+"</class>"
         );
     }
 
     @Test
     public void addForeignKey() {
         execute(
-"<classes>" +
-"  <class name=\"TableA\" />" +
-"  <class name=\"TableB\" />" +
-"</classes>"
+"<class name=\"TableA\" />" +
+"<class name=\"TableB\" />"
         );
 
         execute(
-"<classes>" +
-"  <class name=\"TableA\" />" +
-"  <class name=\"TableB\">" +
-"    <foreignParent name=\"A\" class=\"TableA\" />" +
-"  </class>" +
-"</classes>"
+"<class name=\"TableA\" />" +
+"<class name=\"TableB\">" +
+"  <foreignParent name=\"A\" class=\"TableA\" />" +
+"</class>"
         );
     }
 
     @Test
     public void removeForeignKey() {
         execute(
-"<classes>" +
-"  <class name=\"TableA\" />" +
-"  <class name=\"TableB\">" +
-"    <foreignParent name=\"A\" class=\"TableA\" />" +
-"  </class>" +
-"</classes>"
+"<class name=\"TableA\" />" +
+"<class name=\"TableB\">" +
+"  <foreignParent name=\"A\" class=\"TableA\" />" +
+"</class>"
         );
 
         execute(
-"<classes>" +
-"  <class name=\"TableA\" />" +
-"  <class name=\"TableB\" />" +
-"</classes>"
+"<class name=\"TableA\" />" +
+"<class name=\"TableB\" />"
         );
     }
 
     @Test
     public void changePropertyTypeLargerLength() {
         execute(
-"<classes>" +
-"  <class name=\"Table\">" +
-"    <property name=\"Property\" type=\"string\" length=\"10\" />" +
-"  </class>" +
-"</classes>"
+"<class name=\"Table\">" +
+"  <property name=\"Property\" type=\"string\" length=\"10\" />" +
+"</class>"
         );
 
         execute(
-"<classes>" +
-"  <class name=\"Table\">" +
-"    <property name=\"Property\" type=\"string\" length=\"20\" />" +
-"  </class>" +
-"</classes>"
+"<class name=\"Table\">" +
+"  <property name=\"Property\" type=\"string\" length=\"20\" />" +
+"</class>"
         );
     }
 
     @Test
     public void changePropertyTypeSmallerLength() {
         execute(
-"<classes>" +
-"  <class name=\"Table\">" +
-"    <property name=\"Property\" type=\"string\" length=\"20\" />" +
-"  </class>" +
-"</classes>"
+"<class name=\"Table\">" +
+"  <property name=\"Property\" type=\"string\" length=\"20\" />" +
+"</class>"
         );
 
         execute(
-"<classes>" +
-"  <class name=\"Table\">" +
-"    <property name=\"Property\" type=\"string\" length=\"10\" />" +
-"  </class>" +
-"</classes>"
+"<class name=\"Table\">" +
+"  <property name=\"Property\" type=\"string\" length=\"10\" />" +
+"</class>"
         );
     }
 
     @Test
     public void changePropertyTypeToNullable() {
         execute(
-"<classes>" +
-"  <class name=\"Table\">" +
-"    <property name=\"Property\" type=\"int\" />" +
-"  </class>" +
-"</classes>"
+"<class name=\"Table\">" +
+"  <property name=\"Property\" type=\"int\" />" +
+"</class>"
         );
 
         execute(
-"<classes>" +
-"  <class name=\"Table\">" +
-"    <property name=\"Property\" type=\"int\" nullable=\"true\" />" +
-"  </class>" +
-"</classes>"
+"<class name=\"Table\">" +
+"  <property name=\"Property\" type=\"int\" nullable=\"true\" />" +
+"</class>"
         );
     }
 
     @Test
     public void changePropertyTypeToNotNullable() {
         execute(
-"<classes>" +
-"  <class name=\"Table\">" +
-"    <property name=\"Property\" type=\"int\" nullable=\"true\" />" +
-"  </class>" +
-"</classes>"
+"<class name=\"Table\">" +
+"  <property name=\"Property\" type=\"int\" nullable=\"true\" />" +
+"</class>"
         );
 
         execute(
-"<classes>" +
-"  <class name=\"Table\">" +
-"    <property name=\"Property\" type=\"int\" />" +
-"  </class>" +
-"</classes>"
+"<class name=\"Table\">" +
+"  <property name=\"Property\" type=\"int\" />" +
+"</class>"
         );
     }
 
     @Test
     public void changePropertyTypeStringToInt() {
         execute(
-"<classes>" +
-"  <class name=\"Table\">" +
-"    <property name=\"Property\" type=\"string\" length=\"10\" />" +
-"  </class>" +
-"</classes>"
+"<class name=\"Table\">" +
+"  <property name=\"Property\" type=\"string\" length=\"10\" />" +
+"</class>"
         );
 
         execute(
-"<classes>" +
-"  <class name=\"Table\">" +
-"    <property name=\"Property\" type=\"int\" />" +
-"  </class>" +
-"</classes>"
+"<class name=\"Table\">" +
+"  <property name=\"Property\" type=\"int\" />" +
+"</class>"
         );
     }
 
     @Test
     public void changePropertyTypeIntToString() {
         execute(
-"<classes>" +
-"  <class name=\"Table\">" +
-"    <property name=\"Property\" type=\"int\" />" +
-"  </class>" +
-"</classes>"
+"<class name=\"Table\">" +
+"  <property name=\"Property\" type=\"int\" />" +
+"</class>"
         );
 
         execute(
-"<classes>" +
-"  <class name=\"Table\">" +
-"    <property name=\"Property\" type=\"string\" length=\"10\" />" +
-"  </class>" +
-"</classes>"
+"<class name=\"Table\">" +
+"  <property name=\"Property\" type=\"string\" length=\"10\" />" +
+"</class>"
         );
     }
 
     @Test
     public void changePropertyTypeStringToText() {
         execute(
-"<classes>" +
-"  <class name=\"Table\">" +
-"    <property name=\"Property\" type=\"string\" length=\"10\" />" +
-"  </class>" +
-"</classes>"
+"<class name=\"Table\">" +
+"  <property name=\"Property\" type=\"string\" length=\"10\" />" +
+"</class>"
         );
 
         execute(
-"<classes>" +
-"  <class name=\"Table\">" +
-"    <property name=\"Property\" type=\"text\" />" +
-"  </class>" +
-"</classes>"
+"<class name=\"Table\">" +
+"  <property name=\"Property\" type=\"text\" />" +
+"</class>"
         );
     }
 
     @Test
     public void changePropertyTypeTextToString() {
         execute(
-"<classes>" +
-"  <class name=\"Table\">" +
-"    <property name=\"Property\" type=\"text\" />" +
-"  </class>" +
-"</classes>"
+"<class name=\"Table\">" +
+"  <property name=\"Property\" type=\"text\" />" +
+"</class>"
         );
 
         execute(
-"<classes>" +
-"  <class name=\"Table\">" +
-"    <property name=\"Property\" type=\"string\" length=\"10\" />" +
-"  </class>" +
-"</classes>"
+"<class name=\"Table\">" +
+"  <property name=\"Property\" type=\"string\" length=\"10\" />" +
+"</class>"
         );
     }
 
     @Test
     public void applyIndexOnDataType() {
         execute(
-"<classes>" +
-"  <class name=\"Table\">" +
-"    <property name=\"Property\" type=\"string\" length=\"10\" />" +
-"  </class>" +
-"</classes>"
+"<class name=\"Table\">" +
+"  <property name=\"Property\" type=\"string\" length=\"10\" />" +
+"</class>"
         );
 
         execute(
-"<dataTypes>" +
-"  <dataType name=\"indexed-string\" type=\"string\" length=\"10\" indexed=\"true\" />" +
-"</dataTypes>" +
+"<dataType name=\"indexed-string\" type=\"string\" length=\"10\" indexed=\"true\" />" +
 "" +
-"<classes>" +
-"  <class name=\"Table\">" +
-"    <property name=\"Property\" type=\"indexed-string\" length=\"10\" />" +
-"  </class>" +
-"</classes>"
+"<class name=\"Table\">" +
+"  <property name=\"Property\" type=\"indexed-string\" length=\"10\" />" +
+"</class>"
         );
     }
 
     @Test
     public void noChangeWhenIndexLocationChanged() {
         execute(
-"<classes>" +
-"  <class name=\"Table\">" +
-"    <property name=\"Property\" type=\"string\" length=\"10\" indexed=\"true\" />" +
-"  </class>" +
-"</classes>"
+"<class name=\"Table\">" +
+"  <property name=\"Property\" type=\"string\" length=\"10\" indexed=\"true\" />" +
+"</class>"
         );
 
         execute(
-"<dataTypes>" +
-"  <dataType name=\"indexed-string\" type=\"string\" length=\"10\" indexed=\"true\" />" +
-"</dataTypes>" +
+"<dataType name=\"indexed-string\" type=\"string\" length=\"10\" indexed=\"true\" />" +
 "" +
-"<classes>" +
-"  <class name=\"Table\">" +
-"    <property name=\"Property\" type=\"indexed-string\" length=\"10\" />" +
-"  </class>" +
-"</classes>",
+"<class name=\"Table\">" +
+"  <property name=\"Property\" type=\"indexed-string\" length=\"10\" />" +
+"</class>",
             ExpectChanges.NO
         );
     }
@@ -345,111 +273,91 @@ public abstract class DatabaseTests extends DatabaseTestBase {
     @Test
     public void longTextShouldNotChange() {
         execute(
-"<classes>" +
-"  <class name=\"Table\">" +
+"<class name=\"Table\">" +
 "      <property name=\"Field\" type=\"long-text\" />" +
-"  </class>" +
-"</classes>"
+"</class>"
         );
     }
 
     @Test
     public void longBinaryShouldNotChange() {
         execute(
-"<classes>" +
-"  <class name=\"Table\">" +
-"    <property name=\"Field\" type=\"long-blob\" />" +
-"  </class>" +
-"</classes>"
+"<class name=\"Table\">" +
+"  <property name=\"Field\" type=\"long-blob\" />" +
+"</class>"
         );
     }
 
     @Test
     public void guidHasNoLength() {
         execute(
-"<classes>" +
-"  <class name=\"Table\">" +
-"    <property name=\"PropertyA\" type=\"guid\" />" +
-"  </class>" +
-"</classes>"
+"<class name=\"Table\">" +
+"  <property name=\"PropertyA\" type=\"guid\" />" +
+"</class>"
         );
 
         execute(
-"<classes>" +
-"  <class name=\"Table\">" +
-"    <property name=\"PropertyB\" type=\"guid\" />" +
-"  </class>" +
-"</classes>"
+"<class name=\"Table\">" +
+"  <property name=\"PropertyB\" type=\"guid\" />" +
+"</class>"
 );
     }
 
     @Test
     public void alternateIdPropertyType() {
         execute(
-"<classes>" +
-"  <class name=\"Table\">" +
-"    <idProperty type=\"short\" />" +
-"    <property name=\"Property\" type=\"int\" />" +
-"  </class>" +
-"</classes>"
+"<class name=\"Table\">" +
+"  <idProperty type=\"short\" />" +
+"  <property name=\"Property\" type=\"int\" />" +
+"</class>"
 );
     }
 
     @Test
     public void dateTimeFieldDoesNotHaveLength() {
         execute(
-"<classes>" +
-"  <class name=\"Table\">" +
-"    <property name=\"Property\" type=\"datetime\" />" +
-"  </class>" +
-"</classes>"
+"<class name=\"Table\">" +
+"  <property name=\"Property\" type=\"datetime\" />" +
+"</class>"
 );
     }
 
     @Test
     public void dbNames() {
         execute(
-"<classes>" +
-"  <class name=\"TableA\" dbName=\"table_1\">" +
-"    <idProperty dbIdName=\"id_property\" />" +
-"    <property name=\"Property\" type=\"int\" dbName=\"property_1\" />" +
-"    <foreignParent name=\"Foreign\" class=\"TableB\" dbName=\"foreign_1\" />" +
-"    <index properties=\"Property,Foreign\" />" +
-"  </class>" +
-"  <class name=\"TableB\" dbName=\"table_2\">" +
-"    <idProperty dbIdName=\"id_property\" />" +
-"    <property name=\"Property\" type=\"int\" dbName=\"property_2\" />" +
-"  </class>" +
-"</classes>"
+"<class name=\"TableA\" dbName=\"table_1\">" +
+"  <idProperty dbIdName=\"id_property\" />" +
+"  <property name=\"Property\" type=\"int\" dbName=\"property_1\" />" +
+"  <foreignParent name=\"Foreign\" class=\"TableB\" dbName=\"foreign_1\" />" +
+"  <index properties=\"Property,Foreign\" />" +
+"</class>" +
+"<class name=\"TableB\" dbName=\"table_2\">" +
+"  <idProperty dbIdName=\"id_property\" />" +
+"  <property name=\"Property\" type=\"int\" dbName=\"property_2\" />" +
+"</class>"
         );
     }
 
     @Test
     public void createUniqueIndex() {
         execute(
-"<classes>" +
-"  <class name=\"TableA\">" +
-"    <property name=\"PropertyA\" type=\"int\" />" +
-"    <property name=\"PropertyB\" type=\"int\" />" +
-"    <index properties=\"PropertyA,PropertyB\" unique=\"true\" />" +
-"  </class>" +
-"</classes>"
+"<class name=\"TableA\">" +
+"  <property name=\"PropertyA\" type=\"int\" />" +
+"  <property name=\"PropertyB\" type=\"int\" />" +
+"  <index properties=\"PropertyA,PropertyB\" unique=\"true\" />" +
+"</class>"
         );
     }
 
     @Test
     public void includeMixins() {
         execute(
-"<mixins>" +
-"  <mixin name=\"MixinA\">" +
-"    <property name=\"MixinPropertyA\" type=\"int\"/>" +
-"  </mixin>" +
-"</mixins>" +
-"<classes>" +
-"  <class name=\"TableA\" mixins=\"MixinA\">" +
-"    <property name=\"PropertyA\" type=\"int\"/>" +
-"  </class>" +
-"</classes>"
+"<mixin name=\"MixinA\">" +
+"  <property name=\"MixinPropertyA\" type=\"int\"/>" +
+"</mixin>" +
+"<class name=\"TableA\" mixins=\"MixinA\">" +
+"  <property name=\"PropertyA\" type=\"int\"/>" +
+"</class>"
         );
     }
 }

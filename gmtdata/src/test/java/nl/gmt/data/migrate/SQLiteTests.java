@@ -49,7 +49,7 @@ public class SQLiteTests extends DatabaseTests {
         super.execute(
             String.format(
 "<?xml version=\"1.0\" encoding=\"utf-8\"?>" +
-"<schema xmlns=\"http://schemas.gmt.nl/gmtdata/2015/01/hibernate-schema\"" +
+"<schema xmlns=\"http://schemas.gmt.nl/gmtdata/2015/02/hibernate-schema\"" +
 "        namespace=\"UnitTestAssembly\">" +
 "  <settings>" +
 "    <idProperty name=\"Id\" type=\"int\" autoIncrement=\"true\" foreignPostfix=\"Id\">" +
@@ -69,19 +69,15 @@ public class SQLiteTests extends DatabaseTests {
     @Override
     public void changePropertyTypeLargerLength() {
         execute(
-"<classes>" +
-"  <class name=\"Table\">" +
-"    <property name=\"Property\" type=\"string\" length=\"10\" />" +
-"  </class>" +
-"</classes>"
+"<class name=\"Table\">" +
+"  <property name=\"Property\" type=\"string\" length=\"10\" />" +
+"</class>"
     );
 
         execute(
-"<classes>" +
-"  <class name=\"Table\">" +
-"    <property name=\"Property\" type=\"string\" length=\"20\" />" +
-"  </class>" +
-"</classes>",
+"<class name=\"Table\">" +
+"  <property name=\"Property\" type=\"string\" length=\"20\" />" +
+"</class>",
             ExpectChanges.NO
         );
     }
@@ -90,19 +86,15 @@ public class SQLiteTests extends DatabaseTests {
     @Override
     public void changePropertyTypeSmallerLength() {
         execute(
-"<classes>" +
-"  <class name=\"Table\">" +
-"    <property name=\"Property\" type=\"string\" length=\"20\" />" +
-"  </class>" +
-"</classes>"
+"<class name=\"Table\">" +
+"  <property name=\"Property\" type=\"string\" length=\"20\" />" +
+"</class>"
         );
 
         execute(
-"<classes>" +
-"  <class name=\"Table\">" +
-"    <property name=\"Property\" type=\"string\" length=\"10\" />" +
-"  </class>" +
-"</classes>",
+"<class name=\"Table\">" +
+"  <property name=\"Property\" type=\"string\" length=\"10\" />" +
+"</class>",
             ExpectChanges.NO
         );
     }
@@ -111,19 +103,15 @@ public class SQLiteTests extends DatabaseTests {
     @Override
     public void changePropertyTypeStringToText() {
         execute(
-"<classes>" +
-"  <class name=\"Table\">" +
-"    <property name=\"Property\" type=\"string\" length=\"10\" />" +
-"  </class>" +
-"</classes>"
+"<class name=\"Table\">" +
+"  <property name=\"Property\" type=\"string\" length=\"10\" />" +
+"</class>"
         );
 
         execute(
-"<classes>" +
-"  <class name=\"Table\">" +
-"    <property name=\"Property\" type=\"text\" />" +
-"  </class>" +
-"</classes>",
+"<class name=\"Table\">" +
+"  <property name=\"Property\" type=\"text\" />" +
+"</class>",
             ExpectChanges.NO
         );
     }
@@ -132,19 +120,15 @@ public class SQLiteTests extends DatabaseTests {
     @Override
     public void changePropertyTypeTextToString() {
         execute(
-"<classes>" +
-"  <class name=\"Table\">" +
-"    <property name=\"Property\" type=\"text\" />" +
-"  </class>" +
-"</classes>"
+"<class name=\"Table\">" +
+"  <property name=\"Property\" type=\"text\" />" +
+"</class>"
         );
 
         execute(
-"<classes>" +
-"  <class name=\"Table\">" +
-"    <property name=\"Property\" type=\"string\" length=\"10\" />" +
-"  </class>" +
-"</classes>",
+"<class name=\"Table\">" +
+"  <property name=\"Property\" type=\"string\" length=\"10\" />" +
+"</class>",
             ExpectChanges.NO
         );
     }
@@ -152,27 +136,21 @@ public class SQLiteTests extends DatabaseTests {
     @Test
     public void recreateWithIndex() {
         execute(
-"<classes>" +
-"  <class name=\"Table\">" +
-"    <property name=\"Property\" type=\"int\" indexed=\"true\" />" +
-"  </class>" +
-"</classes>"
+"<class name=\"Table\">" +
+"  <property name=\"Property\" type=\"int\" indexed=\"true\" />" +
+"</class>"
         );
 
         execute(
-"<classes>" +
-"  <class name=\"Table\">" +
-"    <property name=\"Property\" type=\"string\" length=\"20\" indexed=\"true\" />" +
-"  </class>" +
-"</classes>"
+"<class name=\"Table\">" +
+"  <property name=\"Property\" type=\"string\" length=\"20\" indexed=\"true\" />" +
+"</class>"
         );
 
         execute(
-"<classes>" +
-"  <class name=\"Table\">" +
-"    <property name=\"Property\" type=\"double\" indexed=\"true\" />" +
-"  </class>" +
-"</classes>"
+"<class name=\"Table\">" +
+"  <property name=\"Property\" type=\"double\" indexed=\"true\" />" +
+"</class>"
         );
     }
 }

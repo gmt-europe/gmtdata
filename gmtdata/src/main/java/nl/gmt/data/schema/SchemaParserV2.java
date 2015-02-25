@@ -10,14 +10,14 @@ import javax.xml.validation.Validator;
 import java.io.InputStream;
 import java.util.*;
 
-public class SchemaParserV1 {
-    public static final String NS = "http://schemas.gmt.nl/gmtdata/2015/01/hibernate-schema";
+public class SchemaParserV2 {
+    public static final String NS = "http://schemas.gmt.nl/gmtdata/2015/02/hibernate-schema";
 
     private final Schema schema;
     private final String schemaName;
     private String defaultPackage;
 
-    public SchemaParserV1(Schema schema, String schemaName) {
+    public SchemaParserV2(Schema schema, String schemaName) {
         this.schema = schema;
         this.schemaName = schemaName;
     }
@@ -70,7 +70,7 @@ public class SchemaParserV1 {
 
         try {
             SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-            try (InputStream sis = getClass().getResourceAsStream("Schema-v1.xsd")) {
+            try (InputStream sis = getClass().getResourceAsStream("Schema-v2.xsd")) {
                 schema = schemaFactory.newSchema(new StreamSource(sis));
             }
         } catch (Throwable e) {
@@ -97,20 +97,20 @@ public class SchemaParserV1 {
                     parseSettings(element);
                     break;
 
-                case "enumTypes":
-                    parseEnumTypes(element);
+                case "enumType":
+                    parseEnumType(element);
                     break;
 
-                case "dataTypes":
-                    parseDataTypes(element);
+                case "dataType":
+                    parseDataType(element);
                     break;
 
-                case "classes":
-                    parseClasses(element);
+                case "class":
+                    parseClass(element);
                     break;
 
-                case "mixins":
-                    parseMixins(element);
+                case "mixin":
+                    parseMixin(element);
                     break;
             }
         }
@@ -165,26 +165,14 @@ public class SchemaParserV1 {
         }
     }
 
-    private void parseEnumTypes(Element node) throws SchemaException {
-        for (Element element : children(node)) {
-            SchemaEnumType enumType = parseEnumType(element);
-
-            if (schema.getEnumTypes().containsKey(enumType.getName())) {
-                throw new SchemaException(String.format("Duplicate enum type '%s'", enumType.getName()), enumType.getLocation());
-            }
-
-            schema.addEnumType(enumType);
-        }
-    }
-
-    private SchemaEnumType parseEnumType(Element node) throws SchemaException {
-        SchemaEnumType result = new SchemaEnumType(getLocation(node));
+    private void parseEnumType(Element node) throws SchemaException {
+        SchemaEnumType enumType = new SchemaEnumType(getLocation(node));
 
         for (Attr attribute : attributes(node)) {
-            if (!parseSchemaElementAttribute(result, attribute)) {
+            if (!parseSchemaElementAttribute(enumType, attribute)) {
                 switch (attribute.getNodeName()) {
                     case "name":
-                        result.setFullName(getQualifiedName(attribute.getValue()));
+                        enumType.setFullName(getQualifiedName(attribute.getValue()));
                         break;
                 }
             }
@@ -194,16 +182,20 @@ public class SchemaParserV1 {
             switch (element.getNodeName()) {
                 case "field":
                     SchemaEnumTypeField field = parseEnumTypeField(element);
-                    if (result.getFields().containsKey(field.getName())) {
-                        throw new SchemaException(String.format("Duplicate enum type field '%s' of enum type '%s' found", field.getName(), result.getName()), result.getLocation());
+                    if (enumType.getFields().containsKey(field.getName())) {
+                        throw new SchemaException(String.format("Duplicate enum type field '%s' of enum type '%s' found", field.getName(), enumType.getName()), enumType.getLocation());
                     }
 
-                    result.addField(field);
+                    enumType.addField(field);
                     break;
             }
         }
 
-        return result;
+        if (schema.getEnumTypes().containsKey(enumType.getName())) {
+            throw new SchemaException(String.format("Duplicate enum type '%s'", enumType.getName()), enumType.getLocation());
+        }
+
+        schema.addEnumType(enumType);
     }
 
     private SchemaEnumTypeField parseEnumTypeField(Element node) throws SchemaException {
@@ -226,40 +218,52 @@ public class SchemaParserV1 {
         return result;
     }
 
-    private void parseDataTypes(Element node) throws SchemaException {
-        for (Element element : children(node)) {
-            switch (element.getNodeName()) {
-                case "dataType":
-                    SchemaDataType dataType = parseDataType(element);
-                    if (schema.getDataTypes().containsKey(dataType.getName())) {
-                        throw new SchemaException(String.format("Duplicate data type '%s' found", dataType.getName()), dataType.getLocation());
-                    }
-
-                    schema.addDataType(dataType);
-                    break;
-            }
-        }
-    }
-
-    private SchemaDataType parseDataType(Element node) throws SchemaException {
-        SchemaDataType result = new SchemaDataType(getLocation(node));
+    private void parseDataType(Element node) throws SchemaException {
+        SchemaDataType dataType = new SchemaDataType(getLocation(node));
 
         for (Attr attribute : attributes(node)) {
-            parseDataTypeElementAttribute(result, attribute);
+            parseDataTypeElementAttribute(dataType, attribute);
         }
 
-        return result;
+        if (schema.getDataTypes().containsKey(dataType.getName())) {
+            throw new SchemaException(String.format("Duplicate data type '%s' found", dataType.getName()), dataType.getLocation());
+        }
+
+        schema.addDataType(dataType);
     }
 
-    private void parseClasses(Element node) throws SchemaException {
-        for (Element element : children(node)) {
-            SchemaClass klass = parseClass(element);
-            if (schema.getClasses().containsKey(klass.getName())) {
-                throw new SchemaException(String.format("Duplicate class found '%s'", klass.getName()), klass.getLocation());
-            }
+    private void parseClass(Element node) throws SchemaException {
+        SchemaClass klass = new SchemaClass(getLocation(node));
 
-            schema.addClass(klass);
+        for (Attr attribute : attributes(node)) {
+            if (!parseClassBaseAttribute(klass, attribute)) {
+                switch (attribute.getNodeName()) {
+                    case "dbName":
+                        klass.setDbName(attribute.getValue());
+                        break;
+
+                    case "persister":
+                        klass.setPersister(attribute.getValue());
+                        break;
+                }
+            }
         }
+
+        for (Element element : children(node)) {
+            if (!parseClassBaseProperty(klass, element)) {
+                switch (element.getNodeName()) {
+                    case "idProperty":
+                        klass.setIdProperty(parseClassIdProperty(element));
+                        break;
+                }
+            }
+        }
+
+        if (schema.getClasses().containsKey(klass.getName())) {
+            throw new SchemaException(String.format("Duplicate class found '%s'", klass.getName()), klass.getLocation());
+        }
+
+        schema.addClass(klass);
     }
 
     private boolean parseClassBaseAttribute(SchemaClassBase result, Attr attribute) {
@@ -329,36 +333,6 @@ public class SchemaParserV1 {
         }
     }
 
-    private SchemaClass parseClass(Element node) throws SchemaException {
-        SchemaClass result = new SchemaClass(getLocation(node));
-
-        for (Attr attribute : attributes(node)) {
-            if (!parseClassBaseAttribute(result, attribute)) {
-                switch (attribute.getNodeName()) {
-                    case "dbName":
-                        result.setDbName(attribute.getValue());
-                        break;
-
-                    case "persister":
-                        result.setPersister(attribute.getValue());
-                        break;
-                }
-            }
-        }
-
-        for (Element element : children(node)) {
-            if (!parseClassBaseProperty(result, element)) {
-                switch (element.getNodeName()) {
-                    case "idProperty":
-                        result.setIdProperty(parseClassIdProperty(element));
-                        break;
-                }
-            }
-        }
-
-        return result;
-    }
-
     private SchemaClassIdProperty parseClassIdProperty(Element node) throws SchemaException {
         SchemaClassIdProperty result = new SchemaClassIdProperty(getLocation(node));
 
@@ -396,29 +370,22 @@ public class SchemaParserV1 {
         return result;
     }
 
-    private void parseMixins(Element node) throws SchemaException {
-        for (Element element : children(node)) {
-            SchemaMixin mixin = parseMixin(element);
-            if (schema.getMixins().containsKey(mixin.getName())) {
-                throw new SchemaException(String.format("Duplicate mixin found '%s'", mixin.getName()), mixin.getLocation());
-            }
-
-            schema.addMixin(mixin);
-        }
-    }
-
-    private SchemaMixin parseMixin(Element node) throws SchemaException {
-        SchemaMixin result = new SchemaMixin(getLocation(node));
+    private void parseMixin(Element node) throws SchemaException {
+        SchemaMixin mixin = new SchemaMixin(getLocation(node));
 
         for (Attr attribute : attributes(node)) {
-            parseClassBaseAttribute(result, attribute);
+            parseClassBaseAttribute(mixin, attribute);
         }
 
         for (Element element : children(node)) {
-            parseClassBaseProperty(result, element);
+            parseClassBaseProperty(mixin, element);
         }
 
-        return result;
+        if (schema.getMixins().containsKey(mixin.getName())) {
+            throw new SchemaException(String.format("Duplicate mixin found '%s'", mixin.getName()), mixin.getLocation());
+        }
+
+        schema.addMixin(mixin);
     }
 
     private SchemaProperty parseProperty(Element node) throws SchemaException {

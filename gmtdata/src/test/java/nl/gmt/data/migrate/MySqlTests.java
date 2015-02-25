@@ -30,7 +30,7 @@ public class MySqlTests extends DatabaseTests {
         super.execute(
             String.format(
 "<?xml version=\"1.0\" encoding=\"utf-8\"?>" +
-"<schema xmlns=\"http://schemas.gmt.nl/gmtdata/2015/01/hibernate-schema\"" +
+"<schema xmlns=\"http://schemas.gmt.nl/gmtdata/2015/02/hibernate-schema\"" +
 "        namespace=\"UnitTestAssembly\">" +
 "  <settings>" +
 "    <idProperty name=\"Id\" type=\"int\" autoIncrement=\"true\" foreignPostfix=\"Id\">" +
@@ -64,9 +64,7 @@ public class MySqlTests extends DatabaseTests {
         }
 
         execute(
-            "<classes>" +
-                "  <class name=\"Table\" />" +
-                "</classes>"
+"<class name=\"Table\" />"
         );
     }
 
@@ -84,9 +82,7 @@ public class MySqlTests extends DatabaseTests {
         }
 
         execute(
-            "<classes>" +
-                "  <class name=\"Table\" />" +
-                "</classes>"
+"<class name=\"Table\" />"
         );
     }
 
@@ -104,9 +100,7 @@ public class MySqlTests extends DatabaseTests {
         }
 
         execute(
-            "<classes>" +
-                "  <class name=\"Table\" />" +
-                "</classes>"
+"<class name=\"Table\" />"
         );
     }
 
@@ -125,11 +119,9 @@ public class MySqlTests extends DatabaseTests {
         }
 
         execute(
-"<classes>" +
-"  <class name=\"Table\">" +
-"    <property name=\"Property\" type=\"string\" length=\"40\"/>" +
-"  </class>" +
-"</classes>"
+"<class name=\"Table\">" +
+"  <property name=\"Property\" type=\"string\" length=\"40\"/>" +
+"</class>"
         );
     }
 }

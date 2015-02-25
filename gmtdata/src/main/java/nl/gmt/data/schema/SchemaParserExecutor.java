@@ -113,7 +113,7 @@ public class SchemaParserExecutor {
         SchemaParserResult result;
 
         try (InputStream bis = new ByteArrayInputStream(bytes)) {
-            result = new SchemaParserV1(schema, schemaName).parse(bis);
+            result = new SchemaParserV2(schema, schemaName).parse(bis);
         }
 
         for (String include : result.getIncludes()) {

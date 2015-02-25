@@ -1,28 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?default-package nl.gmt.data.baseModule?>
-<schema xmlns="http://schemas.gmt.nl/gmtdata/2015/01/hibernate-schema">
+<schema xmlns="http://schemas.gmt.nl/gmtdata/2015/02/hibernate-schema">
     <settings>
         <idProperty name="Id" type="guid" foreignPostfix="Id">
             <generator name="uuid" strategy="uuid2"/>
         </idProperty>
         <enumDataType type="int" />
     </settings>
-    <dataTypes>
-        <dataType name="string-code" type="string" length="40"/>
-        <dataType name="string-label" type="string" length="100"/>
-        <dataType name="string-long" type="string" length="200"/>
-    </dataTypes>
-    <mixins>
-        <mixin name="MutationTracking">
-            <foreignParent name="CreatedBy" class="User"/>
-            <property name="CreatedOn" type="datetime"/>
-            <foreignParent name="ModifiedBy" class="User"/>
-            <property name="ModifiedOn" type="datetime"/>
-        </mixin>
-    </mixins>
-    <classes>
-        <class name="User" mixins="MutationTracking">
-            <property name="Name" type="string-label"/>
-        </class>
-    </classes>
+    <dataType name="string-code" type="string" length="40"/>
+    <dataType name="string-label" type="string" length="100"/>
+    <dataType name="string-long" type="string" length="200"/>
+    <mixin name="MutationTracking">
+        <foreignParent name="CreatedBy" class="User"/>
+        <property name="CreatedOn" type="datetime"/>
+        <foreignParent name="ModifiedBy" class="User"/>
+        <property name="ModifiedOn" type="datetime"/>
+    </mixin>
+    <class name="User" mixins="MutationTracking">
+        <property name="Name" type="string-label"/>
+    </class>
 </schema>

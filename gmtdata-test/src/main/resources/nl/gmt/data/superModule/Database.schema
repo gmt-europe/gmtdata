@@ -2,11 +2,9 @@
 <?default-package nl.gmt.data.superModule?>
 <?include nl/gmt/data/module1/Database.schema?>
 <?include nl/gmt/data/module2/Database.schema?>
-<schema xmlns="http://schemas.gmt.nl/gmtdata/2015/01/hibernate-schema">
-    <classes>
-        <class name="RelationAddress" mixins="nl.gmt.data.baseModule.MutationTracking">
-            <foreignParent name="Relation" class="nl.gmt.data.module1.Relation"/>
-            <foreignParent name="Address" class="nl.gmt.data.module2.Address"/>
-        </class>
-    </classes>
+<schema xmlns="http://schemas.gmt.nl/gmtdata/2015/02/hibernate-schema">
+    <class name="RelationAddress" mixins="nl.gmt.data.baseModule.MutationTracking">
+        <foreignParent name="Relation" class="nl.gmt.data.module1.Relation"/>
+        <foreignParent name="Address" class="nl.gmt.data.module2.Address"/>
+    </class>
 </schema>

@@ -1,32 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<schema xmlns="http://schemas.gmt.nl/gmtdata/2015/01/hibernate-schema" namespace="nl.gmt.data.test">
+<schema xmlns="http://schemas.gmt.nl/gmtdata/2015/02/hibernate-schema" namespace="nl.gmt.data.test">
     <settings>
         <idProperty name="Id" type="guid" foreignPostfix="Id">
             <generator name="uuid" strategy="uuid2"/>
         </idProperty>
         <enumDataType type="int" />
     </settings>
-    <enumTypes>
-        <enumType name="Gender">
-            <field name="MALE" value="1"/>
-            <field name="FEMALE" value="2"/>
-        </enumType>
-    </enumTypes>
-    <dataTypes>
-        <dataType name="string-long" type="string" length="200"/>
-    </dataTypes>
-    <classes>
-        <class name="Relation">
-            <property name="Name" type="string-long" indexed="unique"/>
-            <property name="Gender" enumType="Gender"/>
-            <property name="Picture" type="blob" nullable="true" />
-            <foreignChild name="Addresses" class="Address" classProperty="Relation" />
-        </class>
-        <class name="Address">
-            <property name="Street" type="string-long"/>
-            <property name="HouseNumber" type="int"/>
-            <property name="City" type="string-long"/>
-            <foreignParent name="Relation" class="Relation"/>
-        </class>
-    </classes>
+    <enumType name="Gender">
+        <field name="MALE" value="1"/>
+        <field name="FEMALE" value="2"/>
+    </enumType>
+    <dataType name="string-long" type="string" length="200"/>
+    <class name="Relation">
+        <property name="Name" type="string-long" indexed="unique"/>
+        <property name="Gender" enumType="Gender"/>
+        <property name="Picture" type="blob" nullable="true" />
+        <foreignChild name="Addresses" class="Address" classProperty="Relation" />
+    </class>
+    <class name="Address">
+        <property name="Street" type="string-long"/>
+        <property name="HouseNumber" type="int"/>
+        <property name="City" type="string-long"/>
+        <foreignParent name="Relation" class="Relation"/>
+    </class>
 </schema>
