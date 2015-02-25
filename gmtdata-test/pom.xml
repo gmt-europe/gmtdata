@@ -11,7 +11,7 @@
         <dependency>
             <groupId>nl.gmt</groupId>
             <artifactId>gmtdata</artifactId>
-            <version>1.1</version>
+            <version>1.2</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -35,7 +35,7 @@
             <plugin>
                 <groupId>nl.gmt</groupId>
                 <artifactId>gmtdata-maven-plugin</artifactId>
-                <version>1.1</version>
+                <version>1.2</version>
                 <executions>
                     <execution>
                         <id>generate-base</id>
