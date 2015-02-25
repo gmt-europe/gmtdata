@@ -1,18 +1,15 @@
 package nl.gmt.data;
 
-import nl.gmt.data.drivers.SQLiteDriver;
+import nl.gmt.data.test.TestConnection;
 import nl.gmt.data.test.model.Address;
 import nl.gmt.data.test.model.Gender;
 import nl.gmt.data.test.model.Relation;
 import nl.gmt.data.test.model.RelationRepository;
-import nl.gmt.data.test.TestConnection;
-import nl.gmt.data.test.types.RelationType;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 
@@ -20,27 +17,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 @RunWith(JUnit4.class)
-public class DbConnectionFixture {
-    private TestConnection openDb() throws Exception {
-        String path = "./tmp/test.db3";
-
-        new File(path).getParentFile().mkdirs();
-
-        SQLiteDriver.setPragma("journal_mode", "TRUNCATE");
-
-        DbConfiguration cfg = new DbConfiguration();
-        cfg.setConnectionString("jdbc:sqlite:" + path);
-        cfg.setType(DbType.SQLITE);
-
-        TestConnection db = new TestConnection(cfg);
-
-        RelationType relationType = db.getEntitySchema().getAddress().getRelation().getForeign();
-
-        db.migrateDatabase();
-
-        return db;
-    }
-
+public class DbConnectionFixture extends DbConnectionFixtureBase {
     @Test
     public void performTests() throws Exception {
         try (TestConnection db = openDb()) {

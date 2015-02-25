@@ -28,6 +28,7 @@ public abstract class DbConnection<T extends EntitySchema> implements DataClosea
     private final Delegate<DbContextTransition> contextTransitioned = new Delegate<>();
     private final RepositoryService repositoryService;
     private final T entitySchema;
+    private final DbEntityUsageManager<T> usageManager;
     private boolean closed;
 
     protected DbConnection(DbConfiguration configuration, String schemaName, RepositoryService repositoryService) throws DataException {
@@ -86,6 +87,8 @@ public abstract class DbConnection<T extends EntitySchema> implements DataClosea
                 field.resolve(entitySchema);
             }
         }
+
+        usageManager = new DbEntityUsageManager(this);
     }
 
     protected abstract T createEntitySchema(Schema schema) throws DataException;
@@ -209,6 +212,10 @@ public abstract class DbConnection<T extends EntitySchema> implements DataClosea
 
     public DbContext getCurrentContext() {
         return currentContext.get();
+    }
+
+    public DbEntityUsage getUsage(DbContext ctx, Entity entity, EntityType... exclusions) {
+        return usageManager.getUsage(ctx, entity, exclusions);
     }
 
     private class SchemaCallbackImpl implements SchemaCallback {
