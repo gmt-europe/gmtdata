@@ -3,7 +3,7 @@ package nl.gmt.data.migrate.mysql;
 import nl.gmt.data.DataException;
 import nl.gmt.data.migrate.*;
 import nl.gmt.data.schema.Schema;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
 
 import java.sql.Connection;
 import java.sql.ResultSet;

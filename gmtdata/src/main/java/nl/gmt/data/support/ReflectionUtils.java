@@ -1,6 +1,6 @@
 package nl.gmt.data.support;
 
-import org.apache.commons.lang3.Validate;
+import org.apache.commons.lang.Validate;
 
 import java.net.MalformedURLException;
 import java.net.URL;

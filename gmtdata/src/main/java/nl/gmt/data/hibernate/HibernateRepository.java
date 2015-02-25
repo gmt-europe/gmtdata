@@ -4,7 +4,7 @@ import nl.gmt.data.DbContext;
 import nl.gmt.data.DbQuery;
 import nl.gmt.data.Entity;
 import nl.gmt.data.Repository;
-import org.apache.commons.lang3.Validate;
+import org.apache.commons.lang.Validate;
 import org.hibernate.Criteria;
 import org.hibernate.LockOptions;
 import org.hibernate.criterion.Projections;

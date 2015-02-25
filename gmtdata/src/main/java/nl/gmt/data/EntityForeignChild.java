@@ -1,7 +1,7 @@
 package nl.gmt.data;
 
 import nl.gmt.data.schema.SchemaForeignChild;
-import org.apache.commons.lang3.Validate;
+import org.apache.commons.lang.Validate;
 
 public class EntityForeignChild<T extends EntityType> extends EntityForeignBase<T> {
     private final SchemaForeignChild schemaForeignChild;

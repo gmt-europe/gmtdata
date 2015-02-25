@@ -2,7 +2,7 @@ package nl.gmt.data;
 
 import nl.gmt.data.hibernate.PersistentEnum;
 import nl.gmt.data.schema.*;
-import org.apache.commons.lang3.Validate;
+import org.apache.commons.lang.Validate;
 
 import java.util.List;
 

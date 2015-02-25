@@ -7,7 +7,7 @@ import nl.gmt.data.migrate.*;
 import nl.gmt.data.schema.Schema;
 import nl.gmt.data.schema.SchemaCallback;
 import nl.gmt.data.schema.SchemaParserExecutor;
-import org.apache.commons.lang3.Validate;
+import org.apache.commons.lang.Validate;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;

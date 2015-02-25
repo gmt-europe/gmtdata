@@ -1,7 +1,7 @@
 package nl.gmt.data.migrate;
 
 import nl.gmt.data.schema.SchemaIndexType;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;

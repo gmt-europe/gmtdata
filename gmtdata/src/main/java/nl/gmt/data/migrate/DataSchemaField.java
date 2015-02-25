@@ -3,7 +3,7 @@ package nl.gmt.data.migrate;
 import nl.gmt.data.schema.SchemaDbType;
 import nl.gmt.data.schema.SchemaResolvedDataType;
 import nl.gmt.data.schema.SchemaRules;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
 
 public class DataSchemaField extends DataSchemaObject {
     private String name;

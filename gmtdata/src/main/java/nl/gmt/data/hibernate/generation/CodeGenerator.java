@@ -3,8 +3,8 @@ package nl.gmt.data.hibernate.generation;
 import nl.gmt.data.contrib.joda.PersistentDateTime;
 import nl.gmt.data.contrib.joda.PersistentLocalDateTime;
 import nl.gmt.data.schema.*;
-import org.apache.commons.lang3.StringEscapeUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
 import java.util.*;

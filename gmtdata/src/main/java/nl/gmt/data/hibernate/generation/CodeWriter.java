@@ -1,6 +1,6 @@
 package nl.gmt.data.hibernate.generation;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
 
 class CodeWriter {
     private int indent;

@@ -1,6 +1,6 @@
 package nl.gmt.data.schema;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.List;
 

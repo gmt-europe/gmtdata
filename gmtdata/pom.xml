@@ -31,7 +31,7 @@
         <sqlite-jdbc.version>3.8.7</sqlite-jdbc.version>
         <struts2-core.version>2.3.16.1</struts2-core.version>
         <maven-compiler-plugin.version>3.2</maven-compiler-plugin.version>
-        <commons-lang3.version>3.3.2</commons-lang3.version>
+        <commons-lang.version>2.6</commons-lang.version>
         <joda-time.version>2.7</joda-time.version>
         <log4j.version>1.2.17</log4j.version>
     </properties>
@@ -44,9 +44,9 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>${commons-lang3.version}</version>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+            <version>${commons-lang.version}</version>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>

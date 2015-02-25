@@ -8,7 +8,7 @@ import nl.gmt.data.schema.SchemaCallback;
 import nl.gmt.data.schema.SchemaException;
 import nl.gmt.data.schema.SchemaParserExecutor;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.Validate;
+import org.apache.commons.lang.Validate;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
