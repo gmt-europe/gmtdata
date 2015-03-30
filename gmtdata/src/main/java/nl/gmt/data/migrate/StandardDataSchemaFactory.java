@@ -157,18 +157,11 @@ public class StandardDataSchemaFactory implements DataSchemaFactory {
 
             if (field.equals(schema.getIdProperty().getName()) && klass instanceof SchemaClass) {
                 name = baseClass.getResolvedIdProperty().getResolvedDbName();
-            } else if (klass.getProperties().containsKey(field)) {
-                SchemaProperty property = klass.getProperties().get(field);
-                if (property == null) {
-                    throw new SchemaMigrateException(String.format("Cannot find index property '%s' of entity '%s'", field, klass.getFullName()));
-                }
-                name = property.getResolvedDbName();
             } else {
-                SchemaForeignParent property = (SchemaForeignParent)klass.getForeigns().get(field);
-                if (property == null) {
+                name = resolveDbName(schema, klass, field);
+                if (name == null) {
                     throw new SchemaMigrateException(String.format("Cannot find index property '%s' of entity '%s'", field, klass.getFullName()));
                 }
-                name = property.getResolvedDbName();
             }
 
             result.getFields().add(name);
@@ -178,6 +171,30 @@ public class StandardDataSchemaFactory implements DataSchemaFactory {
         result.setType(index.getType());
 
         return result;
+    }
+
+    private String resolveDbName(Schema schema, SchemaClassBase klass, String field) throws SchemaMigrateException {
+        if (klass.getProperties().containsKey(field)) {
+            return klass.getProperties().get(field).getResolvedDbName();
+        }
+
+        if (klass.getForeigns().containsKey(field)) {
+            SchemaForeignBase foreign = klass.getForeigns().get(field);
+            if (!(foreign instanceof SchemaForeignParent)) {
+                throw new SchemaMigrateException(String.format("Index property '%s' of entity '%s' must be a property or foreign parent", field, klass.getFullName()));
+            }
+
+            return ((SchemaForeignParent)klass.getForeigns().get(field)).getResolvedDbName();
+        }
+
+        for (String mixinName : klass.getMixins()) {
+            String dbName = resolveDbName(schema, schema.getMixins().get(mixinName), field);
+            if (dbName != null) {
+                return dbName;
+            }
+        }
+
+        return null;
     }
 
     public DataSchemaForeignKey createFromForeignParent(SchemaForeignParent foreign, Schema schema) {

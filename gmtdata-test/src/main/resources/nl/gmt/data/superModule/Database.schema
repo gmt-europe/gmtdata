@@ -7,4 +7,13 @@
         <foreignParent name="Relation" class="nl.gmt.data.module1.Relation"/>
         <foreignParent name="Address" class="nl.gmt.data.module2.Address"/>
     </class>
+
+    <!-- The below tests whether indexes can be created on mixin properties -->
+    <mixin name="MixinA">
+        <property name="PropertyA" type="int"/>
+    </mixin>
+    <class name="ClassA" mixins="MixinA">
+        <property name="PropertyB" type="int"/>
+        <index properties="PropertyA,PropertyB"/>
+    </class>
 </schema>
