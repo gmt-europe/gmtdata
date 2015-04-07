@@ -5,6 +5,7 @@ public class DbConfiguration {
     private DbType type;
     private RepositoryService repositoryService;
     private boolean enableMultiTenancy;
+    private OnResolveMessage messageResolver;
 
     public String getConnectionString() {
         return connectionString;
@@ -28,5 +29,17 @@ public class DbConfiguration {
 
     public void setEnableMultiTenancy(boolean enableMultiTenancy) {
         this.enableMultiTenancy = enableMultiTenancy;
+    }
+
+    public OnResolveMessage getMessageResolver() {
+        return messageResolver;
+    }
+
+    public void setMessageResolver(OnResolveMessage messageResolver) {
+        this.messageResolver = messageResolver;
+    }
+
+    public interface OnResolveMessage {
+        String onResolveMessage(String key);
     }
 }

@@ -1,12 +1,15 @@
 package nl.gmt.data;
 
-import nl.gmt.data.support.Delegate;
-import nl.gmt.data.support.DelegateListener;
-import nl.gmt.data.drivers.*;
+import nl.gmt.data.drivers.DatabaseDriver;
+import nl.gmt.data.drivers.MySqlDatabaseDriver;
+import nl.gmt.data.drivers.SQLiteDatabaseDriver;
 import nl.gmt.data.migrate.*;
 import nl.gmt.data.schema.Schema;
 import nl.gmt.data.schema.SchemaCallback;
 import nl.gmt.data.schema.SchemaParserExecutor;
+import nl.gmt.data.support.Delegate;
+import nl.gmt.data.support.DelegateListener;
+import nl.gmt.data.support.UTF8Control;
 import org.apache.commons.lang.Validate;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistry;
@@ -17,8 +20,15 @@ import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ResourceBundle;
 
 public abstract class DbConnection<T extends EntitySchema> implements DataCloseable {
+    private static final ResourceBundle BUNDLE = loadBundle();
+
+    private static ResourceBundle loadBundle() {
+        return ResourceBundle.getBundle(DbConnection.class.getPackage().getName() + ".Messages", new UTF8Control());
+    }
+
     private final ThreadLocal<DbContext> currentContext = new ThreadLocal<>();
     private final String connectionString;
     private final DbType type;
@@ -29,8 +39,10 @@ public abstract class DbConnection<T extends EntitySchema> implements DataClosea
     private final RepositoryService repositoryService;
     private final T entitySchema;
     private final DbEntityUsageManager<T> usageManager;
+    private final DbConfiguration.OnResolveMessage messageResolver;
     private boolean closed;
 
+    @SuppressWarnings("unchecked")
     protected DbConnection(DbConfiguration configuration, String schemaName, RepositoryService repositoryService) throws DataException {
         Validate.notNull(configuration, "configuration");
         Validate.notNull(schemaName, "schemaName");
@@ -39,6 +51,7 @@ public abstract class DbConnection<T extends EntitySchema> implements DataClosea
         this.type = configuration.getType();
         this.schemaName = schemaName;
         this.repositoryService = repositoryService;
+        this.messageResolver = configuration.getMessageResolver();
 
         switch (type) {
             case SQLITE: driver = new SQLiteDatabaseDriver(); break;
@@ -216,6 +229,26 @@ public abstract class DbConnection<T extends EntitySchema> implements DataClosea
 
     public DbEntityUsage getUsage(DbContext ctx, Entity entity, EntityType... exclusions) {
         return usageManager.getUsage(ctx, entity, exclusions);
+    }
+
+    String getText(String key, Object... args) {
+        Validate.notNull(key, "key");
+
+        String result = null;
+
+        if (messageResolver != null) {
+            result = messageResolver.onResolveMessage(key);
+        }
+
+        if (result == null) {
+            result = BUNDLE.getString(key);
+        }
+
+        if (args != null && args.length > 0) {
+            result = String.format(result, args);
+        }
+
+        return result;
     }
 
     private class SchemaCallbackImpl implements SchemaCallback {

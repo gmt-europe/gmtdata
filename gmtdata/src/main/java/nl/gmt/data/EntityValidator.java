@@ -85,14 +85,14 @@ public class EntityValidator {
 
             if (value == null) {
                 if (!physicalField.isAllowNull()) {
-                    messages.put(field, "Cannot be empty");
+                    messages.put(field, db.getText("gmtdata.validation.cannot-be-empty"));
                 }
             } else if (physicalField instanceof EntityProperty) {
                 EntityProperty property = (EntityProperty)field;
 
                 if (value instanceof String) {
                     if (property.getLength() != -1 && ((String)value).length() > property.getLength()) {
-                        messages.put(field, String.format("Cannot be longer than %d", property.getLength()));
+                        messages.put(field, db.getText("gmtdata.validation.cannot-be-longer-than", property.getLength()));
                     }
                 }
 
