@@ -61,6 +61,19 @@
         </dependency>
     </dependencies>
 
+    <distributionManagement>
+        <snapshotRepository>
+            <id>gmt-snapshots</id>
+            <name>GMT Snapshots Repository</name>
+            <url>http://dev:8082/nexus/content/repositories/snapshots/</url>
+        </snapshotRepository>
+        <repository>
+            <id>gmt-releases</id>
+            <name>GMT Releases Repository</name>
+            <url>http://dev:8082/nexus/content/repositories/releases/</url>
+        </repository>
+    </distributionManagement>
+
     <build>
         <plugins>
 
