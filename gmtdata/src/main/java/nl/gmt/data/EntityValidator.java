@@ -47,7 +47,7 @@ public class EntityValidator {
         Validate.notNull(entity, "entity");
         Validate.notNull(mode, "mode");
 
-        EntityPersister persister = (EntityPersister)db.getSessionFactory().getClassMetadata(entity.getClass());
+        EntityPersister persister = (EntityPersister)db.getSessionFactory().getClassMetadata(Hibernate.getClass(entity));
         Object[] values = persister.getPropertyValues(entity);
         String[] propertyNames = persister.getPropertyNames();
 
