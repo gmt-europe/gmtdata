@@ -102,7 +102,14 @@ public class DbContext implements DataCloseable {
     }
 
     public void commit() {
-        state = DbContextState.COMMITTED;
+        // Don't commit the session if it was aborted already. The reason for this is e.g. the Struts implementation.
+        // The DbInterceptor will always commit a transaction. If you need to abort the transaction, you can call abort
+        // but this method will overwrite the state to COMMITTED. Only setting the state when it currently
+        // is UNKNOWN allows you to still abort the transaction.
+
+        if (state == DbContextState.UNKNOWN) {
+            state = DbContextState.COMMITTED;
+        }
     }
 
     public void abort() {
