@@ -84,7 +84,6 @@ public class DataSchemaReader extends nl.gmt.data.migrate.DataSchemaReader {
                     switch (field.getType()) {
                         case INT:
                         case SMALL_INT:
-                        case BIG_INT:
                         case TINY_INT:
                             field.setAutoIncrement(true);
                             break;
@@ -244,12 +243,6 @@ public class DataSchemaReader extends nl.gmt.data.migrate.DataSchemaReader {
             case "OLEOBJECT":
                 return SchemaDbType.BLOB;
 
-            case "BIT":
-            case "YESNO":
-            case "LOGICAL":
-            case "BOOL":
-                return SchemaDbType.BIT;
-
             case "TINYINT":
                 return SchemaDbType.TINY_INT;
 
@@ -280,14 +273,6 @@ public class DataSchemaReader extends nl.gmt.data.migrate.DataSchemaReader {
 
             case "INT":
                 return SchemaDbType.INT;
-
-            case "COUNTER":
-            case "AUTOINCREMENT":
-            case "IDENTITY":
-            case "LONG":
-            case "INTEGER":
-            case "BIGINT":
-                return SchemaDbType.BIG_INT;
 
             case "REAL":
             case "VARCHAR":

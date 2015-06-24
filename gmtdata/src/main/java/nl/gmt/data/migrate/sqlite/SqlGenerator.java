@@ -396,8 +396,6 @@ public class SqlGenerator extends nl.gmt.data.migrate.SqlGenerator {
             {
                 case INT:
                 case SMALL_INT:
-                case BIG_INT:
-                case BIT:
                 case TINY_INT:
                 case DOUBLE:
                 case DECIMAL:

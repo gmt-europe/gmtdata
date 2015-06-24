@@ -18,32 +18,24 @@ public class SchemaRules extends nl.gmt.data.schema.SchemaRules {
     @Override
     public String getDbType(SchemaDbType dbType) throws SchemaMigrateException {
         switch (dbType) {
-            case BIG_INT: return "BIGINT";
             case BINARY: return "VARBINARY";
             case BLOB: return "BLOB";
-            case DATE: return "DATE";
             case DATE_TIME: return "DATETIME";
             case DECIMAL: return "DECIMAL";
             case DOUBLE: return "DOUBLE";
-            case ENUMERATION: return "ENUM";
             case FIXED_BINARY: return "BINARY";
             case FIXED_STRING: return "CHAR";
-            case FLOAT: return "FLOAT";
             case INT: return "INT";
             case LONG_BLOB: return "LONGBLOB";
             case LONG_TEXT: return "LONGTEXT";
             case MEDIUM_BLOB: return "MEDIUMBLOB";
-            case MEDIUM_INT: return "MEDIUMINT";
             case MEDIUM_TEXT: return "MEDIUMTEXT";
             case SMALL_INT: return "SMALLINT";
             case STRING: return "VARCHAR";
             case TEXT: return "TEXT";
-            case TIME: return "TIME";
-            case TIMESTAMP: return "TIMESTAMP";
             case TINY_BLOB: return "TINYBLOB";
             case TINY_INT: return "TINYINT";
             case TINY_TEXT: return "TINYTEXT";
-            case YEAR: return "YEAR";
             case GUID: return "BINARY";
             default: throw new SchemaMigrateException("Unexpected data type");
         }
@@ -55,10 +47,7 @@ public class SchemaRules extends nl.gmt.data.schema.SchemaRules {
             case INT:
             case SMALL_INT:
             case TINY_INT:
-            case MEDIUM_INT:
-            case BIG_INT:
             case DOUBLE:
-            case FLOAT:
             case DECIMAL:
                 return true;
 
@@ -75,13 +64,10 @@ public class SchemaRules extends nl.gmt.data.schema.SchemaRules {
             case FIXED_BINARY:
             case BINARY:
             case DECIMAL:
-            case FLOAT:
             case DOUBLE:
             case INT:
             case SMALL_INT:
-            case BIG_INT:
             case TINY_INT:
-            case MEDIUM_INT:
             case GUID:
                 return true;
 
@@ -133,7 +119,6 @@ public class SchemaRules extends nl.gmt.data.schema.SchemaRules {
     static boolean dbTypeSupportsCharset(SchemaDbType dbType) {
         switch (dbType) {
             case LONG_TEXT:
-            case ENUMERATION:
             case STRING:
             case TINY_TEXT:
             case TEXT:

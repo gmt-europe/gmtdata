@@ -41,10 +41,7 @@ public class DataSchemaField extends DataSchemaObject {
         switch (type) {
             case TINY_INT:
             case SMALL_INT:
-            case MEDIUM_INT:
             case INT:
-            case BIG_INT:
-            case FLOAT:
             case DOUBLE:
             case DECIMAL:
                 switch (dataType.getSigned()) {

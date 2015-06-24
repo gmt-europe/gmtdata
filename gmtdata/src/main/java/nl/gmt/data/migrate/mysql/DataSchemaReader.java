@@ -211,17 +211,10 @@ public class DataSchemaReader extends nl.gmt.data.migrate.DataSchemaReader {
                 return SchemaDbType.TINY_INT;
 
             case "smallint": return SchemaDbType.SMALL_INT;
-            case "mediumint": return SchemaDbType.MEDIUM_INT;
-            case "bigint": return SchemaDbType.BIG_INT;
-            case "float": return SchemaDbType.FLOAT;
             case "varchar": return SchemaDbType.STRING;
             case "text": return SchemaDbType.TEXT;
             case "blob": return SchemaDbType.BLOB;
             case "datetime": return SchemaDbType.DATE_TIME;
-            case "date": return SchemaDbType.DATE;
-            case "timestamp": return SchemaDbType.TIMESTAMP;
-            case "time": return SchemaDbType.TIME;
-            case "year": return SchemaDbType.YEAR;
             case "char": return SchemaDbType.FIXED_STRING;
             case "binary": return SchemaDbType.FIXED_BINARY;
             case "varbinary": return SchemaDbType.BINARY;
@@ -231,7 +224,6 @@ public class DataSchemaReader extends nl.gmt.data.migrate.DataSchemaReader {
             case "mediumtext": return SchemaDbType.MEDIUM_TEXT;
             case "longblob": return SchemaDbType.LONG_BLOB;
             case "longtext": return SchemaDbType.LONG_TEXT;
-            case "enum": return SchemaDbType.ENUMERATION;
             case "guid": return SchemaDbType.GUID;
 
             default:

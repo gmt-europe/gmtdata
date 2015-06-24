@@ -10,8 +10,6 @@ public class SchemaRules extends nl.gmt.data.schema.SchemaRules {
         switch (simplifyType(dbType)) {
             case INT: return "INT";
             case SMALL_INT: return "SMALLINT";
-            case BIG_INT: return "BIGINT";
-            case BIT: return "BIT";
             case TINY_INT: return "TINYINT";
             case BLOB: return "BLOB";
             case TEXT: return "TEXT";
@@ -47,23 +45,6 @@ public class SchemaRules extends nl.gmt.data.schema.SchemaRules {
         // ADO.Net as taken from http://sqlite.phxsoftware.com/forums/t/31.aspx.
 
         switch (type) {
-            case ENUMERATION:
-            case INT:
-            case MEDIUM_INT:
-                return SchemaDbType.INT;
-
-            case SMALL_INT:
-                return SchemaDbType.SMALL_INT;
-
-            case BIG_INT:
-                return SchemaDbType.BIG_INT;
-
-            case BIT:
-                return SchemaDbType.BIT;
-
-            case TINY_INT:
-                return SchemaDbType.TINY_INT;
-
             case BINARY:
             case BLOB:
             case FIXED_BINARY:
@@ -73,9 +54,6 @@ public class SchemaRules extends nl.gmt.data.schema.SchemaRules {
                 return SchemaDbType.BLOB;
 
             case FIXED_STRING:
-            case LOCAL_FIXED_STRING:
-            case LOCAL_STRING:
-            case LOCAL_TEXT:
             case LONG_TEXT:
             case MEDIUM_TEXT:
             case STRING:
@@ -83,30 +61,8 @@ public class SchemaRules extends nl.gmt.data.schema.SchemaRules {
             case TINY_TEXT:
                 return SchemaDbType.TEXT;
 
-            case FLOAT:
-            case DOUBLE:
-                return SchemaDbType.DOUBLE;
-
-            case MONEY:
-            case NUMERIC:
-            case SMALL_MONEY:
-            case VARIANT:
-            case YEAR:
-            case DECIMAL:
-                return SchemaDbType.DECIMAL;
-
-            case DATE:
-            case DATE_TIME:
-            case TIME:
-            case TIMESTAMP:
-            case SMALL_DATE_TIME:
-                return SchemaDbType.DATE_TIME;
-
-            case GUID:
-                return SchemaDbType.GUID;
-
             default:
-                throw new SchemaMigrateException("Unexpected data type");
+                return type;
         }
     }
 }

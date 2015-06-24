@@ -153,33 +153,8 @@ public abstract class SqlGenerator implements AutoCloseable {
             case BINARY:
                 return true;
 
-            case INT:
-            case TEXT:
-            case BLOB:
-            case DATE_TIME:
-            case SMALL_INT:
-            case MEDIUM_INT:
-            case BIG_INT:
-            case FLOAT:
-            case DOUBLE:
-            case DECIMAL:
-            case DATE:
-            case TIMESTAMP:
-            case TIME:
-            case YEAR:
-            case TINY_BLOB:
-            case TINY_TEXT:
-            case MEDIUM_BLOB:
-            case MEDIUM_TEXT:
-            case LONG_BLOB:
-            case LONG_TEXT:
-            case ENUMERATION:
-            case TINY_INT:
-            case GUID:
-                return false;
-
             default:
-                throw new SchemaMigrateException("Unexpected DB type");
+                return false;
         }
     }
 
@@ -204,17 +179,10 @@ public abstract class SqlGenerator implements AutoCloseable {
                 return SchemaDbType.TINY_INT;
 
             case "smallint": return SchemaDbType.SMALL_INT;
-            case "mediumint": return SchemaDbType.MEDIUM_INT;
-            case "bigint": return SchemaDbType.BIG_INT;
-            case "float": return SchemaDbType.FLOAT;
             case "varchar": return SchemaDbType.STRING;
             case "text": return SchemaDbType.TEXT;
             case "blob": return SchemaDbType.BLOB;
             case "datetime": return SchemaDbType.DATE_TIME;
-            case "date": return SchemaDbType.DATE;
-            case "timestamp": return SchemaDbType.TIMESTAMP;
-            case "time": return SchemaDbType.TIME;
-            case "year": return SchemaDbType.YEAR;
             case "char": return SchemaDbType.FIXED_STRING;
             case "binary": return SchemaDbType.FIXED_BINARY;
             case "varbinary": return SchemaDbType.BINARY;
@@ -224,7 +192,6 @@ public abstract class SqlGenerator implements AutoCloseable {
             case "mediumtext": return SchemaDbType.MEDIUM_TEXT;
             case "longblob": return SchemaDbType.LONG_BLOB;
             case "longtext": return SchemaDbType.LONG_TEXT;
-            case "enum": return SchemaDbType.ENUMERATION;
             case "guid": return SchemaDbType.GUID;
 
             default:
