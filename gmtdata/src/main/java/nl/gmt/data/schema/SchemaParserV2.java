@@ -657,6 +657,10 @@ public class SchemaParserV2 {
                 element.setUserType(attribute.getValue());
                 return true;
 
+            case "arity":
+                element.setArity(parseXmlInteger(attribute.getValue()));
+                return true;
+
             default:
                 return false;
         }

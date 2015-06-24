@@ -199,6 +199,10 @@ public class SqlGenerator extends GuidedSqlGenerator {
     }
 
     private String writeField(DataSchemaField field, DataSchemaField oldField) throws SchemaMigrateException {
+        if (field.getArity() > 0) {
+            throw new SchemaMigrateException("MySQL does not support array types");
+        }
+
         StringBuilder sb = new StringBuilder();
 
         sb.append(String.format("`%s` %s%s", field.getName(), rules.getDbType(field.getType()), dataTypeLength(field)));

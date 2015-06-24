@@ -18,6 +18,29 @@ public class DataSchemaReader extends nl.gmt.data.migrate.DataSchemaReader {
     @Override
     public Map<String, DataSchemaTable> getTables() throws SchemaMigrateException {
         try {
+            Map<Tuple, FullType> columnTypes = new HashMap<>();
+
+            try (
+                Statement stmt = getConnection().createStatement();
+                ResultSet rs = stmt.executeQuery(
+                    "select t.relname, a.attname, a.attndims, ty.typname\n" +
+                    "from pg_attribute a left join pg_class t on a.attrelid = t.oid left join pg_type ty on a.atttypid = ty.oid\n" +
+                    "where t.relkind = 'r' and a.attisdropped = false and attnum > 0 and t.relnamespace = (select n.oid from pg_namespace n where n.nspname = current_schema())"
+                )
+            ) {
+                while (rs.next()) {
+                    String typeName = rs.getString("typname");
+                    if (typeName.startsWith("_")) {
+                        typeName = typeName.substring(1);
+                    }
+
+                    columnTypes.put(
+                        new Tuple(rs.getString("relname"), rs.getString("attname")),
+                        new FullType(parseType(typeName), rs.getInt("attndims"))
+                    );
+                }
+            }
+
             Map<String, DataSchemaTable> tables = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
             try (
@@ -63,7 +86,11 @@ public class DataSchemaReader extends nl.gmt.data.migrate.DataSchemaReader {
                     }
 
                     field.setNullable(rs.getString("IS_NULLABLE").equals("YES"));
-                    field.setType(parseType(rs.getString("DATA_TYPE")));
+
+                    FullType type = columnTypes.get(new Tuple(rs.getString("TABLE_NAME"), field.getName()));
+
+                    field.setType(type.type);
+                    field.setArity(type.arity);
 
                     String columnDefault = rs.getString("COLUMN_DEFAULT");
                     // I can't find out how to detect whether a sequence is associated with a column.
@@ -73,7 +100,7 @@ public class DataSchemaReader extends nl.gmt.data.migrate.DataSchemaReader {
                 }
             }
 
-            Map<IndexKey, Index> indexesMap = new HashMap<>();
+            Map<Tuple, Index> indexesMap = new HashMap<>();
 
             try (
                 Statement stmt = getConnection().createStatement();
@@ -95,19 +122,19 @@ public class DataSchemaReader extends nl.gmt.data.migrate.DataSchemaReader {
                         index.setType(SchemaIndexType.INDEX);
                     }
 
-                    indexesMap.put(new IndexKey(rs.getString("trelname"), index.getName()), new Index(index, parseAttributes(rs.getObject("indkey").toString())));
+                    indexesMap.put(new Tuple(rs.getString("trelname"), index.getName()), new Index(index, parseAttributes(rs.getObject("indkey").toString())));
                     tables.get(rs.getString("trelname")).getIndexes().add(index);
                 }
             }
 
-            Map<IndexKey, Map<Integer, String>> indexesFields = new HashMap<>();
+            Map<Tuple, Map<Integer, String>> indexesFields = new HashMap<>();
 
             try (
                 Statement stmt = getConnection().createStatement();
                 ResultSet rs = stmt.executeQuery(
                     "select i.relname as \"irelname\", t.relname as \"trelname\", a.attname, a.attnum\n" +
                     "from pg_index ix left join pg_class t on ix.indrelid = t.oid left join pg_class i on ix.indexrelid = i.oid left join pg_attribute a on a.attrelid = t.oid\n" +
-                    "where a.attnum = ANY(ix.indkey) and t.relkind = 'r' and t.relnamespace = (select n.oid from pg_namespace n where n.nspname = current_schema())\n" +
+                    "where a.attnum = ANY(ix.indkey) and t.relkind = 'r' and a.attisdropped = false and t.relnamespace = (select n.oid from pg_namespace n where n.nspname = current_schema())\n" +
                     "order by t.relname, i.relname"
                 )
             ) {
@@ -116,7 +143,7 @@ public class DataSchemaReader extends nl.gmt.data.migrate.DataSchemaReader {
                     String columnName = rs.getString("attname");
                     int columnNumber = rs.getInt("attnum");
 
-                    IndexKey key = new IndexKey(rs.getString("trelname"), indexName);
+                    Tuple key = new Tuple(rs.getString("trelname"), indexName);
 
                     int columnIndex = indexesMap.get(key).attributes.indexOf(columnNumber);
                     if (columnIndex == -1) {
@@ -133,7 +160,7 @@ public class DataSchemaReader extends nl.gmt.data.migrate.DataSchemaReader {
                 }
             }
 
-            for (Map.Entry<IndexKey, Map<Integer, String>> entry : indexesFields.entrySet()) {
+            for (Map.Entry<Tuple, Map<Integer, String>> entry : indexesFields.entrySet()) {
                 List<Map.Entry<Integer, String>> fields = new ArrayList<>(entry.getValue().entrySet());
 
                 Collections.sort(fields, new Comparator<Map.Entry<Integer, String>>() {
@@ -249,13 +276,13 @@ public class DataSchemaReader extends nl.gmt.data.migrate.DataSchemaReader {
         }
     }
 
-    private static class IndexKey {
-        final String table;
-        final String name;
+    private static class Tuple {
+        final String item1;
+        final String item2;
 
-        private IndexKey(String table, String name) {
-            this.table = table.toUpperCase();
-            this.name = name.toUpperCase();
+        private Tuple(String item1, String item2) {
+            this.item1 = item1.toUpperCase();
+            this.item2 = item2.toUpperCase();
         }
 
         @Override
@@ -263,18 +290,18 @@ public class DataSchemaReader extends nl.gmt.data.migrate.DataSchemaReader {
             if (this == obj) {
                 return true;
             }
-            if (!(obj instanceof IndexKey)) {
+            if (!(obj instanceof Tuple)) {
                 return false;
             }
 
-            IndexKey other = (IndexKey)obj;
+            Tuple other = (Tuple)obj;
 
-            return name.equals(other.name) && table.equals(other.table);
+            return item2.equals(other.item2) && item1.equals(other.item1);
         }
 
         @Override
         public int hashCode() {
-            return (table.hashCode() * 31) + name.hashCode();
+            return (item1.hashCode() * 31) + item2.hashCode();
         }
     }
 
@@ -285,6 +312,16 @@ public class DataSchemaReader extends nl.gmt.data.migrate.DataSchemaReader {
         public Index(DataSchemaIndex index, List<Integer> attributes) {
             this.index = index;
             this.attributes = attributes;
+        }
+    }
+
+    private static class FullType {
+        final SchemaDbType type;
+        final int arity;
+
+        public FullType(SchemaDbType type, int arity) {
+            this.type = type;
+            this.arity = arity;
         }
     }
 }

@@ -3,5 +3,6 @@ package nl.gmt.data.migrate;
 public enum ExpectChanges {
     YES,
     NO,
-    DONT_CARE
+    DONT_CARE,
+    THROWS
 }

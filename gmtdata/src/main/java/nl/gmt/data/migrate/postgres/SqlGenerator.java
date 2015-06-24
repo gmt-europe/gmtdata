@@ -171,20 +171,27 @@ public class SqlGenerator extends GuidedSqlGenerator {
     }
 
     private String getFieldType(DataSchemaField field) throws SchemaMigrateException {
-        return rules.getDbType(field.getType()) + dataTypeLength(field);
+        StringBuilder sb = new StringBuilder();
+
+        if (field.isAutoIncrement()) {
+            sb.append(getAutoIncrementType(field.getType()));
+        } else {
+            sb.append(rules.getDbType(field.getType()));
+        }
+
+        sb.append(dataTypeLength(field));
+
+        for (int i = 0; i < field.getArity(); i++) {
+            sb.append("[]");
+        }
+
+        return sb.toString();
     }
 
     private String writeField(DataSchemaField field) throws SchemaMigrateException {
         StringBuilder sb = new StringBuilder();
 
-        String type;
-        if (field.isAutoIncrement()) {
-            type = getAutoIncrementType(field.getType());
-        } else {
-            type = rules.getDbType(field.getType());
-        }
-
-        sb.append(String.format("\"%s\" %s%s", field.getName(), type, dataTypeLength(field)));
+        sb.append(String.format("\"%s\" %s", field.getName(), getFieldType(field)));
 
         if (!field.isNullable()) {
             sb.append(" NOT NULL");

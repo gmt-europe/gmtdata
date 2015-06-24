@@ -67,4 +67,41 @@ public class PostgresTests extends DatabaseTests {
 "</class>"
         );
     }
+
+    @Test
+    public void stringArrayPropertyType() {
+        execute(
+"<class name=\"Table\">" +
+"  <property name=\"Property\" type=\"text\" arity=\"1\" />" +
+"</class>"
+        );
+    }
+
+    @Test
+    public void stringMultiDimensionalArrayPropertyType() {
+        execute(
+"<class name=\"Table\">" +
+"  <property name=\"Property\" type=\"text\" arity=\"2\" />" +
+"</class>"
+        );
+    }
+
+    @Test
+    public void changeToArrayType() {
+        execute(
+"<class name=\"Table\">" +
+"  <property name=\"Property\" type=\"text\" />" +
+"</class>"
+        );
+
+        // This fails because the types cannot be cast to each other. However we are still testing
+        // this to make sure that the difference in type is detected.
+
+        execute(
+"<class name=\"Table\">" +
+"  <property name=\"Property\" type=\"text\" arity=\"1\" />" +
+"</class>",
+            ExpectChanges.THROWS
+        );
+    }
 }

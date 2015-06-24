@@ -150,6 +150,10 @@ public class SqlGenerator extends nl.gmt.data.migrate.SqlGenerator {
     }
 
     private String writeField(DataSchemaTable table, DataSchemaField field, boolean isPrimary, DataSchemaForeignKey foreignKey) throws SchemaMigrateException {
+        if (field.getArity() > 0) {
+            throw new SchemaMigrateException("SQLite does not support array types");
+        }
+
         StringBuilder sb = new StringBuilder();
 
         sb.append(String.format("`%s` %s%s", field.getName(), rules.getDbType(field.getType()), dataTypeLength(field)));

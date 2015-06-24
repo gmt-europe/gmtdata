@@ -16,6 +16,7 @@ public abstract class SchemaDataTypeBase extends SchemaAnnotatableElement {
     private SchemaDbType dbType = SchemaDbType.UNSET;
     private SchemaIndexType indexType = SchemaIndexType.UNSET;
     private String type;
+    private int arity = -1;
 
     SchemaDataTypeBase(SchemaParserLocation location) {
         super(location);
@@ -139,6 +140,14 @@ public abstract class SchemaDataTypeBase extends SchemaAnnotatableElement {
 
     void setType(String type) {
         this.type = type;
+    }
+
+    public int getArity() {
+        return arity;
+    }
+
+    void setArity(int arity) {
+        this.arity = arity;
     }
 
     @Override

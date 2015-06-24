@@ -26,7 +26,8 @@ public abstract class SchemaRules {
 
     public boolean dbTypesEqual(DataSchemaField a, DataSchemaField b) throws SchemaMigrateException {
         return
-            areTypesEquivalent(a.getType(), b.getType()) && (
+            areTypesEquivalent(a.getType(), b.getType()) &&
+            a.getArity() == b.getArity() && (
                 !dbTypeSupportsSign(a.getType()) ||
                 a.isUnsigned() == b.isUnsigned()
             ) && (

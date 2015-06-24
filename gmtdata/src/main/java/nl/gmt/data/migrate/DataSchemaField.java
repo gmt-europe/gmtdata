@@ -15,6 +15,7 @@ public class DataSchemaField extends DataSchemaObject {
     private boolean autoIncrement;
     private boolean hasDefault;
     private String defaultValue;
+    private int arity;
 
     void initializeType(SchemaResolvedDataType dataType) throws SchemaMigrateException {
         length = -1;
@@ -60,6 +61,7 @@ public class DataSchemaField extends DataSchemaObject {
 
         length = dataType.getLength();
         positions = dataType.getPositions();
+        arity = dataType.getArity();
     }
 
     public boolean equals(DataSchemaField other, SchemaRules rules) throws SchemaMigrateException {
@@ -144,5 +146,13 @@ public class DataSchemaField extends DataSchemaObject {
 
     public void setDefaultValue(String defaultValue) {
         this.defaultValue = defaultValue;
+    }
+
+    public int getArity() {
+        return arity;
+    }
+
+    public void setArity(int arity) {
+        this.arity = arity;
     }
 }

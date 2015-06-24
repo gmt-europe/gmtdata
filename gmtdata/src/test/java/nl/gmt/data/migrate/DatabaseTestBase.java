@@ -112,9 +112,17 @@ public abstract class DatabaseTestBase {
                 try {
                     executeCommand(statement.getValue());
                 } catch (SQLException e) {
-                    throw new RuntimeException(e);
+                    if (expectChanges == ExpectChanges.THROWS) {
+                        return;
+                    } else {
+                        throw new RuntimeException(e);
+                    }
                 }
             }
+        }
+
+        if (expectChanges == ExpectChanges.THROWS) {
+            throw new RuntimeException("Expected the migration to throw");
         }
 
         // Execute the schema again to verify that the generator sees

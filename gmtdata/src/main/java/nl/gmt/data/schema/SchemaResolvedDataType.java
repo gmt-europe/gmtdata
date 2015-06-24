@@ -92,5 +92,7 @@ public class SchemaResolvedDataType extends SchemaDataTypeBase {
             setUserType(dataType.getUserType());
         if (dataType.getIndexType() != SchemaIndexType.UNSET)
             setIndexType(dataType.getIndexType());
+        if (dataType.getArity() != -1)
+            setArity(dataType.getArity());
     }
 }
