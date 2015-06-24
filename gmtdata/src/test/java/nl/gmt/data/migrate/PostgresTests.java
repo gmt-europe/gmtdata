@@ -104,4 +104,82 @@ public class PostgresTests extends DatabaseTests {
             ExpectChanges.THROWS
         );
     }
+
+    @Test
+    public void defaultIndexStrategyIsBtree() {
+        execute(
+"<class name=\"Table\">" +
+"  <property name=\"Property\" type=\"text\" />" +
+"  <index properties=\"Property\" />" +
+"</class>"
+        );
+
+        execute(
+"<class name=\"Table\">" +
+"  <property name=\"Property\" type=\"text\" />" +
+"  <index properties=\"Property\" strategy=\"btree\" />" +
+"</class>",
+            ExpectChanges.NO
+        );
+    }
+
+    @Test
+    public void hashIndex() {
+        execute(
+"<class name=\"Table\">" +
+"  <property name=\"Property\" type=\"text\" />" +
+"  <index properties=\"Property\" strategy=\"hash\" />" +
+"</class>"
+        );
+    }
+
+    @Test
+    public void gistIndex() {
+        // TODO: I'm not sure how you use the GiST index. Most of the types I try throw.
+        /*
+        execute(
+"<class name=\"Table\">" +
+"  <property name=\"Property\" type=\"text\" />" +
+"  <index properties=\"Property\" strategy=\"gist\" />" +
+"</class>"
+        );
+        */
+    }
+
+    @Test
+    public void spgistIndex() {
+        execute(
+"<class name=\"Table\">" +
+"  <property name=\"Property\" type=\"text\" />" +
+"  <index properties=\"Property\" strategy=\"spgist\" />" +
+"</class>"
+        );
+    }
+
+    @Test
+    public void ginIndex() {
+        execute(
+"<class name=\"Table\">" +
+"  <property name=\"Property\" type=\"text\" arity=\"1\" />" +
+"  <index properties=\"Property\" strategy=\"gin\" />" +
+"</class>"
+        );
+    }
+
+    @Test
+    public void changeDefaultIndexToGin() {
+        execute(
+"<class name=\"Table\">" +
+"  <property name=\"Property\" type=\"text\" arity=\"1\" />" +
+"  <index properties=\"Property\" />" +
+"</class>"
+        );
+
+        execute(
+"<class name=\"Table\">" +
+"  <property name=\"Property\" type=\"text\" arity=\"1\" />" +
+"  <index properties=\"Property\" strategy=\"gin\" />" +
+"</class>"
+        );
+    }
 }

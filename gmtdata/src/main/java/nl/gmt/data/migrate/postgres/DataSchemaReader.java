@@ -105,8 +105,8 @@ public class DataSchemaReader extends nl.gmt.data.migrate.DataSchemaReader {
             try (
                 Statement stmt = getConnection().createStatement();
                 ResultSet rs = stmt.executeQuery(
-                    "select t.relname as \"trelname\", i.relname as \"irelname\", ix.indnatts, ix.indisunique, ix.indisprimary, ix.indkey\n" +
-                    "from pg_index ix left join pg_class t on ix.indrelid = t.oid left join pg_class i on ix.indexrelid = i.oid\n" +
+                    "select t.relname as \"trelname\", i.relname as \"irelname\", ix.indnatts, ix.indisunique, ix.indisprimary, ix.indkey, a.amname\n" +
+                    "from pg_index ix left join pg_class t on ix.indrelid = t.oid left join pg_class i on ix.indexrelid = i.oid left join pg_am a on i.relam = a.oid\n" +
                     "where t.relkind = 'r' and t.relnamespace = (select n.oid from pg_namespace n where n.nspname = current_schema())\n" +
                     "order by t.relname, i.relname"
                 )
@@ -121,6 +121,8 @@ public class DataSchemaReader extends nl.gmt.data.migrate.DataSchemaReader {
                     } else {
                         index.setType(SchemaIndexType.INDEX);
                     }
+
+                    index.setStrategy(rs.getString("amname"));
 
                     indexesMap.put(new Tuple(rs.getString("trelname"), index.getName()), new Index(index, parseAttributes(rs.getObject("indkey").toString())));
                     tables.get(rs.getString("trelname")).getIndexes().add(index);

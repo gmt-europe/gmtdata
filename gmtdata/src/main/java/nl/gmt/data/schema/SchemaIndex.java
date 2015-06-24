@@ -7,6 +7,7 @@ import java.util.List;
 public class SchemaIndex extends SchemaAnnotatableElement {
     private List<String> fields;
     private SchemaIndexType type = SchemaIndexType.UNSET;
+    private String strategy;
 
     SchemaIndex(SchemaParserLocation location) {
         super(location);
@@ -28,11 +29,22 @@ public class SchemaIndex extends SchemaAnnotatableElement {
         this.type = type;
     }
 
+    public String getStrategy() {
+        return strategy;
+    }
+
+    public void setStrategy(String strategy) {
+        this.strategy = strategy;
+    }
+
     String toSmallString() {
         String result = String.format("(`%s`)", StringUtils.join(fields, "` `"));
 
         if (type == SchemaIndexType.UNIQUE || type == SchemaIndexType.PRIMARY)
             result = type.toString().toLowerCase() + " " + result;
+
+        if (strategy != null)
+            result += " strategy " + strategy;
 
         return result;
     }
@@ -60,11 +72,5 @@ public class SchemaIndex extends SchemaAnnotatableElement {
             return foreign.getIndexType() == SchemaIndexType.UNIQUE || type != SchemaIndexType.UNIQUE;
 
         return false;
-    }
-
-    boolean conflictsWith(SchemaIdProperty idProperty) {
-        return
-            fields.size() == 1 &&
-            StringUtils.equalsIgnoreCase(fields.get(0), idProperty.getName());
     }
 }

@@ -25,9 +25,12 @@ public abstract class SchemaRules {
     }
 
     public boolean dbTypesEqual(DataSchemaField a, DataSchemaField b) throws SchemaMigrateException {
+        int aArity = a.getArity() <= 0 ? 0 : a.getArity();
+        int bArity = b.getArity() <= 0 ? 0 : b.getArity();
+
         return
             areTypesEquivalent(a.getType(), b.getType()) &&
-            a.getArity() == b.getArity() && (
+            aArity == bArity && (
                 !dbTypeSupportsSign(a.getType()) ||
                 a.isUnsigned() == b.isUnsigned()
             ) && (
@@ -36,5 +39,11 @@ public abstract class SchemaRules {
                     (a.getLength() == b.getLength() || a.getLength() == -1 || b.getLength() == -1)
                 )
             );
+    }
+
+    public String getIndexStrategy(String strategy) throws SchemaMigrateException {
+        if (strategy != null)
+            throw new SchemaMigrateException("Index strategy is not supported");
+        return null;
     }
 }

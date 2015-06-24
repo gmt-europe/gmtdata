@@ -74,4 +74,11 @@ public class SchemaRules extends nl.gmt.data.schema.SchemaRules {
                 return false;
         }
     }
+
+    @Override
+    public String getIndexStrategy(String strategy) throws SchemaMigrateException {
+        if (strategy == null)
+            return "btree";
+        return strategy.toLowerCase();
+    }
 }

@@ -1,6 +1,7 @@
 package nl.gmt.data.migrate;
 
 import nl.gmt.data.schema.SchemaIndexType;
+import nl.gmt.data.schema.SchemaRules;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
@@ -10,6 +11,7 @@ public class DataSchemaIndex {
     private SchemaIndexType type;
     private String name;
     private final List<String> fields;
+    private String strategy;
 
     public DataSchemaIndex() {
         fields = new ArrayList<>();
@@ -35,7 +37,15 @@ public class DataSchemaIndex {
         return fields;
     }
 
-    public boolean equals(DataSchemaIndex other) {
+    public String getStrategy() {
+        return strategy;
+    }
+
+    public void setStrategy(String strategy) {
+        this.strategy = strategy;
+    }
+
+    public boolean equals(DataSchemaIndex other, SchemaRules rules) throws SchemaMigrateException {
         if (this == other)
             return true;
 
@@ -47,6 +57,11 @@ public class DataSchemaIndex {
 
         for (int i = 0; i < fields.size(); i++) {
             if (!StringUtils.equalsIgnoreCase(fields.get(i), other.fields.get(i)))
+                return false;
+        }
+
+        if (!(strategy == null && other.strategy == null)) {
+            if (!rules.getIndexStrategy(strategy).equals(rules.getIndexStrategy(other.strategy)))
                 return false;
         }
 

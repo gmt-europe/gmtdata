@@ -174,9 +174,9 @@
     <xs:complexType name="ClassIndex">
         <xs:complexContent>
             <xs:extension base="nhs:SchemaElement">
-                <xs:attribute name="properties" type="xs:string"
-                              use="required"/>
+                <xs:attribute name="properties" type="xs:string" use="required"/>
                 <xs:attribute name="unique" type="xs:boolean" use="optional"/>
+                <xs:attribute name="strategy" type="xs:string" use="optional"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>

@@ -83,7 +83,7 @@ public class DataSchemaTableDifference {
             boolean found = false;
 
             for (DataSchemaIndex newIndex : schema.getIndexes()) {
-                if (index.equals(newIndex) && !indexes.get(newIndex)) {
+                if (index.equals(newIndex, executor.getRules()) && !indexes.get(newIndex)) {
                     found = true;
                     indexes.put(newIndex, true);
                     break;

@@ -169,6 +169,7 @@ public class StandardDataSchemaFactory implements DataSchemaFactory {
 
         result.setName(null);
         result.setType(index.getType());
+        result.setStrategy(index.getStrategy());
 
         return result;
     }

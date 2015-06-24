@@ -253,10 +253,11 @@ public class SqlGenerator extends GuidedSqlGenerator {
         assert index.getType() == SchemaIndexType.INDEX || index.getType() == SchemaIndexType.UNIQUE;
 
         addStatement(
-            "CREATE %s \"%s\" ON \"%s\" (\"%s\")",
+            "CREATE %s \"%s\" ON \"%s\" USING %s (\"%s\")",
             index.getType() == SchemaIndexType.INDEX ? "INDEX" : "UNIQUE INDEX",
             index.getName(),
             table.getName(),
+            rules.getIndexStrategy(index.getStrategy()),
             StringUtils.join(index.getFields(), "\", \"")
         );
     }
