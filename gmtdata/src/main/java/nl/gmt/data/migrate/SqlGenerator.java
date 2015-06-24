@@ -193,6 +193,8 @@ public abstract class SqlGenerator implements AutoCloseable {
             case "longblob": return SchemaDbType.LONG_BLOB;
             case "longtext": return SchemaDbType.LONG_TEXT;
             case "guid": return SchemaDbType.GUID;
+            case "json": return SchemaDbType.JSON;
+            case "jsonb": return SchemaDbType.BINARY_JSON;
 
             default:
                 throw new SchemaException(String.format("Unexpected data type '%s'", dataType));

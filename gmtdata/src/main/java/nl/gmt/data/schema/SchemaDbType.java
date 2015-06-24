@@ -3,6 +3,7 @@ package nl.gmt.data.schema;
 public enum SchemaDbType {
     UNSET,
     BINARY,
+    BINARY_JSON,
     BLOB,
     DATE_TIME,
     DECIMAL,
@@ -11,6 +12,7 @@ public enum SchemaDbType {
     FIXED_STRING,
     GUID,
     INT,
+    JSON,
     LONG_BLOB,
     LONG_TEXT,
     MEDIUM_BLOB,

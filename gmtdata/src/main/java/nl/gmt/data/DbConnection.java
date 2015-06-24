@@ -2,6 +2,7 @@ package nl.gmt.data;
 
 import nl.gmt.data.drivers.DatabaseDriver;
 import nl.gmt.data.drivers.MySqlDatabaseDriver;
+import nl.gmt.data.drivers.PostgresDatabaseDriver;
 import nl.gmt.data.drivers.SQLiteDatabaseDriver;
 import nl.gmt.data.migrate.*;
 import nl.gmt.data.schema.Schema;
@@ -56,6 +57,7 @@ public abstract class DbConnection<T extends EntitySchema> implements DataClosea
         switch (type) {
             case SQLITE: driver = new SQLiteDatabaseDriver(); break;
             case MYSQL: driver = new MySqlDatabaseDriver(); break;
+            case POSTGRES: driver = new PostgresDatabaseDriver(); break;
             default: throw new DataException("Illegal database type");
         }
 
