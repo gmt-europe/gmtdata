@@ -1,7 +1,5 @@
 package nl.gmt.data.hibernate.generation;
 
-import nl.gmt.data.contrib.joda.PersistentDateTime;
-import nl.gmt.data.contrib.joda.PersistentLocalDateTime;
 import nl.gmt.data.schema.*;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
@@ -785,15 +783,10 @@ public class CodeGenerator {
     }
 
     private void generateColumnAnnotations(CodeWriter cw, String dbName, SchemaResolvedDataType dataType) {
-        if (dataType.getNativeType() == org.joda.time.DateTime.class) {
+        if (dataType.getUserType() != null) {
             cw.writeln(
                 "@org.hibernate.annotations.Type(type=\"%s\")",
-                PersistentDateTime.class.getName()
-            );
-        } else if (dataType.getNativeType() == org.joda.time.LocalDateTime.class) {
-            cw.writeln(
-                "@org.hibernate.annotations.Type(type=\"%s\")",
-                PersistentLocalDateTime.class.getName()
+                dataType.getUserType()
             );
         }
 

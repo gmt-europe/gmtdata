@@ -13,6 +13,7 @@ import nl.gmt.data.support.DelegateListener;
 import nl.gmt.data.support.UTF8Control;
 import org.apache.commons.lang.Validate;
 import org.hibernate.SessionFactory;
+import org.hibernate.annotations.common.reflection.MetadataProviderInjector;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
@@ -67,6 +68,18 @@ public abstract class DbConnection<T extends EntitySchema> implements DataClosea
             .setProperty("hibernate.dialect", driver.getDialectType())
             .setProperty("hibernate.connection.url", connectionString)
             .setProperty("hibernate.connection.driver_class", driver.getConnectionType());
+
+        // The standard UUID type does not work for Postgres. The problem is that the standard
+        // UUID type converts from/to byte array or string. The Postgres driver actually accepts
+        // proper UUID instances so does not need this conversion. To use the correct provider,
+        // an `@Type(type = "pg-uuid")` annotation needs to be added to the generated source. However,
+        // this is not compatible with other databases. To work around this, we insert these
+        // annotations at runtime only when the database is Postgres.
+
+        if (type == DbType.POSTGRES) {
+            MetadataProviderInjector reflectionManager = (MetadataProviderInjector)cfg.getReflectionManager();
+            reflectionManager.setMetadataProvider(new UUIDTypeInsertingMetadataProvider(reflectionManager.getMetadataProvider()));
+        }
 
         if (configuration.isEnableMultiTenancy()) {
             cfg.setProperty("hibernate.multi_tenant_connection_provider", DbMultiTenantConnectionProvider.class.getName());

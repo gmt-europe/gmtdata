@@ -37,7 +37,7 @@ public class SchemaRules extends nl.gmt.data.schema.SchemaRules {
             case TINY_INT: return "TINYINT";
             case TINY_TEXT: return "TINYTEXT";
             case GUID: return "BINARY";
-            default: throw new SchemaMigrateException("Unexpected data type");
+            default: throw new SchemaMigrateException(String.format("Unexpected data type '%s'", dbType));
         }
     }
 

@@ -22,26 +22,31 @@
         <sourceTestOutputDir name="target\generated-test-sources\test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="true" />
-        <module name="gmtdata-maven-plugin" />
       </profile>
       <profile default="false" name="Annotation profile for gmtdata-test" enabled="true">
         <sourceOutputDir name="target\generated-sources\annotations" />
         <sourceTestOutputDir name="target\generated-test-sources\test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="true" />
-        <module name="gmtdata-test" />
       </profile>
       <profile default="false" name="Annotation profile for gmtdata" enabled="true">
         <sourceOutputDir name="target\generated-sources\annotations" />
         <sourceTestOutputDir name="target\generated-test-sources\test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="true" />
-        <module name="gmtdata" />
+      </profile>
+      <profile default="false" name="Annotation profile for gmtdata-postgres" enabled="true">
+        <sourceOutputDir name="target\generated-sources\annotations" />
+        <sourceTestOutputDir name="target\generated-test-sources\test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="true" />
+        <module name="gmtdata-postgres" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="gmtdata" target="1.7" />
       <module name="gmtdata-maven-plugin" target="1.7" />
+      <module name="gmtdata-postgres" target="1.7" />
       <module name="gmtdata-test" target="1.7" />
     </bytecodeTargetLevel>
   </component>

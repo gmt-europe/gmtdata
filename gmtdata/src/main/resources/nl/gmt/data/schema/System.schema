@@ -36,11 +36,11 @@
 
     <!-- Special types -->
 
-    <dataType name="date" dbType="datetime" nativeType="java.util.Date" nullable="false"/>
-    <dataType name="datetime" dbType="datetime" nativeType="org.joda.time.DateTime" nullable="false"/>
+    <dataType name="date" dbType="datetime" nativeType="java.util.Date" nullable="false" userType="nl.gmt.data.contrib.joda.PersistentDateTime"/>
+    <dataType name="datetime" dbType="datetime" nativeType="org.joda.time.DateTime" nullable="false" userType="nl.gmt.data.contrib.joda.PersistentDateTime"/>
     <dataType name="guid" dbType="guid" nativeType="java.util.UUID" nullable="false"/>
     <dataType name="bool" dbType="tinyint" length="1" nativeType="java.lang.Boolean" nullable="false" signed="true"/>
-    <dataType name="json" dbType="json" nativeType="java.lang.String" nullable="false"/>
-    <dataType name="jsonb" dbType="jsonb" nativeType="java.lang.String" nullable="false"/>
+    <dataType name="json" dbType="json" nativeType="java.lang.String" nullable="false" userType="nl.gmt.data.contrib.postgres.JSONUserType"/>
+    <dataType name="jsonb" dbType="jsonb" nativeType="java.lang.String" nullable="false" userType="nl.gmt.data.contrib.postgres.JSONBUserType"/>
 
 </schema>

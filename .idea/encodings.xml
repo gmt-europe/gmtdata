@@ -3,6 +3,6 @@
   <component name="Encoding" useUTFGuessing="true" native2AsciiForPropertiesFiles="false">
     <file url="file://$PROJECT_DIR$/gmtdata" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/gmtdata-maven-plugin" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/gmtdata-postgres" charset="UTF-8" />
   </component>
 </project>
-
