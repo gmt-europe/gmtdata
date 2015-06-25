@@ -4,5 +4,7 @@
     <file url="file://$PROJECT_DIR$/gmtdata" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/gmtdata-maven-plugin" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/gmtdata-postgres" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/mysql2postgres" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/mysql2postgres/src/main/java/nl/gmt/data/mysql2postgres/GenericSchemaRules.java" charset="windows-1252" />
   </component>
 </project>

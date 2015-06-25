@@ -6,6 +6,7 @@
       <module fileurl="file://$PROJECT_DIR$/gmtdata-maven-plugin/gmtdata-maven-plugin.iml" filepath="$PROJECT_DIR$/gmtdata-maven-plugin/gmtdata-maven-plugin.iml" />
       <module fileurl="file://$PROJECT_DIR$/gmtdata-postgres/gmtdata-postgres.iml" filepath="$PROJECT_DIR$/gmtdata-postgres/gmtdata-postgres.iml" />
       <module fileurl="file://$PROJECT_DIR$/gmtdata-test/gmtdata-test.iml" filepath="$PROJECT_DIR$/gmtdata-test/gmtdata-test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/mysql2postgres/mysql2postgres.iml" filepath="$PROJECT_DIR$/mysql2postgres/mysql2postgres.iml" />
     </modules>
   </component>
 </project>

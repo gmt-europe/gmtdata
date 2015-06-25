@@ -29,6 +29,7 @@
         <option value="$PROJECT_DIR$/gmtdata-maven-plugin/pom.xml" />
         <option value="$PROJECT_DIR$/gmtdata-test/pom.xml" />
         <option value="$PROJECT_DIR$/gmtdata-postgres/pom.xml" />
+        <option value="$PROJECT_DIR$/mysql2postgres/pom.xml" />
       </list>
     </option>
   </component>

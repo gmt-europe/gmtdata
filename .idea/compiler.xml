@@ -42,12 +42,20 @@
         <processorPath useClasspath="true" />
         <module name="gmtdata-postgres" />
       </profile>
+      <profile default="false" name="Annotation profile for mysql2postgres" enabled="true">
+        <sourceOutputDir name="target\generated-sources\annotations" />
+        <sourceTestOutputDir name="target\generated-test-sources\test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="true" />
+        <module name="mysql2postgres" />
+      </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="gmtdata" target="1.7" />
       <module name="gmtdata-maven-plugin" target="1.7" />
       <module name="gmtdata-postgres" target="1.7" />
       <module name="gmtdata-test" target="1.7" />
+      <module name="mysql2postgres" target="1.7" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
