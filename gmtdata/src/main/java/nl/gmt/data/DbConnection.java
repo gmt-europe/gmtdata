@@ -50,7 +50,16 @@ public abstract class DbConnection<T extends EntitySchema> implements DataClosea
         Validate.notNull(schemaName, "schemaName");
 
         this.connectionString = configuration.getConnectionString();
-        this.type = configuration.getType();
+
+        DbType type = configuration.getType();
+        if (type == null) {
+            type = detectType(configuration.getConnectionString());
+        }
+        if (type == null) {
+            throw new DataException("Database type could not be detected from the connection string");
+        }
+
+        this.type = type;
         this.schemaName = schemaName;
         this.repositoryService = repositoryService;
         this.messageResolver = configuration.getMessageResolver();
@@ -117,6 +126,19 @@ public abstract class DbConnection<T extends EntitySchema> implements DataClosea
         }
 
         usageManager = new DbEntityUsageManager(this);
+    }
+
+    private DbType detectType(String connectionString) {
+        if (connectionString.startsWith("jdbc:mysql:")) {
+            return DbType.MYSQL;
+        }
+        if (connectionString.startsWith("jdbc:postgresql:")) {
+            return DbType.POSTGRES;
+        }
+        if (connectionString.startsWith("jdbc:sqlite:")) {
+            return DbType.SQLITE;
+        }
+        return null;
     }
 
     protected abstract T createEntitySchema(Schema schema) throws DataException;
