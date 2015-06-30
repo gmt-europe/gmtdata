@@ -42,5 +42,6 @@
     <dataType name="bool" dbType="tinyint" length="1" nativeType="java.lang.Boolean" nullable="false" signed="true"/>
     <dataType name="json" dbType="json" nativeType="java.lang.String" nullable="false" userType="nl.gmt.data.contrib.postgres.JSONUserType"/>
     <dataType name="jsonb" dbType="jsonb" nativeType="java.lang.String" nullable="false" userType="nl.gmt.data.contrib.postgres.JSONBUserType"/>
+    <dataType name="citext" dbType="citext" nativeType="java.lang.String" nullable="false"/>
 
 </schema>

@@ -5,6 +5,7 @@ public enum SchemaDbType {
     BINARY,
     BINARY_JSON,
     BLOB,
+    CASE_INSENSITIVE_TEXT,
     DATE_TIME,
     DECIMAL,
     DOUBLE,

@@ -17,6 +17,9 @@ public class SchemaRules extends nl.gmt.data.schema.SchemaRules {
             case TINY_BLOB:
                 return "BYTEA";
 
+            case CASE_INSENSITIVE_TEXT:
+                return "CITEXT";
+
             case DATE_TIME:
                 return "TIMESTAMP";
 

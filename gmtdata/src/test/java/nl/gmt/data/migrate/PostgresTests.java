@@ -69,6 +69,15 @@ public class PostgresTests extends DatabaseTests {
     }
 
     @Test
+    public void caseInsensitiveTextDataType() {
+        execute(
+"<class name=\"Table\">" +
+"  <property name=\"Property\" type=\"citext\" />" +
+"</class>"
+        );
+    }
+
+    @Test
     public void stringArrayPropertyType() {
         execute(
 "<class name=\"Table\">" +

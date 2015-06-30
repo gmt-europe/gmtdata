@@ -2,14 +2,13 @@ package nl.gmt.data.migrate.postgres;
 
 import nl.gmt.data.DataException;
 import nl.gmt.data.migrate.*;
-import nl.gmt.data.schema.Schema;
-import nl.gmt.data.schema.SchemaDbType;
-import nl.gmt.data.schema.SchemaIndexType;
+import nl.gmt.data.schema.*;
 import org.apache.commons.lang.StringUtils;
 
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class SqlGenerator extends GuidedSqlGenerator {
     private SchemaRules rules;
@@ -56,6 +55,40 @@ public class SqlGenerator extends GuidedSqlGenerator {
     @Override
     protected void writeUseStatement() throws SchemaMigrateException {
         // Does not apply to Postgres. The database is associated with the connection string.
+        // However, we can misuse this call to emit loading the citext extension.
+
+        // First see whether the citext data type is actually in use.
+
+        if (isCiTextInUse()) {
+            // Emit the create extension statement.
+            addPrologStatement("CREATE EXTENSION IF NOT EXISTS citext");
+        }
+    }
+
+    private boolean isCiTextInUse() {
+        for (Map.Entry<String, SchemaClass> schemaClass : getSchema().getClasses().entrySet()) {
+            if (classUsesCiText(schemaClass.getValue())) {
+                return true;
+            }
+        }
+
+        for (Map.Entry<String, SchemaMixin> mixin : getSchema().getMixins().entrySet()) {
+            if (classUsesCiText(mixin.getValue())) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private boolean classUsesCiText(SchemaClassBase schemaClass) {
+        for (Map.Entry<String, SchemaProperty> property : schemaClass.getProperties().entrySet()) {
+            if (property.getValue().getResolvedDataType().getDbType() == SchemaDbType.CASE_INSENSITIVE_TEXT) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     @Override

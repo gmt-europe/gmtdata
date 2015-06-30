@@ -273,6 +273,9 @@ public class DataSchemaReader extends nl.gmt.data.migrate.DataSchemaReader {
             case "BOOLEAN":
                 return SchemaDbType.TINY_INT;
 
+            case "CITEXT":
+                return SchemaDbType.CASE_INSENSITIVE_TEXT;
+
             default:
                 throw new SchemaMigrateException(String.format("Unknown data type '%s'", dataType));
         }
