@@ -88,7 +88,6 @@ public class Schema extends SchemaAnnotatableElement {
         validateForeignKeys();
         validateIndexConflicts();
         validateEnumTypes();
-        validateDecimalProperties();
         validateIndexes();
         validateEnumTypeFields();
         validateMixins();
@@ -373,29 +372,6 @@ public class Schema extends SchemaAnnotatableElement {
                 )
                     throw new SchemaException(String.format("Index '%s' conflicts with foreign '%s'", index.toSmallString(), foreign.getName()), index.getLocation());
             }
-        }
-    }
-
-    private void validateDecimalProperties() throws SchemaException {
-        for (SchemaClass klass : classes.values()) {
-            validateDecimalProperties(klass);
-        }
-
-        for (SchemaMixin mixin : mixins.values()) {
-            validateDecimalProperties(mixin);
-        }
-    }
-
-    private void validateDecimalProperties(SchemaClassBase klass) throws SchemaException {
-        for (SchemaProperty property : klass.getProperties().values()) {
-            if (
-                property.getResolvedDataType() != null &&
-                property.getResolvedDataType().getNativeType() == BigDecimal.class && (
-                    property.getResolvedDataType().getLength() == -1 ||
-                    property.getResolvedDataType().getPositions() == -1
-                )
-            )
-                throw new SchemaException(String.format("Decimal property '%s' has no length or positions set", property.getName()), property.getLocation());
         }
     }
 

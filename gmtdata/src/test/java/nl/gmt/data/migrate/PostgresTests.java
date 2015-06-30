@@ -87,6 +87,15 @@ public class PostgresTests extends DatabaseTests {
     }
 
     @Test
+    public void decimalWithoutPrecisionScaleType() {
+        execute(
+"<class name=\"Table\">" +
+"  <property name=\"Property\" type=\"decimal\" />" +
+"</class>"
+        );
+    }
+
+    @Test
     public void stringMultiDimensionalArrayPropertyType() {
         execute(
 "<class name=\"Table\">" +
