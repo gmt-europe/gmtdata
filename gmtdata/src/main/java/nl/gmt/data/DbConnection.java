@@ -107,7 +107,7 @@ public abstract class DbConnection<T extends EntitySchema> implements DataClosea
 
         addClasses(cfg);
 
-        driver.createConfiguration(cfg);
+        driver.createConfiguration(cfg, configuration);
 
         createConfiguration(cfg);
 

@@ -1,5 +1,6 @@
 package nl.gmt.data.drivers;
 
+import nl.gmt.data.DbConfiguration;
 import nl.gmt.data.migrate.SchemaMigrateException;
 import nl.gmt.data.migrate.SqlGenerator;
 import nl.gmt.data.schema.Schema;
@@ -29,7 +30,7 @@ public class PostgresDatabaseDriver extends GenericDatabaseDriver {
     }
 
     @Override
-    public void createConfiguration(Configuration configuration) {
-        configureConnectionPooling(configuration, "SELECT 1;");
+    public void createConfiguration(Configuration cfg, DbConfiguration configuration) {
+        configureConnectionPooling(cfg, configuration, "SELECT 1;");
     }
 }

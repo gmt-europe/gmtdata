@@ -6,6 +6,8 @@ public class DbConfiguration {
     private RepositoryService repositoryService;
     private boolean enableMultiTenancy;
     private OnResolveMessage messageResolver;
+    private int connectionPoolMinSize = -1;
+    private int connectionPoolMaxSize = -1;
 
     public String getConnectionString() {
         return connectionString;
@@ -41,5 +43,21 @@ public class DbConfiguration {
 
     public interface OnResolveMessage {
         String onResolveMessage(String key);
+    }
+
+    public int getConnectionPoolMinSize() {
+        return connectionPoolMinSize;
+    }
+
+    public void setConnectionPoolMinSize(int connectionPoolMinSize) {
+        this.connectionPoolMinSize = connectionPoolMinSize;
+    }
+
+    public int getConnectionPoolMaxSize() {
+        return connectionPoolMaxSize;
+    }
+
+    public void setConnectionPoolMaxSize(int connectionPoolMaxSize) {
+        this.connectionPoolMaxSize = connectionPoolMaxSize;
     }
 }

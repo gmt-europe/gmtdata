@@ -1,5 +1,6 @@
 package nl.gmt.data.drivers;
 
+import nl.gmt.data.DbConfiguration;
 import nl.gmt.data.migrate.Manifest;
 import nl.gmt.data.migrate.SchemaMigrateException;
 import nl.gmt.data.schema.Schema;
@@ -82,13 +83,22 @@ public abstract class GenericDatabaseDriver extends DatabaseDriver {
         }
     }
 
-    protected void configureConnectionPooling(Configuration configuration, String preferredTestQuery) {
-        configuration
+    protected void configureConnectionPooling(Configuration cfg, DbConfiguration configuration, String preferredTestQuery) {
+        int minSize = configuration.getConnectionPoolMinSize();
+        if (minSize == -1) {
+            minSize = 0;
+        }
+        int maxSize = configuration.getConnectionPoolMaxSize();
+        if (maxSize == -1) {
+            maxSize = 15;
+        }
+
+        cfg
             .setProperty("connection.provider_class", C3P0ConnectionProvider.class.getName())
             .setProperty("hibernate.c3p0.acquire_increment", "3")
             .setProperty("hibernate.c3p0.idle_test_period", "14400")
-            .setProperty("hibernate.c3p0.min_size", "0")
-            .setProperty("hibernate.c3p0.max_size", "15")
+            .setProperty("hibernate.c3p0.min_size", Integer.toString(minSize))
+            .setProperty("hibernate.c3p0.max_size", Integer.toString(maxSize))
             .setProperty("hibernate.c3p0.max_statements", "0")
             .setProperty("hibernate.c3p0.timeout", "25200")
             .setProperty("hibernate.c3p0.preferredTestQuery", preferredTestQuery);

@@ -1,6 +1,7 @@
 package nl.gmt.data.drivers;
 
 import nl.gmt.data.DataException;
+import nl.gmt.data.DbConfiguration;
 import nl.gmt.data.DbConnection;
 import nl.gmt.data.migrate.Manifest;
 import nl.gmt.data.migrate.SchemaMigrateException;
@@ -65,7 +66,7 @@ public abstract class DatabaseDriver {
         throw new SchemaMigrateException("SQL generation not supported");
     }
 
-    public void createConfiguration(Configuration configuration) {
+    public void createConfiguration(Configuration cfg, DbConfiguration configuration) {
         
     }
 
