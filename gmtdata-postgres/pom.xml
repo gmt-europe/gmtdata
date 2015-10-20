@@ -22,7 +22,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <hibernate-core.version>4.3.7.Final</hibernate-core.version>
+        <hibernate-core.version>5.0.2.Final</hibernate-core.version>
         <postgresql.version>9.4-1201-jdbc41</postgresql.version>
         <maven-compiler-plugin.version>3.2</maven-compiler-plugin.version>
     </properties>

@@ -14,9 +14,13 @@ import nl.gmt.data.support.UTF8Control;
 import org.apache.commons.lang.Validate;
 import org.hibernate.SessionFactory;
 import org.hibernate.annotations.common.reflection.MetadataProviderInjector;
+import org.hibernate.boot.MetadataBuilder;
+import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
-import org.hibernate.cfg.Configuration;
+import org.hibernate.boot.spi.MetadataBuilderImplementor;
+import org.hibernate.boot.spi.MetadataBuildingOptions;
+import org.hibernate.cfg.AvailableSettings;
 
 import java.io.InputStream;
 import java.sql.Connection;
@@ -73,28 +77,6 @@ public abstract class DbConnection<T extends EntitySchema> implements DataClosea
 
         SchemaParserExecutor parserExecutor = new SchemaParserExecutor(new SchemaCallbackImpl());
 
-        Configuration cfg = new Configuration()
-            .setProperty("hibernate.dialect", driver.getDialectType())
-            .setProperty("hibernate.connection.url", connectionString)
-            .setProperty("hibernate.connection.driver_class", driver.getConnectionType());
-
-        // The standard UUID type does not work for Postgres. The problem is that the standard
-        // UUID type converts from/to byte array or string. The Postgres driver actually accepts
-        // proper UUID instances so does not need this conversion. To use the correct provider,
-        // an `@Type(type = "pg-uuid")` annotation needs to be added to the generated source. However,
-        // this is not compatible with other databases. To work around this, we insert these
-        // annotations at runtime only when the database is Postgres.
-
-        if (type == DbType.POSTGRES) {
-            MetadataProviderInjector reflectionManager = (MetadataProviderInjector)cfg.getReflectionManager();
-            reflectionManager.setMetadataProvider(new UUIDTypeInsertingMetadataProvider(reflectionManager.getMetadataProvider()));
-        }
-
-        if (configuration.isEnableMultiTenancy()) {
-            cfg.setProperty("hibernate.multi_tenant_connection_provider", DbMultiTenantConnectionProvider.class.getName());
-            cfg.setProperty("hibernate.multiTenancy", "SCHEMA");
-        }
-
         Schema schema;
 
         try {
@@ -105,17 +87,49 @@ public abstract class DbConnection<T extends EntitySchema> implements DataClosea
 
         entitySchema = createEntitySchema(schema);
 
-        addClasses(cfg);
+        StandardServiceRegistryBuilder serviceRegistryBuilder = new StandardServiceRegistryBuilder()
+            .applySetting(AvailableSettings.DIALECT, driver.getDialectType())
+            .applySetting(AvailableSettings.URL, connectionString)
+            .applySetting(AvailableSettings.DRIVER, driver.getConnectionType());
 
-        driver.createConfiguration(cfg, configuration);
+        if (configuration.isEnableMultiTenancy()) {
+            serviceRegistryBuilder
+                .applySetting(AvailableSettings.MULTI_TENANT_CONNECTION_PROVIDER, DbMultiTenantConnectionProvider.class.getName())
+                .applySetting(AvailableSettings.MULTI_TENANT, "SCHEMA");
+        }
 
-        createConfiguration(cfg);
+        driver.createConfiguration(serviceRegistryBuilder, configuration);
 
-        StandardServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
-            .applySettings(cfg.getProperties())
+        createConfiguration(serviceRegistryBuilder);
+
+        StandardServiceRegistry standardRegistry = serviceRegistryBuilder.build();
+
+        MetadataSources sources = new MetadataSources(standardRegistry);
+        addClasses(sources);
+
+        MetadataBuilder metadataBuilder = sources.getMetadataBuilder();
+
+        // The standard UUID type does not work for Postgres. The problem is that the standard
+        // UUID type converts from/to byte array or string. The Postgres driver actually accepts
+        // proper UUID instances so does not need this conversion. To use the correct provider,
+        // an `@Type(type = "pg-uuid")` annotation needs to be added to the generated source. However,
+        // this is not compatible with other databases. To work around this, we insert these
+        // annotations at runtime only when the database is Postgres.
+
+        if (type == DbType.POSTGRES) {
+            MetadataBuildingOptions metadataBuildingOptions = ((MetadataBuilderImplementor)metadataBuilder).getMetadataBuildingOptions();
+            MetadataProviderInjector metadataProviderInjector = (MetadataProviderInjector)metadataBuildingOptions.getReflectionManager();
+
+            metadataProviderInjector.setMetadataProvider(new UUIDTypeInsertingMetadataProvider(
+                metadataBuildingOptions,
+                metadataProviderInjector.getMetadataProvider()
+            ));
+        }
+
+        sessionFactory = metadataBuilder
+            .build()
+            .getSessionFactoryBuilder()
             .build();
-
-        sessionFactory = cfg.buildSessionFactory(serviceRegistry);
 
         driver.configure(this);
 
@@ -143,7 +157,7 @@ public abstract class DbConnection<T extends EntitySchema> implements DataClosea
 
     protected abstract T createEntitySchema(Schema schema) throws DataException;
 
-    protected void createConfiguration(Configuration configuration) {
+    protected void createConfiguration(StandardServiceRegistryBuilder serviceRegistryBuilder) {
 
     }
 
@@ -159,9 +173,9 @@ public abstract class DbConnection<T extends EntitySchema> implements DataClosea
         return entitySchema;
     }
 
-    private void addClasses(Configuration configuration) {
+    private void addClasses(MetadataSources sources) {
         for (EntityType entityType : entitySchema.getEntityTypes()) {
-            configuration.addAnnotatedClass(entityType.getModel());
+            sources.addAnnotatedClass(entityType.getModel());
         }
     }
 

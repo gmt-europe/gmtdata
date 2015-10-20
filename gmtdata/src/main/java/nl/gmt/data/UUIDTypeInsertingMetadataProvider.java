@@ -4,6 +4,8 @@ import org.hibernate.annotations.Parameter;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.common.reflection.AnnotationReader;
 import org.hibernate.annotations.common.reflection.MetadataProvider;
+import org.hibernate.boot.spi.MetadataBuildingOptions;
+import org.hibernate.cfg.annotations.reflection.JPAMetadataProvider;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
@@ -14,11 +16,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-class UUIDTypeInsertingMetadataProvider implements MetadataProvider {
+class UUIDTypeInsertingMetadataProvider extends JPAMetadataProvider {
     private final Map<AnnotatedElement, AnnotationReader> cache = new HashMap<>();
     private final MetadataProvider delegate;
 
-    public UUIDTypeInsertingMetadataProvider(MetadataProvider delegate) {
+    public UUIDTypeInsertingMetadataProvider(MetadataBuildingOptions metadataBuildingOptions, MetadataProvider delegate) {
+        super(metadataBuildingOptions);
+
         this.delegate = delegate;
     }
 

@@ -24,15 +24,15 @@
 
         <commons-codec.version>1.10</commons-codec.version>
         <commons-io.version>2.4</commons-io.version>
-        <hibernate-core.version>4.3.7.Final</hibernate-core.version>
+        <hibernate-core.version>5.0.2.Final</hibernate-core.version>
         <junit.version>4.11</junit.version>
         <mysql-connector-java.version>5.1.34</mysql-connector-java.version>
-        <reflections.version>0.9.9</reflections.version>
+        <reflections.version>0.9.10</reflections.version>
         <sqlite-jdbc.version>3.8.7</sqlite-jdbc.version>
         <struts2-core.version>2.3.16.1</struts2-core.version>
         <maven-compiler-plugin.version>3.2</maven-compiler-plugin.version>
         <commons-lang.version>2.6</commons-lang.version>
-        <joda-time.version>2.7</joda-time.version>
+        <joda-time.version>2.8.2</joda-time.version>
         <log4j.version>1.2.17</log4j.version>
         <postgresql.version>9.4-1201-jdbc41</postgresql.version>
     </properties>

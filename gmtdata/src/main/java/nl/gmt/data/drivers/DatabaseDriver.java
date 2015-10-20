@@ -8,7 +8,7 @@ import nl.gmt.data.migrate.SchemaMigrateException;
 import nl.gmt.data.migrate.SqlGenerator;
 import nl.gmt.data.schema.Schema;
 import nl.gmt.data.schema.SchemaRules;
-import org.hibernate.cfg.Configuration;
+import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -66,7 +66,7 @@ public abstract class DatabaseDriver {
         throw new SchemaMigrateException("SQL generation not supported");
     }
 
-    public void createConfiguration(Configuration cfg, DbConfiguration configuration) {
+    public void createConfiguration(StandardServiceRegistryBuilder serviceRegistryBuilder, DbConfiguration configuration) {
         
     }
 

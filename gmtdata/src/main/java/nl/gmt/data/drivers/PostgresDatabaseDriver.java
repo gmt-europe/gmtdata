@@ -5,7 +5,7 @@ import nl.gmt.data.migrate.SchemaMigrateException;
 import nl.gmt.data.migrate.SqlGenerator;
 import nl.gmt.data.schema.Schema;
 import nl.gmt.data.schema.SchemaRules;
-import org.hibernate.cfg.Configuration;
+import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.dialect.PostgreSQL9Dialect;
 
 public class PostgresDatabaseDriver extends GenericDatabaseDriver {
@@ -30,7 +30,7 @@ public class PostgresDatabaseDriver extends GenericDatabaseDriver {
     }
 
     @Override
-    public void createConfiguration(Configuration cfg, DbConfiguration configuration) {
-        configureConnectionPooling(cfg, configuration, "SELECT 1;");
+    public void createConfiguration(StandardServiceRegistryBuilder serviceRegistryBuilder, DbConfiguration configuration) {
+        configureConnectionPooling(serviceRegistryBuilder, configuration, "SELECT 1;");
     }
 }

@@ -5,8 +5,9 @@ import nl.gmt.data.migrate.Manifest;
 import nl.gmt.data.migrate.SchemaMigrateException;
 import nl.gmt.data.schema.Schema;
 import nl.gmt.data.schema.SchemaIdAutoIncrement;
+import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.c3p0.internal.C3P0ConnectionProvider;
-import org.hibernate.cfg.Configuration;
+import org.hibernate.cfg.AvailableSettings;
 
 import java.sql.*;
 import java.util.UUID;
@@ -83,7 +84,7 @@ public abstract class GenericDatabaseDriver extends DatabaseDriver {
         }
     }
 
-    protected void configureConnectionPooling(Configuration cfg, DbConfiguration configuration, String preferredTestQuery) {
+    protected void configureConnectionPooling(StandardServiceRegistryBuilder serviceRegistryBuilder, DbConfiguration configuration, String preferredTestQuery) {
         int minSize = configuration.getConnectionPoolMinSize();
         if (minSize == -1) {
             minSize = 0;
@@ -93,14 +94,14 @@ public abstract class GenericDatabaseDriver extends DatabaseDriver {
             maxSize = 15;
         }
 
-        cfg
-            .setProperty("connection.provider_class", C3P0ConnectionProvider.class.getName())
-            .setProperty("hibernate.c3p0.acquire_increment", "3")
-            .setProperty("hibernate.c3p0.idle_test_period", "14400")
-            .setProperty("hibernate.c3p0.min_size", Integer.toString(minSize))
-            .setProperty("hibernate.c3p0.max_size", Integer.toString(maxSize))
-            .setProperty("hibernate.c3p0.max_statements", "0")
-            .setProperty("hibernate.c3p0.timeout", "25200")
-            .setProperty("hibernate.c3p0.preferredTestQuery", preferredTestQuery);
+        serviceRegistryBuilder
+            .applySetting(AvailableSettings.CONNECTION_PROVIDER, C3P0ConnectionProvider.class.getName())
+            .applySetting(AvailableSettings.C3P0_ACQUIRE_INCREMENT, "3")
+            .applySetting(AvailableSettings.C3P0_IDLE_TEST_PERIOD, "14400")
+            .applySetting(AvailableSettings.C3P0_MIN_SIZE, Integer.toString(minSize))
+            .applySetting(AvailableSettings.C3P0_MAX_SIZE, Integer.toString(maxSize))
+            .applySetting(AvailableSettings.C3P0_MAX_STATEMENTS, "0")
+            .applySetting(AvailableSettings.C3P0_TIMEOUT, "25200")
+            .applySetting(AvailableSettings.C3P0_CONFIG_PREFIX + ".preferredTestQuery", preferredTestQuery);
     }
 }

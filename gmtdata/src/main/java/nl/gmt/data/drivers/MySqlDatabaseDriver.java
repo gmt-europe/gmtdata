@@ -5,6 +5,7 @@ import nl.gmt.data.migrate.SchemaMigrateException;
 import nl.gmt.data.migrate.SqlGenerator;
 import nl.gmt.data.schema.Schema;
 import nl.gmt.data.schema.SchemaRules;
+import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.dialect.MySQL5Dialect;
 
@@ -30,7 +31,7 @@ public class MySqlDatabaseDriver extends GenericDatabaseDriver {
     }
 
     @Override
-    public void createConfiguration(Configuration cfg, DbConfiguration configuration) {
-        configureConnectionPooling(cfg, configuration, "SELECT 1;");
+    public void createConfiguration(StandardServiceRegistryBuilder serviceRegistryBuilder, DbConfiguration configuration) {
+        configureConnectionPooling(serviceRegistryBuilder, configuration, "SELECT 1;");
     }
 }
