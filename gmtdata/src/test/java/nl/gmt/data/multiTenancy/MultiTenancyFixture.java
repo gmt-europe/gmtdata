@@ -24,8 +24,8 @@ public class MultiTenancyFixture {
     private TestConnection openConnection() throws DataException, SQLException, SchemaMigrateException {
         DbConfiguration cfg = new DbConfiguration();
 
-        cfg.setConnectionString("jdbc:mysql://localhost/information_schema?user=nhtest&password=w92Nbz3curpXxXuK");
-        cfg.setType(DbType.MYSQL);
+        cfg.setConnectionString("jdbc:postgresql://attissrv02/nhtest?user=nhtest&password=w92Nbz3curpXxXuK&currentSchema=public");
+        cfg.setType(DbType.POSTGRES);
         cfg.setEnableMultiTenancy(true);
 
         return new TestConnection(cfg);
