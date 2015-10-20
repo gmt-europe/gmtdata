@@ -4,7 +4,7 @@
 
     <groupId>nl.gmt</groupId>
     <artifactId>gmtdata</artifactId>
-    <version>1.7.1</version>
+    <version>1.8</version>
     <packaging>jar</packaging>
 
     <name>GMT Data</name>
