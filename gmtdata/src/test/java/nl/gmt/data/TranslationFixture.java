@@ -1,6 +1,5 @@
 package nl.gmt.data;
 
-import nl.gmt.data.test.TestConnection;
 import nl.gmt.data.test.model.Relation;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,16 +14,19 @@ import static org.junit.Assert.assertTrue;
 public class TranslationFixture extends DbConnectionFixtureBase {
     @Test
     public void translation() throws Exception {
-        TestConnection db = this.openDb();
-
-        EntityValidator validator = new EntityValidator(db);
         boolean hadOne = false;
-        validator.validate(new Relation(), EntityValidatorMode.CREATE);
-        for (Map.Entry<EntityField, String> entry : validator.getMessages().entrySet()) {
-            if ("name".equals(entry.getKey().getFieldName())) {
-                hadOne = true;
-                assertEquals("Cannot be empty", entry.getValue());
+
+        try (DbContext ctx = openDb().openContext()) {
+            EntityValidator validator = new EntityValidator(ctx);
+            validator.validate(new Relation(), EntityValidatorMode.CREATE);
+            for (Map.Entry<EntityField, String> entry : validator.getMessages().entrySet()) {
+                if ("name".equals(entry.getKey().getFieldName())) {
+                    hadOne = true;
+                    assertEquals("Cannot be empty", entry.getValue());
+                }
             }
+
+            ctx.commit();
         }
 
         assertTrue(hadOne);
@@ -44,16 +46,19 @@ public class TranslationFixture extends DbConnectionFixtureBase {
             }
         });
 
-        TestConnection db = this.openDb(cfg);
-
-        EntityValidator validator = new EntityValidator(db);
         boolean hadOne = false;
-        validator.validate(new Relation(), EntityValidatorMode.CREATE);
-        for (Map.Entry<EntityField, String> entry : validator.getMessages().entrySet()) {
-            if ("name".equals(entry.getKey().getFieldName())) {
-                hadOne = true;
-                assertEquals("TEST", entry.getValue());
+
+        try (DbContext ctx = openDb(cfg).openContext()) {
+            EntityValidator validator = new EntityValidator(ctx);
+            validator.validate(new Relation(), EntityValidatorMode.CREATE);
+            for (Map.Entry<EntityField, String> entry : validator.getMessages().entrySet()) {
+                if ("name".equals(entry.getKey().getFieldName())) {
+                    hadOne = true;
+                    assertEquals("TEST", entry.getValue());
+                }
             }
+
+            ctx.commit();
         }
 
         assertTrue(hadOne);

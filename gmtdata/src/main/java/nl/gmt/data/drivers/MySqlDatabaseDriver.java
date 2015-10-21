@@ -6,7 +6,6 @@ import nl.gmt.data.migrate.SqlGenerator;
 import nl.gmt.data.schema.Schema;
 import nl.gmt.data.schema.SchemaRules;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
-import org.hibernate.cfg.Configuration;
 import org.hibernate.dialect.MySQL5Dialect;
 
 public class MySqlDatabaseDriver extends GenericDatabaseDriver {
@@ -18,6 +17,11 @@ public class MySqlDatabaseDriver extends GenericDatabaseDriver {
     @Override
     public String getDialectType() {
         return MySQL5Dialect.class.getName();
+    }
+
+    @Override
+    public boolean skipNullInUniqueIndex() {
+        return true;
     }
 
     @Override

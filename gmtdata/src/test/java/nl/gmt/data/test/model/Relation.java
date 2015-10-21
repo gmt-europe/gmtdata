@@ -8,7 +8,7 @@ import javax.persistence.Entity;
 import java.util.Set;
 
 @Entity
-@Table(name = "Relation")
+@Table(name = "`Relation`")
 public class Relation extends nl.gmt.data.Entity {
     public Relation() {
     }
@@ -24,7 +24,7 @@ public class Relation extends nl.gmt.data.Entity {
     @Id
     @GeneratedValue(generator = "uuid")
     @GenericGenerator(name = "uuid", strategy = "uuid2")
-    @Column(name = "Id", nullable = false)
+    @Column(name = "`Id`", nullable = false)
     @Override
     public java.util.UUID getId() {
         return this.id;
@@ -36,7 +36,7 @@ public class Relation extends nl.gmt.data.Entity {
 
     private byte[] picture;
 
-    @Column(name = "Picture")
+    @Column(name = "`Picture`")
     public byte[] getPicture() {
         return this.picture;
     }
@@ -47,7 +47,7 @@ public class Relation extends nl.gmt.data.Entity {
 
     private String name;
 
-    @Column(name = "Name", nullable = false, length = 200)
+    @Column(name = "`Name`", nullable = false, length = 200)
     public String getName() {
         return this.name;
     }
@@ -58,7 +58,7 @@ public class Relation extends nl.gmt.data.Entity {
 
     private Gender gender;
 
-    @Column(name = "Gender", nullable = false)
+    @Column(name = "`Gender`", nullable = false)
     @Type(type = "nl.gmt.data.test.model.Gender$UserType")
     public Gender getGender() {
         return this.gender;

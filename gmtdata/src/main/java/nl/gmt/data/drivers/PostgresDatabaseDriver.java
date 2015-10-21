@@ -20,6 +20,11 @@ public class PostgresDatabaseDriver extends GenericDatabaseDriver {
     }
 
     @Override
+    public boolean skipNullInUniqueIndex() {
+        return true;
+    }
+
+    @Override
     public SqlGenerator createSqlGenerator(Schema schema) throws SchemaMigrateException {
         return new nl.gmt.data.migrate.postgres.SqlGenerator(schema);
     }

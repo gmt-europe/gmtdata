@@ -1,6 +1,9 @@
 package nl.gmt.data;
 
+import nl.gmt.data.schema.SchemaDataTypeBase;
 import nl.gmt.data.schema.SchemaField;
+import nl.gmt.data.schema.SchemaForeignParent;
+import nl.gmt.data.schema.SchemaIndexType;
 import org.apache.commons.lang.Validate;
 
 public abstract class EntityField {
@@ -37,6 +40,16 @@ public abstract class EntityField {
     @Override
     public String toString() {
         return fieldName;
+    }
+
+    SchemaIndexType getIndexType() {
+        if (field instanceof SchemaForeignParent) {
+            return ((SchemaForeignParent)field).getIndexType();
+        }
+        if (field instanceof SchemaDataTypeBase) {
+            return ((SchemaDataTypeBase)field).getIndexType();
+        }
+        return SchemaIndexType.UNSET;
     }
 
     public Object getValue(Entity entity) {

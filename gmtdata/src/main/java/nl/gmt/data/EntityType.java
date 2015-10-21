@@ -9,6 +9,7 @@ import java.util.*;
 public class EntityType {
     private final SchemaClass schemaClass;
     private final Map<String, EntityField> fields;
+    private final List<EntityIndex> indexes;
     private final Class<? extends Entity> model;
 
     public EntityType(Schema schema, SchemaClass schemaClass, Class<? extends Entity> model) {
@@ -30,6 +31,43 @@ public class EntityType {
         recurseMixins(schema, schemaClass.getMixins(), fields);
 
         this.fields = Collections.unmodifiableMap(fields);
+
+        this.indexes = Collections.unmodifiableList(buildIndexes(schema));
+    }
+
+    private List<EntityIndex> buildIndexes(Schema schema) {
+        List<EntityIndex> indexes = new ArrayList<>();
+
+        for (EntityField field : fields.values()) {
+            SchemaIndexType indexType = field.getIndexType();
+
+            if (indexType == SchemaIndexType.UNIQUE || indexType == SchemaIndexType.INDEX) {
+                indexes.add(new EntityIndex(
+                    Collections.unmodifiableList(Collections.singletonList(field)),
+                    indexType == SchemaIndexType.UNIQUE
+                ));
+            }
+        }
+
+        addIndexes(schema, indexes, schemaClass);
+
+        return indexes;
+    }
+
+    private void addIndexes(Schema schema, List<EntityIndex> indexes, SchemaClassBase schemaClass) {
+        for (String name : schemaClass.getMixins()) {
+            addIndexes(schema, indexes, schema.getMixins().get(name));
+        }
+
+        for (SchemaIndex schemaIndex : schemaClass.getIndexes()) {
+            List<EntityField> fields = new ArrayList<>();
+
+            for (String field : schemaIndex.getFields()) {
+                fields.add(this.fields.get(field));
+            }
+
+            indexes.add(new EntityIndex(Collections.unmodifiableList(fields), schemaIndex.getType() == SchemaIndexType.UNIQUE));
+        }
     }
 
     private void recurseMixins(Schema schema, List<String> mixins, Map<String, EntityField> fields) {
@@ -104,6 +142,10 @@ public class EntityType {
 
     public Collection<EntityField> getFields() {
         return fields.values();
+    }
+
+    public List<EntityIndex> getIndexes() {
+        return indexes;
     }
 
     @Override

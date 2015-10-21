@@ -302,6 +302,10 @@ public abstract class DbConnection<T extends EntitySchema> implements DataClosea
         return result;
     }
 
+    DatabaseDriver getDriver() {
+        return driver;
+    }
+
     private class SchemaCallbackImpl implements SchemaCallback {
         private Iterable<SqlStatement> statements;
 

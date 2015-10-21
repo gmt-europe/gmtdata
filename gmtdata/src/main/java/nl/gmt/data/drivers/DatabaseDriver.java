@@ -23,6 +23,8 @@ public abstract class DatabaseDriver {
 
     public abstract String getDialectType();
 
+    public abstract boolean skipNullInUniqueIndex();
+
     public void configure(DbConnection db) {
     }
 

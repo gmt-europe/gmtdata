@@ -19,8 +19,9 @@
     </class>
     <class name="Address">
         <property name="Street" type="string-long"/>
-        <property name="HouseNumber" type="int"/>
+        <property name="HouseNumber" type="int" nullable="true"/>
         <property name="City" type="string-long"/>
         <foreignParent name="Relation" class="Relation"/>
+        <index properties="Relation,City,Street,HouseNumber" unique="true"/>
     </class>
 </schema>

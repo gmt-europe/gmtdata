@@ -6,7 +6,7 @@ import javax.persistence.*;
 import javax.persistence.Entity;
 
 @Entity
-@Table(name = "Address")
+@Table(name = "`Address`")
 public class Address extends nl.gmt.data.Entity {
     public Address() {
     }
@@ -23,7 +23,7 @@ public class Address extends nl.gmt.data.Entity {
     @Id
     @GeneratedValue(generator = "uuid")
     @GenericGenerator(name = "uuid", strategy = "uuid2")
-    @Column(name = "Id", nullable = false)
+    @Column(name = "`Id`", nullable = false)
     @Override
     public java.util.UUID getId() {
         return this.id;
@@ -35,7 +35,7 @@ public class Address extends nl.gmt.data.Entity {
 
     private String street;
 
-    @Column(name = "Street", nullable = false, length = 200)
+    @Column(name = "`Street`", nullable = false, length = 200)
     public String getStreet() {
         return this.street;
     }
@@ -46,7 +46,7 @@ public class Address extends nl.gmt.data.Entity {
 
     private Integer houseNumber;
 
-    @Column(name = "HouseNumber", nullable = false)
+    @Column(name = "`HouseNumber`")
     public Integer getHouseNumber() {
         return this.houseNumber;
     }
@@ -57,7 +57,7 @@ public class Address extends nl.gmt.data.Entity {
 
     private String city;
 
-    @Column(name = "City", nullable = false, length = 200)
+    @Column(name = "`City`", nullable = false, length = 200)
     public String getCity() {
         return this.city;
     }
@@ -69,7 +69,7 @@ public class Address extends nl.gmt.data.Entity {
     private Relation relation;
 
     @ManyToOne
-    @JoinColumn(name = "RelationId")
+    @JoinColumn(name = "`RelationId`")
     public Relation getRelation() {
         return this.relation;
     }

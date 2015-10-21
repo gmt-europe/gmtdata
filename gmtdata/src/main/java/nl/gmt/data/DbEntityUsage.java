@@ -6,8 +6,8 @@ import java.util.Collections;
 import java.util.List;
 
 public class DbEntityUsage {
-    private int count;
-    private List<DbEntityUsageRelation> relations;
+    private final int count;
+    private final List<DbEntityUsageRelation> relations;
 
     DbEntityUsage(List<DbEntityUsageRelation> relations) {
         Validate.notNull(relations, "relations");

@@ -23,6 +23,11 @@ public class SQLiteDatabaseDriver extends GenericDatabaseDriver {
     }
 
     @Override
+    public boolean skipNullInUniqueIndex() {
+        return true;
+    }
+
+    @Override
     public SqlGenerator createSqlGenerator(Schema schema) throws SchemaMigrateException {
         return new nl.gmt.data.migrate.sqlite.SqlGenerator(schema);
     }
