@@ -36,6 +36,7 @@
         <log4j.version>1.2.17</log4j.version>
         <postgresql.version>9.4-1201-jdbc41</postgresql.version>
         <c3p0.version>0.9.5.1</c3p0.version>
+        <asm.version>3.3</asm.version>
     </properties>
 
     <dependencies>
@@ -120,6 +121,12 @@
             <artifactId>log4j</artifactId>
             <version>${log4j.version}</version>
         </dependency>
+        <dependency>
+            <groupId>asm</groupId>
+            <artifactId>asm</artifactId>
+            <version>${asm.version}</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <distributionManagement>
@@ -145,6 +152,33 @@
                     <source>1.7</source>
                     <target>1.7</target>
                 </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>jarjar-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jarjar</goal>
+                        </goals>
+                        <configuration>
+                            <includes>
+                                <include>asm:asm</include>
+                            </includes>
+                            <rules>
+                                <rule>
+                                    <pattern>org.objectweb.asm.**</pattern>
+                                    <result>nl.gmt.data.internal.asm.@1</result>
+                                </rule>
+                                <keep>
+                                    <pattern>nl.gmt.data.**</pattern>
+                                </keep>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

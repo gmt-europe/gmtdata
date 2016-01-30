@@ -6,7 +6,6 @@ import nl.gmt.data.drivers.MySqlDatabaseDriver;
 import nl.gmt.data.drivers.PostgresDatabaseDriver;
 import nl.gmt.data.migrate.*;
 import nl.gmt.data.schema.*;
-import org.hibernate.internal.util.BytesHelper;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -163,7 +162,23 @@ public class Transferer {
         byte[] lsb = new byte[8];
         System.arraycopy(value, 0, msb, 0, 8);
         System.arraycopy(value, 8, lsb, 0, 8);
-        return new UUID(BytesHelper.asLong(msb), BytesHelper.asLong(lsb));
+        return new UUID(asLong(msb), asLong(lsb));
+    }
+
+    private static long asLong(byte[] bytes) {
+        if(bytes == null) {
+            return 0L;
+        } else if(bytes.length != 8) {
+            throw new IllegalArgumentException("Expecting 8 byte values to construct a long");
+        } else {
+            long value = 0L;
+
+            for(int i = 0; i < 8; ++i) {
+                value = value << 8 | (long)(bytes[i] & 255);
+            }
+
+            return value;
+        }
     }
 
     private boolean[] getUuidFields(List<SchemaField> fields) {

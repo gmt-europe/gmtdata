@@ -6,5 +6,6 @@
     <file url="file://$PROJECT_DIR$/gmtdata-postgres" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/mysql2postgres" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/mysql2postgres/src/main/java/nl/gmt/data/mysql2postgres/GenericSchemaRules.java" charset="windows-1252" />
+    <file url="PROJECT" charset="UTF-8" />
   </component>
 </project>
