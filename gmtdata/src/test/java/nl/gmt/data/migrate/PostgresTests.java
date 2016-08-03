@@ -207,7 +207,7 @@ public class PostgresTests extends DatabaseTests {
 "<class name=\"TableA\">" +
 "  <property name=\"PropertyA\" type=\"int\" />" +
 "  <property name=\"PropertyB\" type=\"int\" />" +
-"  <index properties=\"PropertyA,PropertyB\" filter=\"&quot;PropertyA&quot; is not null\" />" +
+"  <index properties=\"PropertyA,PropertyB\" filter='\"PropertyA\" is not null' />" +
 "</class>"
         );
     }
@@ -218,8 +218,47 @@ public class PostgresTests extends DatabaseTests {
 "<class name=\"TableA\">" +
 "  <property name=\"PropertyA\" type=\"int\" />" +
 "  <property name=\"PropertyB\" type=\"int\" />" +
-"  <index properties=\"PropertyA,PropertyB\" unique=\"true\" filter=\"&quot;PropertyA&quot; is not null\" />" +
+"  <index properties=\"PropertyA,PropertyB\" unique=\"true\" filter='\"PropertyA\" is not null' />" +
 "</class>"
+        );
+    }
+
+    @Test
+    public void verifyFilterIsChange() {
+        execute(
+"<class name=\"TableA\">" +
+"  <property name=\"PropertyA\" type=\"int\" />" +
+"  <property name=\"PropertyB\" type=\"int\" />" +
+"  <index properties=\"PropertyA,PropertyB\" />" +
+"</class>"
+        );
+
+        execute(
+"<class name=\"TableA\">" +
+"  <property name=\"PropertyA\" type=\"int\" />" +
+"  <property name=\"PropertyB\" type=\"int\" />" +
+"  <index properties=\"PropertyA,PropertyB\" filter='\"PropertyA\" is not null' />" +
+"</class>"
+);
+    }
+
+    @Test
+    public void verifySameFilterIsNoChange() {
+        execute(
+"<class name=\"TableA\">" +
+"  <property name=\"PropertyA\" type=\"int\" />" +
+"  <property name=\"PropertyB\" type=\"int\" />" +
+"  <index properties=\"PropertyA,PropertyB\" filter='\"PropertyA\" is not null' />" +
+"</class>"
+        );
+
+        execute(
+"<class name=\"TableA\">" +
+"  <property name=\"PropertyA\" type=\"int\" />" +
+"  <property name=\"PropertyB\" type=\"int\" />" +
+"  <index properties=\"PropertyA,PropertyB\" filter='\"PropertyA\" is not null' />" +
+"</class>",
+            ExpectChanges.NO
         );
     }
 }
