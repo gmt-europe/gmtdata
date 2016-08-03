@@ -200,4 +200,26 @@ public class PostgresTests extends DatabaseTests {
 "</class>"
         );
     }
+
+    @Test
+    public void partialIndexes() {
+        execute(
+"<class name=\"TableA\">" +
+"  <property name=\"PropertyA\" type=\"int\" />" +
+"  <property name=\"PropertyB\" type=\"int\" />" +
+"  <index properties=\"PropertyA,PropertyB\" filter=\"&quot;PropertyA&quot; is not null\" />" +
+"</class>"
+        );
+    }
+
+    @Test
+    public void partialUniqueIndexes() {
+        execute(
+"<class name=\"TableA\">" +
+"  <property name=\"PropertyA\" type=\"int\" />" +
+"  <property name=\"PropertyB\" type=\"int\" />" +
+"  <index properties=\"PropertyA,PropertyB\" unique=\"true\" filter=\"&quot;PropertyA&quot; is not null\" />" +
+"</class>"
+        );
+    }
 }

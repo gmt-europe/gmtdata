@@ -473,6 +473,10 @@ public class SchemaParserV2 {
                     case "strategy":
                         result.setStrategy(attribute.getValue());
                         break;
+
+                    case "filter":
+                        result.setFilter(attribute.getValue());
+                        break;
                 }
             }
         }

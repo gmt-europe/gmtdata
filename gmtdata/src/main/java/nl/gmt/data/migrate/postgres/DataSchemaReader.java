@@ -1,8 +1,10 @@
 package nl.gmt.data.migrate.postgres;
 
+import com.google.gson.Gson;
 import nl.gmt.data.migrate.*;
 import nl.gmt.data.schema.SchemaDbType;
 import nl.gmt.data.schema.SchemaIndexType;
+import org.apache.commons.lang.StringUtils;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -11,6 +13,8 @@ import java.sql.Statement;
 import java.util.*;
 
 public class DataSchemaReader extends nl.gmt.data.migrate.DataSchemaReader {
+    private static final Gson GSON = new Gson();
+
     public DataSchemaReader(Connection connection) {
         super(connection);
     }
@@ -105,7 +109,7 @@ public class DataSchemaReader extends nl.gmt.data.migrate.DataSchemaReader {
             try (
                 Statement stmt = getConnection().createStatement();
                 ResultSet rs = stmt.executeQuery(
-                    "select t.relname as \"trelname\", i.relname as \"irelname\", ix.indnatts, ix.indisunique, ix.indisprimary, ix.indkey, a.amname\n" +
+                    "select t.relname as \"trelname\", i.relname as \"irelname\", ix.indnatts, ix.indisunique, ix.indisprimary, ix.indkey, a.amname, obj_description(ix.indexrelid) as \"incomment\"\n" +
                     "from pg_index ix left join pg_class t on ix.indrelid = t.oid left join pg_class i on ix.indexrelid = i.oid left join pg_am a on i.relam = a.oid\n" +
                     "where t.relkind = 'r' and t.relnamespace = (select n.oid from pg_namespace n where n.nspname = current_schema())\n" +
                     "order by t.relname, i.relname"
@@ -123,6 +127,8 @@ public class DataSchemaReader extends nl.gmt.data.migrate.DataSchemaReader {
                     }
 
                     index.setStrategy(rs.getString("amname"));
+                    IndexComment comment = parseComment(rs.getString("incomment"));
+                    index.setFilter(comment.getFilter());
 
                     indexesMap.put(new Tuple(rs.getString("trelname"), index.getName()), new Index(index, parseAttributes(rs.getObject("indkey").toString())));
                     tables.get(rs.getString("trelname")).getIndexes().add(index);
@@ -211,6 +217,14 @@ public class DataSchemaReader extends nl.gmt.data.migrate.DataSchemaReader {
         } catch (SQLException e) {
             throw new SchemaMigrateException("Cannot load schema", e);
         }
+    }
+
+    private IndexComment parseComment(String comment) {
+        if (StringUtils.isEmpty(comment)) {
+            return new IndexComment();
+        }
+
+        return GSON.fromJson(comment, IndexComment.class);
     }
 
     private List<Integer> parseAttributes(String attributes) {

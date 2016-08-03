@@ -8,6 +8,7 @@ public class SchemaIndex extends SchemaAnnotatableElement {
     private List<String> fields;
     private SchemaIndexType type = SchemaIndexType.UNSET;
     private String strategy;
+    private String filter;
 
     SchemaIndex(SchemaParserLocation location) {
         super(location);
@@ -37,6 +38,14 @@ public class SchemaIndex extends SchemaAnnotatableElement {
         this.strategy = strategy;
     }
 
+    public String getFilter() {
+        return filter;
+    }
+
+    public void setFilter(String filter) {
+        this.filter = filter;
+    }
+
     String toSmallString() {
         String result = String.format("(`%s`)", StringUtils.join(fields, "` `"));
 
@@ -50,7 +59,7 @@ public class SchemaIndex extends SchemaAnnotatableElement {
     }
 
     boolean conflictsWith(SchemaIndex conflicting) {
-        if (fields.size() > conflicting.fields.size())
+        if (filter != null || conflicting.filter != null || fields.size() > conflicting.fields.size())
             return false;
 
         for (int i = 0; i < fields.size(); i++) {
@@ -65,6 +74,9 @@ public class SchemaIndex extends SchemaAnnotatableElement {
     }
 
     boolean conflictsWith(SchemaForeignParent foreign) {
+        if (filter != null)
+            return false;
+
         if (
             fields.size() == 1 &&
             StringUtils.equalsIgnoreCase(fields.get(0), foreign.getName())

@@ -177,6 +177,7 @@
                 <xs:attribute name="properties" type="xs:string" use="required"/>
                 <xs:attribute name="unique" type="xs:boolean" use="optional"/>
                 <xs:attribute name="strategy" type="xs:string" use="optional"/>
+                <xs:attribute name="filter" type="xs:string" use="optional"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>

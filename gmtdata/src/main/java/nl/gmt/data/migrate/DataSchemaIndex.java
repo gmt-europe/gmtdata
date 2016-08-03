@@ -12,6 +12,7 @@ public class DataSchemaIndex {
     private String name;
     private final List<String> fields;
     private String strategy;
+    private String filter;
 
     public DataSchemaIndex() {
         fields = new ArrayList<>();
@@ -45,13 +46,22 @@ public class DataSchemaIndex {
         this.strategy = strategy;
     }
 
+    public String getFilter() {
+        return filter;
+    }
+
+    public void setFilter(String filter) {
+        this.filter = filter;
+    }
+
     public boolean equals(DataSchemaIndex other, SchemaRules rules) throws SchemaMigrateException {
         if (this == other)
             return true;
 
         if (
             type != other.type ||
-            fields.size() != other.fields.size()
+            fields.size() != other.fields.size() ||
+            !StringUtils.equalsIgnoreCase(filter, other.filter)
         )
             return false;
 

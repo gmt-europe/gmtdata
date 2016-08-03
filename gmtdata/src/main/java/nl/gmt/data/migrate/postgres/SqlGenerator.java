@@ -1,5 +1,6 @@
 package nl.gmt.data.migrate.postgres;
 
+import com.google.gson.Gson;
 import nl.gmt.data.DataException;
 import nl.gmt.data.migrate.*;
 import nl.gmt.data.schema.*;
@@ -11,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 
 public class SqlGenerator extends GuidedSqlGenerator {
+    private static final Gson GSON = new Gson();
+
     private SchemaRules rules;
     private boolean closed;
     private Connection connection;
@@ -285,14 +288,66 @@ public class SqlGenerator extends GuidedSqlGenerator {
     protected void writeIndexCreate(DataSchemaTable table, DataSchemaIndex index) throws SchemaMigrateException {
         assert index.getType() == SchemaIndexType.INDEX || index.getType() == SchemaIndexType.UNIQUE;
 
-        addStatement(
-            "CREATE %s \"%s\" ON \"%s\" USING %s (\"%s\")",
-            index.getType() == SchemaIndexType.INDEX ? "INDEX" : "UNIQUE INDEX",
-            index.getName(),
-            table.getName(),
-            rules.getIndexStrategy(index.getStrategy()),
-            StringUtils.join(index.getFields(), "\", \"")
-        );
+        StringBuilder sb = new StringBuilder()
+            .append("CREATE ");
+
+        if (index.getType() != SchemaIndexType.INDEX) {
+            sb.append("UNIQUE ");
+        }
+
+        sb
+            .append("INDEX \"")
+            .append(index.getName())
+            .append("\" ON \"")
+            .append(table.getName())
+            .append("\" USING ")
+            .append(rules.getIndexStrategy(index.getStrategy()))
+            .append(" (\"")
+            .append(StringUtils.join(index.getFields(), "\", \""))
+            .append("\")");
+
+        if (index.getFilter() != null) {
+            sb
+                .append(" WHERE ")
+                .append(index.getFilter());
+        }
+
+        addStatement(sb.toString());
+
+        // If we have a filter, we need to write a comment to be able to compare the filter later on. The problem
+        // this solves is that when we query the schema, we do not get back exactly what we put in, so we cannot
+        // compare just based on that.
+
+        if (index.getFields() != null) {
+            IndexComment comment = new IndexComment();
+            comment.setFilter(index.getFilter());
+            String json = GSON.toJson(comment);
+
+            sb = new StringBuilder()
+                .append("COMMENT ON INDEX \"")
+                .append(index.getName())
+                .append("\" IS ");
+
+            appendQuoted(sb, json);
+
+            addStatement(sb.toString());
+        }
+    }
+
+    private void appendQuoted(StringBuilder sb, String value) {
+        if (value == null) {
+            sb.append("NULL");
+        } else {
+            sb.append('\'');
+            for (int i = 0; i < value.length(); i++) {
+                char c = value.charAt(i);
+                if (c == '\'') {
+                    sb.append('\\');
+                }
+                sb.append(c);
+            }
+            sb.append('\'');
+        }
     }
 
     @Override
