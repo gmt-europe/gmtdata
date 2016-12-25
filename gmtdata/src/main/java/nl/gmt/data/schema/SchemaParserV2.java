@@ -245,6 +245,14 @@ public class SchemaParserV2 {
                     case "persister":
                         klass.setPersister(attribute.getValue());
                         break;
+
+                    case "dynamicInsert":
+                        klass.setDynamicInsert(parseXmlBoolean(attribute.getValue()));
+                        break;
+
+                    case "dynamicUpdate":
+                        klass.setDynamicUpdate(parseXmlBoolean(attribute.getValue()));
+                        break;
                 }
             }
         }

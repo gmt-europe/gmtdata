@@ -344,6 +344,12 @@ public class CodeGenerator {
 
         cw.writeln("@javax.persistence.Entity");
         cw.writeln("@javax.persistence.Table(name = \"`%s`\")", StringEscapeUtils.escapeJava(klass.getResolvedDbName()));
+        if (klass.isDynamicInsert()) {
+            cw.writeln("@org.hibernate.annotations.DynamicInsert");
+        }
+        if (klass.isDynamicUpdate()) {
+            cw.writeln("@org.hibernate.annotations.DynamicUpdate");
+        }
         cw.writeln(
             "public class %s extends nl.gmt.data.Entity%s {",
             klass.getName(),
