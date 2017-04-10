@@ -1,5 +1,6 @@
 package nl.gmt.data.migrate.postgres;
 
+import nl.gmt.data.migrate.DataSchemaIndex;
 import nl.gmt.data.migrate.SchemaMigrateException;
 import nl.gmt.data.schema.SchemaDbType;
 
@@ -79,9 +80,9 @@ public class SchemaRules extends nl.gmt.data.schema.SchemaRules {
     }
 
     @Override
-    public String getIndexStrategy(String strategy) throws SchemaMigrateException {
-        if (strategy == null)
+    public String getIndexStrategy(DataSchemaIndex index) throws SchemaMigrateException {
+        if (index.getStrategy() == null)
             return "btree";
-        return strategy.toLowerCase();
+        return index.getStrategy().toLowerCase();
     }
 }

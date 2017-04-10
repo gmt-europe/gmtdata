@@ -71,7 +71,7 @@ public class DataSchemaIndex {
         }
 
         if (!(strategy == null && other.strategy == null)) {
-            if (!rules.getIndexStrategy(strategy).equals(rules.getIndexStrategy(other.strategy)))
+            if (!rules.getIndexStrategy(this).equals(rules.getIndexStrategy(other)))
                 return false;
         }
 

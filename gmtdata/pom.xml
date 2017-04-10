@@ -38,6 +38,7 @@
         <c3p0.version>0.9.5.1</c3p0.version>
         <asm.version>3.3</asm.version>
         <gson.version>2.7</gson.version>
+        <sqljdbc4.version>4.1</sqljdbc4.version>
     </properties>
 
     <dependencies>
@@ -78,6 +79,12 @@
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <version>${postgresql.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.microsoft.sqlserver</groupId>
+            <artifactId>sqljdbc4</artifactId>
+            <version>${sqljdbc4.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>

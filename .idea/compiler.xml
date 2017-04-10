@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="CompilerConfiguration">
-    <option name="DEFAULT_COMPILER" value="Javac" />
-    <resourceExtensions />
     <wildcardResourcePatterns>
       <entry name="!?*.java" />
       <entry name="!?*.form" />
@@ -14,19 +12,16 @@
       <entry name="!?*.clj" />
     </wildcardResourcePatterns>
     <annotationProcessing>
-      <profile default="true" name="Default" enabled="false">
-        <processorPath useClasspath="true" />
-      </profile>
-      <profile default="false" name="Maven default annotation processors profile" enabled="true">
+      <profile name="Maven default annotation processors profile" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="true" />
         <module name="gmtdata" />
         <module name="gmtdata-maven-plugin" />
         <module name="gmtdata-postgres" />
         <module name="gmtdata-test" />
         <module name="mysql2postgres" />
+        <module name="postgres2sqlserver" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -35,6 +30,7 @@
       <module name="gmtdata-postgres" target="1.7" />
       <module name="gmtdata-test" target="1.7" />
       <module name="mysql2postgres" target="1.7" />
+      <module name="postgres2sqlserver" target="1.7" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">

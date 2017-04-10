@@ -301,7 +301,7 @@ public class SqlGenerator extends GuidedSqlGenerator {
             .append("\" ON \"")
             .append(table.getName())
             .append("\" USING ")
-            .append(rules.getIndexStrategy(index.getStrategy()))
+            .append(rules.getIndexStrategy(index))
             .append(" (\"")
             .append(StringUtils.join(index.getFields(), "\", \""))
             .append("\")");

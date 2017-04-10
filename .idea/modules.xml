@@ -7,6 +7,7 @@
       <module fileurl="file://$PROJECT_DIR$/gmtdata-postgres/gmtdata-postgres.iml" filepath="$PROJECT_DIR$/gmtdata-postgres/gmtdata-postgres.iml" />
       <module fileurl="file://$PROJECT_DIR$/gmtdata-test/gmtdata-test.iml" filepath="$PROJECT_DIR$/gmtdata-test/gmtdata-test.iml" />
       <module fileurl="file://$PROJECT_DIR$/mysql2postgres/mysql2postgres.iml" filepath="$PROJECT_DIR$/mysql2postgres/mysql2postgres.iml" />
+      <module fileurl="file://$PROJECT_DIR$/postgres2sqlserver/postgres2sqlserver.iml" filepath="$PROJECT_DIR$/postgres2sqlserver/postgres2sqlserver.iml" />
     </modules>
   </component>
 </project>

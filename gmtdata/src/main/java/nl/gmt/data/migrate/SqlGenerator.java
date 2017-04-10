@@ -147,10 +147,8 @@ public abstract class SqlGenerator implements AutoCloseable {
 
     public static boolean dbTypeRequiresLength(SchemaDbType dbType) throws SchemaMigrateException {
         switch (dbType) {
-            case STRING:
             case FIXED_STRING:
             case FIXED_BINARY:
-            case BINARY:
                 return true;
 
             default:

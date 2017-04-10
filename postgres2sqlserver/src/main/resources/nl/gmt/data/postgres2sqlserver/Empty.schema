@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<schema xmlns="http://schemas.gmt.nl/gmtdata/2015/02/hibernate-schema" namespace="UnitTestAssembly">
+  <settings>
+    <idProperty name="Id" type="int" foreignPostfix="Id">
+      <generator name="native" />
+    </idProperty>
+  </settings>
+</schema>

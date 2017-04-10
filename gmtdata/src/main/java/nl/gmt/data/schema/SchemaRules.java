@@ -1,9 +1,6 @@
 package nl.gmt.data.schema;
 
-import nl.gmt.data.migrate.DataSchemaFactory;
-import nl.gmt.data.migrate.DataSchemaField;
-import nl.gmt.data.migrate.SchemaMigrateException;
-import nl.gmt.data.migrate.StandardDataSchemaFactory;
+import nl.gmt.data.migrate.*;
 
 public abstract class SchemaRules {
     public abstract String getDbType(SchemaDbType dbType) throws SchemaMigrateException;
@@ -41,8 +38,8 @@ public abstract class SchemaRules {
             );
     }
 
-    public String getIndexStrategy(String strategy) throws SchemaMigrateException {
-        if (strategy != null)
+    public String getIndexStrategy(DataSchemaIndex index) throws SchemaMigrateException {
+        if (index.getStrategy() != null)
             throw new SchemaMigrateException("Index strategy is not supported");
         return null;
     }

@@ -3,4 +3,5 @@
     <connectionString type="mysql" value="jdbc:mysql://localhost/nhtest?user=nhtest&amp;password=w92Nbz3curpXxXuK" />
     <connectionString type="sqlite" value="jdbc:sqlite:./tmp/sqlitedb.db3" />
     <connectionString type="postgres" value="jdbc:postgresql://attissrv02/nhtest?user=nhtest&amp;password=w92Nbz3curpXxXuK&amp;currentSchema=public" />
+    <connectionString type="sqlserver" value="jdbc:sqlserver://attiswrk10;database=nhtest;user=nhtest;password=nhtest" />
 </connectionStrings>

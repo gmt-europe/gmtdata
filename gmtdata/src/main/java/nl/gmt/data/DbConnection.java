@@ -1,9 +1,6 @@
 package nl.gmt.data;
 
-import nl.gmt.data.drivers.DatabaseDriver;
-import nl.gmt.data.drivers.MySqlDatabaseDriver;
-import nl.gmt.data.drivers.PostgresDatabaseDriver;
-import nl.gmt.data.drivers.SQLiteDatabaseDriver;
+import nl.gmt.data.drivers.*;
 import nl.gmt.data.migrate.*;
 import nl.gmt.data.schema.Schema;
 import nl.gmt.data.schema.SchemaCallback;
@@ -72,6 +69,7 @@ public abstract class DbConnection<T extends EntitySchema> implements DataClosea
             case SQLITE: driver = new SQLiteDatabaseDriver(); break;
             case MYSQL: driver = new MySqlDatabaseDriver(); break;
             case POSTGRES: driver = new PostgresDatabaseDriver(); break;
+            case SQLSERVER: driver = new SqlServerDatabaseDriver(); break;
             default: throw new DataException("Illegal database type");
         }
 
@@ -151,6 +149,9 @@ public abstract class DbConnection<T extends EntitySchema> implements DataClosea
         }
         if (connectionString.startsWith("jdbc:sqlite:")) {
             return DbType.SQLITE;
+        }
+        if (connectionString.startsWith("jdbc:sqlserver:")) {
+            return DbType.SQLSERVER;
         }
         return null;
     }
