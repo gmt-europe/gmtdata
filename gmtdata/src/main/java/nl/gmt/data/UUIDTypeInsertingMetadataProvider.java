@@ -19,11 +19,13 @@ import java.util.UUID;
 class UUIDTypeInsertingMetadataProvider extends JPAMetadataProvider {
     private final Map<AnnotatedElement, AnnotationReader> cache = new HashMap<>();
     private final MetadataProvider delegate;
+    private final String type;
 
-    public UUIDTypeInsertingMetadataProvider(MetadataBuildingOptions metadataBuildingOptions, MetadataProvider delegate) {
+    public UUIDTypeInsertingMetadataProvider(MetadataBuildingOptions metadataBuildingOptions, MetadataProvider delegate, String type) {
         super(metadataBuildingOptions);
 
         this.delegate = delegate;
+        this.type = type;
     }
 
     @Override
@@ -56,7 +58,7 @@ class UUIDTypeInsertingMetadataProvider extends JPAMetadataProvider {
         }
 
         if (isUuid) {
-            reader = new UUIDTypeInserter(reader);
+            reader = new UUIDTypeInserter(reader, type);
             cache.put(annotatedElement, reader);
         }
 
@@ -64,34 +66,34 @@ class UUIDTypeInsertingMetadataProvider extends JPAMetadataProvider {
     }
 
     private static class UUIDTypeInserter implements AnnotationReader {
-        private static final Type INSTANCE = new Type() {
-            @Override
-            public Class<? extends Annotation> annotationType() {
-                return Type.class;
-            }
-
-            @Override
-            public String type() {
-                return "pg-uuid";
-            }
-
-            @Override
-            public Parameter[] parameters() {
-                return new Parameter[0];
-            }
-        };
-
         private final AnnotationReader delegate;
+        private final Type type;
 
-        public UUIDTypeInserter(AnnotationReader delegate) {
+        public UUIDTypeInserter(AnnotationReader delegate, final String type) {
             this.delegate = delegate;
+            this.type = new Type() {
+                @Override
+                public Class<? extends Annotation> annotationType() {
+                    return Type.class;
+                }
+
+                @Override
+                public String type() {
+                    return type;
+                }
+
+                @Override
+                public Parameter[] parameters() {
+                    return new Parameter[0];
+                }
+            };
         }
 
         @Override
         @SuppressWarnings("unchecked")
         public <T extends Annotation> T getAnnotation(Class<T> annotationType) {
             if (annotationType == Type.class) {
-                return (T)INSTANCE;
+                return (T)type;
             }
 
             return delegate.getAnnotation(annotationType);
@@ -106,7 +108,7 @@ class UUIDTypeInsertingMetadataProvider extends JPAMetadataProvider {
         public Annotation[] getAnnotations() {
             Annotation[] annotations = delegate.getAnnotations();
             Annotation[] result = Arrays.copyOf(annotations, annotations.length + 1);
-            result[result.length - 1] = INSTANCE;
+            result[result.length - 1] = type;
             return result;
         }
     }

@@ -120,7 +120,21 @@ public abstract class DbConnection<T extends EntitySchema> implements DataClosea
 
             metadataProviderInjector.setMetadataProvider(new UUIDTypeInsertingMetadataProvider(
                 metadataBuildingOptions,
-                metadataProviderInjector.getMetadataProvider()
+                metadataProviderInjector.getMetadataProvider(),
+                "pg-uuid"
+            ));
+        }
+
+        // Same goes for SQL Server, but they prefer uuid-char.
+
+        if (type == DbType.SQLSERVER) {
+            MetadataBuildingOptions metadataBuildingOptions = ((MetadataBuilderImplementor)metadataBuilder).getMetadataBuildingOptions();
+            MetadataProviderInjector metadataProviderInjector = (MetadataProviderInjector)metadataBuildingOptions.getReflectionManager();
+
+            metadataProviderInjector.setMetadataProvider(new UUIDTypeInsertingMetadataProvider(
+                metadataBuildingOptions,
+                metadataProviderInjector.getMetadataProvider(),
+                "uuid-char"
             ));
         }
 
