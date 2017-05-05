@@ -1,4 +1,4 @@
-package nl.gmt.data.postgres2sqlserver;
+package nl.gmt.data.migrator;
 
 import nl.gmt.data.DataException;
 import org.kohsuke.args4j.CmdLineException;

@@ -1,9 +1,10 @@
-package nl.gmt.data.mysql2postgres;
+package nl.gmt.data.migrator;
 
 import nl.gmt.data.DataException;
 import nl.gmt.data.drivers.DatabaseDriver;
 import nl.gmt.data.drivers.MySqlDatabaseDriver;
 import nl.gmt.data.drivers.PostgresDatabaseDriver;
+import nl.gmt.data.drivers.SqlServerDatabaseDriver;
 import nl.gmt.data.migrate.*;
 import nl.gmt.data.schema.*;
 
@@ -13,14 +14,13 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 public class Transferer {
     private final Arguments arguments;
     private Connection from;
     private Connection to;
-    private final MySqlDatabaseDriver fromDriver = new MySqlDatabaseDriver();
-    private final PostgresDatabaseDriver toDriver = new PostgresDatabaseDriver();
+    private DatabaseDriver fromDriver;
+    private DatabaseDriver toDriver;
     private Schema schema;
 
     public Transferer(Arguments arguments) {
@@ -30,11 +30,13 @@ public class Transferer {
     public void transfer() throws DataException, SchemaException, SQLException, SchemaMigrateException {
         System.out.println("Connecting to the source database");
 
+        fromDriver = createDriver(arguments.getFrom());
         from = fromDriver.createConnection(arguments.getFrom());
         from.setAutoCommit(false);
 
         System.out.println("Connecting to the destination database");
 
+        toDriver = createDriver(arguments.getTo());
         to = toDriver.createConnection(arguments.getTo());
         to.setAutoCommit(false);
 
@@ -62,51 +64,38 @@ public class Transferer {
         migrate(arguments.getTo(), arguments.getSchema(), toDriver, false);
     }
 
+    private DatabaseDriver createDriver(String connectionString) {
+        if (connectionString.startsWith("jdbc:postgresql:")) {
+            return new PostgresDatabaseDriver();
+        }
+        if (connectionString.startsWith("jdbc:mysql:")) {
+            return new MySqlDatabaseDriver();
+        }
+        if (connectionString.startsWith("jdbc:sqlserver:")) {
+            return new SqlServerDatabaseDriver();
+        }
+        throw new IllegalStateException("Cannot resolve database driver from the connection string");
+    }
+
     private void transfer(SchemaClass klass) throws SQLException {
+        DbLoader sourceLoader = DbLoader.fromDriver(fromDriver, schema, klass);
+        DbLoader targetLoader = DbLoader.fromDriver(toDriver, schema, klass);
+
         System.out.print(String.format("%s...", klass.getName()));
 
-        int count = getRecordCount(klass);
+        int count = getRecordCount(sourceLoader.buildCountQuery());
         int offset = 0;
 
-        StringBuilder insert = new StringBuilder();
-        StringBuilder select = new StringBuilder();
-
-        insert.append("INSERT INTO \"").append(klass.getResolvedDbName()).append("\" (\"Id\"");
-        select.append("SELECT `Id`");
+        String selectQuery = sourceLoader.buildSelectQuery();
+        String insertQuery = targetLoader.buildInsertQuery();
 
         List<SchemaField> schemaFields = getSchemaFields(klass);
 
-        for (SchemaField field : schemaFields) {
-            if (field instanceof SchemaForeignChild) {
-                continue;
-            }
-
-            String fieldName;
-            if (field instanceof SchemaForeignParent) {
-                fieldName = ((SchemaForeignParent)field).getResolvedDbName();
-            } else {
-                fieldName = ((SchemaProperty)field).getResolvedDbName();
-            }
-
-            insert.append(", \"").append(fieldName).append('"');
-            select.append(", `").append(fieldName).append('`');
-        }
-
-        insert.append(") VALUES (?");
-
-        for (int i = 0; i < schemaFields.size(); i++) {
-            insert.append(", ?");
-        }
-
-        insert.append(')');
-        select.append(" FROM `").append(klass.getResolvedDbName()).append("`");
-
-        boolean[] uuidFields = getUuidFields(schemaFields);
-
-        PreparedStatement toStmt = to.prepareStatement(insert.toString());
-
-        try (Statement fromStmt = from.createStatement()) {
-            ResultSet rs = fromStmt.executeQuery(select.toString());
+        try (
+            PreparedStatement toStmt = to.prepareStatement(insertQuery);
+            Statement fromStmt = from.createStatement()
+        ) {
+            ResultSet rs = fromStmt.executeQuery(selectQuery);
             int fieldCount = schemaFields.size() + 1;
 
             while (rs.next()) {
@@ -117,9 +106,7 @@ public class Transferer {
 
                 for (int i = 0; i < fieldCount; i++) {
                     Object value = rs.getObject(i + 1);
-                    if (uuidFields[i]) {
-                        value = bytesToUuid((byte[])value);
-                    }
+                    value = targetLoader.printValue(i, sourceLoader.parseValue(i, value));
                     toStmt.setObject(i + 1, value);
                 }
 
@@ -153,61 +140,9 @@ public class Transferer {
         }
     }
 
-    private UUID bytesToUuid(byte[] value) {
-        if (value == null) {
-            return null;
-        }
-
-        byte[] msb = new byte[8];
-        byte[] lsb = new byte[8];
-        System.arraycopy(value, 0, msb, 0, 8);
-        System.arraycopy(value, 8, lsb, 0, 8);
-        return new UUID(asLong(msb), asLong(lsb));
-    }
-
-    private static long asLong(byte[] bytes) {
-        if(bytes == null) {
-            return 0L;
-        } else if(bytes.length != 8) {
-            throw new IllegalArgumentException("Expecting 8 byte values to construct a long");
-        } else {
-            long value = 0L;
-
-            for(int i = 0; i < 8; ++i) {
-                value = value << 8 | (long)(bytes[i] & 255);
-            }
-
-            return value;
-        }
-    }
-
-    private boolean[] getUuidFields(List<SchemaField> fields) {
-        boolean[] uuidFields = new boolean[fields.size() + 1];
-        boolean idIsUuid = schema.getIdProperty().getResolvedDataType().getNativeType() == UUID.class;
-        int offset = 1;
-
-        uuidFields[0] = idIsUuid;
-
-        for (SchemaField field : fields) {
-            if (field instanceof SchemaForeignChild) {
-                continue;
-            }
-
-            if (field instanceof SchemaProperty) {
-                uuidFields[offset] = ((SchemaProperty)field).getResolvedDataType().getNativeType() == UUID.class;
-            } else {
-                uuidFields[offset] = idIsUuid;
-            }
-
-            offset++;
-        }
-
-        return uuidFields;
-    }
-
-    private int getRecordCount(SchemaClass klass) throws SQLException {
+    private int getRecordCount(String query) throws SQLException {
         try (Statement stmt = from.createStatement()) {
-            ResultSet rs = stmt.executeQuery(String.format("SELECT COUNT(*) FROM `%s`", klass.getResolvedDbName()));
+            ResultSet rs = stmt.executeQuery(query);
 
             if (rs.next()) {
                 return rs.getInt(1);

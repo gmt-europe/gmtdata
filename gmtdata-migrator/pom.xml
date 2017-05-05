@@ -1,13 +1,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>postgres2sqlserver</artifactId>
+  <artifactId>gmtdata-migrator</artifactId>
   <groupId>nl.gmt</groupId>
   <version>0.1-SNAPSHOT</version>
   <packaging>jar</packaging>
-  <name>Progress to SQL Server data loader</name>
+  <name>GMT Data Migrator</name>
 
   <properties>
+    <mysql-connector-java.version>5.1.34</mysql-connector-java.version>
     <postgresql.version>9.4-1201-jdbc41</postgresql.version>
     <asm.version>3.3</asm.version>
     <gmtdata.version>1.12.0</gmtdata.version>
@@ -27,6 +28,11 @@
       <groupId>asm</groupId>
       <artifactId>asm</artifactId>
       <version>${asm.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>mysql</groupId>
+      <artifactId>mysql-connector-java</artifactId>
+      <version>${mysql-connector-java.version}</version>
     </dependency>
     <dependency>
       <groupId>org.postgresql</groupId>
@@ -63,7 +69,7 @@
         <configuration>
           <archive>
             <manifest>
-              <mainClass>nl.gmt.data.postgres2sqlserver.App</mainClass>
+              <mainClass>nl.gmt.data.migrator.App</mainClass>
             </manifest>
           </archive>
           <descriptorRefs>

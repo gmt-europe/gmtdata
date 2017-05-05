@@ -3,9 +3,10 @@
   <component name="Encoding" useUTFGuessing="true" native2AsciiForPropertiesFiles="false">
     <file url="file://$PROJECT_DIR$/gmtdata" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/gmtdata-maven-plugin" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/gmtdata-migrator" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/gmtdata-postgres" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/mysql2postgres" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/mysql2postgres/src/main/java/nl/gmt/data/mysql2postgres/GenericSchemaRules.java" charset="windows-1252" />
+    <file url="file://$PROJECT_DIR$/mysql2postgres/src/main/java/nl/gmt/data/migrator/GenericSchemaRules.java" charset="windows-1252" />
     <file url="file://$PROJECT_DIR$/postgres2sqlserver" charset="UTF-8" />
     <file url="PROJECT" charset="UTF-8" />
   </component>

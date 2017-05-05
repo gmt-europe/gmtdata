@@ -18,15 +18,15 @@
         <outputRelativeToContentRoot value="true" />
         <module name="gmtdata" />
         <module name="gmtdata-maven-plugin" />
+        <module name="gmtdata-migrator" />
         <module name="gmtdata-postgres" />
         <module name="gmtdata-test" />
-        <module name="mysql2postgres" />
-        <module name="postgres2sqlserver" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="gmtdata" target="1.7" />
       <module name="gmtdata-maven-plugin" target="1.7" />
+      <module name="gmtdata-migrator" target="1.7" />
       <module name="gmtdata-postgres" target="1.7" />
       <module name="gmtdata-test" target="1.7" />
       <module name="mysql2postgres" target="1.7" />

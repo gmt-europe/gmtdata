@@ -1,4 +1,4 @@
-package nl.gmt.data.mysql2postgres;
+package nl.gmt.data.migrator;
 
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
@@ -6,10 +6,10 @@ import org.kohsuke.args4j.Option;
 import org.kohsuke.args4j.ParserProperties;
 
 public class Arguments {
-    @Option(name = "-f", aliases = {"--from"}, required = true, usage = "Source MySQL connection string")
+    @Option(name = "-f", aliases = {"--from"}, required = true, usage = "Source connection string")
     private String from;
 
-    @Option(name = "-t", aliases = {"--to"}, required = true, usage = "Destination Postgres connection string")
+    @Option(name = "-t", aliases = {"--to"}, required = true, usage = "Destination connection string")
     private String to;
 
     @Option(name = "-s", aliases = {"--schema"}, required = true, usage = "Path to database schema")
