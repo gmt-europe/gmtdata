@@ -18,14 +18,19 @@ import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.boot.spi.MetadataBuilderImplementor;
 import org.hibernate.boot.spi.MetadataBuildingOptions;
 import org.hibernate.cfg.AvailableSettings;
+import org.jboss.logging.Logger;
 
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 
 public abstract class DbConnection<T extends EntitySchema> implements DataCloseable {
+    private static final Logger LOG = Logger.getLogger(DbConnection.class);
+
     private static final ResourceBundle BUNDLE = loadBundle();
 
     private static ResourceBundle loadBundle() {
@@ -211,6 +216,8 @@ public abstract class DbConnection<T extends EntitySchema> implements DataClosea
     }
 
     public void migrateDatabase(DbTenant tenant) throws DataException, SchemaMigrateException, SQLException {
+        LOG.info("Migrating database...");
+
         SchemaCallbackImpl callback = new SchemaCallbackImpl();
 
         DataSchemaExecutor executor = new DataSchemaExecutor(
@@ -223,18 +230,34 @@ public abstract class DbConnection<T extends EntitySchema> implements DataClosea
             callback
         );
 
+        LOG.info("Finding schema differences");
+
         executor.execute();
+
+        List<SqlStatement> statements = new ArrayList<>();
+        for (SqlStatement statement : callback.statements) {
+            if (statement.getType() == SqlStatementType.STATEMENT) {
+                statements.add(statement);
+            }
+        }
+
+        if (statements.size() == 0) {
+            LOG.info("Schema is up to date");
+            return;
+        }
+
+        LOG.infof("Found %d differences; applying", statements.size());
 
         try (Connection connection = driver.createConnection(connectionString)) {
             if (tenant != null) {
                 connection.setCatalog(tenant.getDatabase());
             }
 
-            for (SqlStatement statement : callback.statements) {
-                if (statement.getType() == SqlStatementType.STATEMENT) {
-                    try (Statement stmt = connection.createStatement()) {
-                        stmt.execute(statement.getValue());
-                    }
+            for (SqlStatement statement : statements) {
+                LOG.infof("Applying %s", statement.getValue());
+
+                try (Statement stmt = connection.createStatement()) {
+                    stmt.execute(statement.getValue());
                 }
             }
         }
