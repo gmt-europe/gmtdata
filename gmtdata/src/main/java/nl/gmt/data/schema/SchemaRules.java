@@ -13,6 +13,10 @@ public abstract class SchemaRules {
 
     public abstract boolean dbTypeSupportsLength(SchemaDbType dbType);
 
+    public boolean dbSupportsIndexIncludeFields() {
+        return false;
+    }
+
     public DataSchemaFactory newDataSchemaFactory() {
         return new StandardDataSchemaFactory();
     }

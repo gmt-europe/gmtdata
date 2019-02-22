@@ -6,6 +6,7 @@ import java.util.List;
 
 public class SchemaIndex extends SchemaAnnotatableElement {
     private List<String> fields;
+    private List<String> includeFields;
     private SchemaIndexType type = SchemaIndexType.UNSET;
     private String strategy;
     private String filter;
@@ -20,6 +21,14 @@ public class SchemaIndex extends SchemaAnnotatableElement {
 
     void setFields(List<String> fields) {
         this.fields = fields;
+    }
+
+    public List<String> getIncludeFields() {
+        return includeFields;
+    }
+
+    public void setIncludeFields(List<String> includeFields) {
+        this.includeFields = includeFields;
     }
 
     public SchemaIndexType getType() {

@@ -188,7 +188,11 @@ public class DataSchemaReader extends nl.gmt.data.migrate.DataSchemaReader {
                     String indexName = rs.getString(1);
                     DataSchemaIndex index = indexesMap.get(indexName);
                     if (index != null) {
-                        index.getFields().add(rs.getString(2));
+                        if (rs.getInt(3) == 0) {
+                            index.getFields().add(rs.getString(2));
+                        } else {
+                            index.getIncludeFields().add(rs.getString(2));
+                        }
                     }
                 }
             }

@@ -478,6 +478,10 @@ public class SchemaParserV2 {
                         result.setFields(Collections.unmodifiableList(Arrays.asList(splitCommaField(attribute.getValue()))));
                         break;
 
+                    case "includeProperties":
+                        result.setIncludeFields(Collections.unmodifiableList(Arrays.asList(splitCommaField(attribute.getValue()))));
+                        break;
+
                     case "strategy":
                         result.setStrategy(attribute.getValue());
                         break;

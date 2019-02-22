@@ -133,6 +133,11 @@ public class SqlGenerator extends GuidedSqlGenerator {
         sb
             .append(" ON [dbo].[").append(table.getName()).append("] (")
             .append(getFieldList(index.getFields())).append(")");
+        if (index.getIncludeFields().size() > 0) {
+            sb
+                .append(" INCLUDE (")
+                .append(getFieldList(index.getIncludeFields())).append(")");
+        }
         if (index.getFilter() != null) {
             sb.append(" WHERE ").append(index.getFilter());
         }
@@ -168,13 +173,9 @@ public class SqlGenerator extends GuidedSqlGenerator {
         DataSchemaTableDifference tableDifference = getDifference().getChangedTables().get(table.getName());
 
         for (DataSchemaIndex index : currentTable.getIndexes()) {
-            boolean found = false;
-            for (String indexField : index.getFields()) {
-                if (StringUtils.equalsIgnoreCase(indexField, field.getOldField().getName())) {
-                    found = true;
-                    break;
-                }
-            }
+            boolean found =
+                hasField(field, index.getFields()) ||
+                hasField(field, index.getIncludeFields());
 
             if (found && tableDifference != null) {
                 for (String removedIndex : tableDifference.getRemovedIndexes()) {
@@ -197,6 +198,15 @@ public class SqlGenerator extends GuidedSqlGenerator {
         for (DataSchemaIndex index : recreateIndexes) {
             writeIndexCreate(table, index);
         }
+    }
+
+    private boolean hasField(DataSchemaFieldDifference field, List<String> fields) {
+        for (String indexField : fields) {
+            if (StringUtils.equalsIgnoreCase(indexField, field.getOldField().getName())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

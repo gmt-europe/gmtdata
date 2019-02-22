@@ -11,11 +11,13 @@ public class DataSchemaIndex {
     private SchemaIndexType type;
     private String name;
     private final List<String> fields;
+    private final List<String> includeFields;
     private String strategy;
     private String filter;
 
     public DataSchemaIndex() {
         fields = new ArrayList<>();
+        includeFields = new ArrayList<>();
     }
 
     public SchemaIndexType getType() {
@@ -36,6 +38,10 @@ public class DataSchemaIndex {
 
     public List<String> getFields() {
         return fields;
+    }
+
+    public List<String> getIncludeFields() {
+        return includeFields;
     }
 
     public String getStrategy() {
@@ -61,6 +67,7 @@ public class DataSchemaIndex {
         if (
             type != other.type ||
             fields.size() != other.fields.size() ||
+
             !StringUtils.equalsIgnoreCase(filter, other.filter)
         )
             return false;
@@ -73,6 +80,16 @@ public class DataSchemaIndex {
         if (!(strategy == null && other.strategy == null)) {
             if (!rules.getIndexStrategy(this).equals(rules.getIndexStrategy(other)))
                 return false;
+        }
+
+        if (rules.dbSupportsIndexIncludeFields()) {
+            if (includeFields.size() != other.includeFields.size())
+                return false;
+
+            for (int i = 0; i < includeFields.size(); i++) {
+                if (!StringUtils.equalsIgnoreCase(includeFields.get(i), other.includeFields.get(i)))
+                    return false;
+            }
         }
 
         return true;

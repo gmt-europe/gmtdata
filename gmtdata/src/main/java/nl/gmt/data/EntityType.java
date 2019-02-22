@@ -44,6 +44,7 @@ public class EntityType {
             if (indexType == SchemaIndexType.UNIQUE || indexType == SchemaIndexType.INDEX) {
                 indexes.add(new EntityIndex(
                     Collections.unmodifiableList(Collections.singletonList(field)),
+                    Collections.<EntityField>emptyList(),
                     indexType == SchemaIndexType.UNIQUE
                 ));
             }
@@ -61,12 +62,18 @@ public class EntityType {
 
         for (SchemaIndex schemaIndex : schemaClass.getIndexes()) {
             List<EntityField> fields = new ArrayList<>();
+            List<EntityField> includeFields = new ArrayList<>();
 
             for (String field : schemaIndex.getFields()) {
                 fields.add(this.fields.get(field));
             }
+            if (schemaIndex.getIncludeFields() != null) {
+                for (String field : schemaIndex.getIncludeFields()) {
+                    includeFields.add(this.fields.get(field));
+                }
+            }
 
-            indexes.add(new EntityIndex(Collections.unmodifiableList(fields), schemaIndex.getType() == SchemaIndexType.UNIQUE));
+            indexes.add(new EntityIndex(Collections.unmodifiableList(fields), Collections.unmodifiableList(includeFields), schemaIndex.getType() == SchemaIndexType.UNIQUE));
         }
     }
 

@@ -153,18 +153,13 @@ public class StandardDataSchemaFactory implements DataSchemaFactory {
         DataSchemaIndex result = new DataSchemaIndex();
 
         for (String field : index.getFields()) {
-            String name;
+            result.getFields().add(getIndexFieldName(baseClass, klass, schema, field));
+        }
 
-            if (field.equals(schema.getIdProperty().getName()) && klass instanceof SchemaClass) {
-                name = baseClass.getResolvedIdProperty().getResolvedDbName();
-            } else {
-                name = resolveDbName(schema, klass, field);
-                if (name == null) {
-                    throw new SchemaMigrateException(String.format("Cannot find index property '%s' of entity '%s'", field, klass.getFullName()));
-                }
+        if (index.getIncludeFields() != null) {
+            for (String field : index.getIncludeFields()) {
+                result.getIncludeFields().add(getIndexFieldName(baseClass, klass, schema, field));
             }
-
-            result.getFields().add(name);
         }
 
         result.setName(null);
@@ -173,6 +168,19 @@ public class StandardDataSchemaFactory implements DataSchemaFactory {
         result.setFilter(index.getFilter());
 
         return result;
+    }
+
+    private String getIndexFieldName(SchemaClass baseClass, SchemaClassBase klass, Schema schema, String field) throws SchemaMigrateException {
+        if (field.equals(schema.getIdProperty().getName()) && klass instanceof SchemaClass) {
+            return baseClass.getResolvedIdProperty().getResolvedDbName();
+        }
+
+        String name = resolveDbName(schema, klass, field);
+        if (name == null) {
+            throw new SchemaMigrateException(String.format("Cannot find index property '%s' of entity '%s'", field, klass.getFullName()));
+        }
+
+        return name;
     }
 
     private String resolveDbName(Schema schema, SchemaClassBase klass, String field) throws SchemaMigrateException {

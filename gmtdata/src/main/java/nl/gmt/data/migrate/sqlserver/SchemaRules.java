@@ -53,6 +53,11 @@ public class SchemaRules extends nl.gmt.data.schema.SchemaRules {
     }
 
     @Override
+    public boolean dbSupportsIndexIncludeFields() {
+        return true;
+    }
+
+    @Override
     public String getIndexStrategy(DataSchemaIndex index) throws SchemaMigrateException {
         if (index.getStrategy() == null) {
             if (index.getType() == SchemaIndexType.PRIMARY) {
